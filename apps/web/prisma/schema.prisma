@@ -1,0 +1,122 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum AccountType {
+  CASH
+  MARGIN
+  PROP
+  SIM
+}
+
+enum TradeSide {
+  LONG
+  SHORT
+}
+
+enum TradeStatus {
+  OPEN
+  CLOSED
+  CANCELED
+}
+
+enum TradeOutcome {
+  WIN
+  LOSS
+  BREAKEVEN
+}
+
+enum AssetClass {
+  STOCK
+  FUTURES
+  FOREX
+  CRYPTO
+  OPTIONS
+  ETF
+  INDEX
+  CFD
+  OTHER
+}
+
+model User {
+  id          String    @id @default(uuid())
+  email       String    @unique
+  displayName String?
+  timezone    String    @default("UTC")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  accounts    Account[]
+  trades      Trade[]
+}
+
+model Account {
+  id          String      @id @default(uuid())
+  userId      String
+  name        String
+  broker      String?
+  accountType AccountType @default(CASH)
+  currency    String      @default("USD")
+  isArchived  Boolean     @default(false)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trades      Trade[]
+
+  @@index([userId])
+  @@unique([userId, name])
+}
+
+model Trade {
+  id            String      @id @default(uuid())
+  userId        String
+  accountId     String
+  assetClass    AssetClass  @default(STOCK)
+  symbol        String
+  setupName     String?
+  entryTimeframe String?
+  higherTimeframeBias String?
+  side          TradeSide
+  quantity      Decimal     @db.Decimal(18, 6)
+  entryPrice    Decimal     @db.Decimal(18, 6)
+  initialStopLoss Decimal?  @db.Decimal(18, 6)
+  initialTakeProfit Decimal? @db.Decimal(18, 6)
+  exitPrice     Decimal?    @db.Decimal(18, 6)
+  fees          Decimal     @default(0) @db.Decimal(18, 6)
+  contractMultiplier Decimal @default(1) @db.Decimal(18, 6)
+  openedAt      DateTime
+  closedAt      DateTime?
+  status        TradeStatus @default(OPEN)
+  tradeOutcome  TradeOutcome?
+  strategyTag   String?
+  entryReason   String?
+  exitReason    String?
+  emotionalState String?
+  executionRating Int?
+  lessonLearned String?
+  chartScreenshots Json?
+  confluences   Json?
+  planFollowed  Boolean?
+  notes         String?
+  netPnl        Decimal?    @db.Decimal(18, 6)
+  riskAmount    Decimal?    @db.Decimal(18, 6)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account       Account     @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([userId, openedAt])
+  @@index([accountId, openedAt])
+  @@index([symbol])
+}
