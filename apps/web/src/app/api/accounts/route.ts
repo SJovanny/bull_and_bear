@@ -1,4 +1,4 @@
-import { AccountType } from "@prisma/client";
+import { AccountType, Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
 
 import { getCurrentAppUser } from "@/lib/auth/current-user";
@@ -40,15 +40,23 @@ export async function POST(request: Request) {
     ? (accountTypeRaw as AccountType)
     : AccountType.CASH;
 
-  const account = await prisma.account.create({
-    data: {
-      userId: user.id,
-      name,
-      broker,
-      currency,
-      accountType,
-    },
-  });
+  try {
+    const account = await prisma.account.create({
+      data: {
+        userId: user.id,
+        name,
+        broker,
+        currency,
+        accountType,
+      },
+    });
 
-  return NextResponse.json({ account }, { status: 201 });
+    return NextResponse.json({ account }, { status: 201 });
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      return NextResponse.json({ error: "You already have an account with this name" }, { status: 409 });
+    }
+
+    throw error;
+  }
 }

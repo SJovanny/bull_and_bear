@@ -8,9 +8,10 @@ import { supabaseClient } from "@/lib/supabase/client";
 type LogoutButtonProps = {
   isSidebarContext?: boolean;
   isCollapsed?: boolean;
+  label?: string;
 };
 
-export function LogoutButton({ isSidebarContext = false, isCollapsed = false }: LogoutButtonProps) {
+export function LogoutButton({ isSidebarContext = false, isCollapsed = false, label = "Logout" }: LogoutButtonProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -49,7 +50,7 @@ export function LogoutButton({ isSidebarContext = false, isCollapsed = false }: 
           )}
         </>
       ) : (
-        loading ? "Logging out..." : "Logout"
+        loading ? "Logging out..." : label
       )}
     </button>
   );

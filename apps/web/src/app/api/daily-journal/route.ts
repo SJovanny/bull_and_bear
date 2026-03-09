@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { getCurrentAppUser } from "@/lib/auth/current-user";
 import { prisma } from "@/lib/prisma";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const economicEventSchema = z.object({
   id: z.string(),
@@ -39,10 +39,7 @@ function parseUtcStartOfDay(dateStr: string) {
 
 export async function GET(request: Request) {
   try {
-    const supabase = await createSupabaseServerClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const user = await getCurrentAppUser();
 
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -66,6 +63,15 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Invalid date" }, { status: 400 });
     }
 
+    const account = await prisma.account.findFirst({
+      where: { id: accountId, userId: user.id, isArchived: false },
+      select: { id: true },
+    });
+
+    if (!account) {
+      return NextResponse.json({ error: "Unauthorized account" }, { status: 401 });
+    }
+
     const journal = await prisma.dailyJournal.findUnique({
       where: {
         accountId_date: {
@@ -74,11 +80,6 @@ export async function GET(request: Request) {
         },
       },
     });
-
-    // Verify ownership
-    if (journal && journal.userId !== user.id) {
-       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
 
     return NextResponse.json({ journal: journal || null });
   } catch (error) {
@@ -92,10 +93,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const supabase = await createSupabaseServerClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const user = await getCurrentAppUser();
 
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -129,11 +127,11 @@ export async function POST(request: Request) {
     } = parsedBody.data;
 
     // Verify account belongs to user
-    const account = await prisma.account.findUnique({
-      where: { id: accountId },
+    const account = await prisma.account.findFirst({
+      where: { id: accountId, userId: user.id, isArchived: false },
     });
 
-    if (!account || account.userId !== user.id) {
+    if (!account) {
       return NextResponse.json({ error: "Unauthorized account" }, { status: 401 });
     }
 

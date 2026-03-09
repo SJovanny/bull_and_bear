@@ -55,6 +55,17 @@ export async function GET(request: Request) {
     const accountId = searchParams.get("accountId");
     const date = searchParams.get("date");
 
+    if (accountId) {
+      const account = await prisma.account.findFirst({
+        where: { id: accountId, userId: user.id, isArchived: false },
+        select: { id: true },
+      });
+
+      if (!account) {
+        return NextResponse.json({ error: "Account not found" }, { status: 404 });
+      }
+    }
+
     let openedAtFilter: { gte: Date; lt: Date } | undefined;
     if (date) {
       const from = new Date(`${date}T00:00:00.000Z`);

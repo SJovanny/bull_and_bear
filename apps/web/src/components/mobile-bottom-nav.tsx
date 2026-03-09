@@ -8,9 +8,9 @@ import {
   IconJournal, 
   IconCalendar, 
   IconStats, 
-  IconAccounts 
+  IconAccounts,
+  IconProfile,
 } from "./icons";
-import { LogoutButton } from "@/app/auth/logout-button";
 import { ThemeToggle } from "./theme-toggle";
 
 const navItems = [
@@ -34,7 +34,15 @@ export function MobileBottomNav() {
           >
             <div className="p-2">
               <Link
-                href="/onboarding"
+                href="/profil"
+                onClick={() => setShowMore(false)}
+                className="flex w-full items-center rounded-lg px-4 py-3 text-sm font-medium text-primary hover:bg-surface-2"
+              >
+                <IconProfile className="mr-3 h-5 w-5 text-secondary" />
+                Profil
+              </Link>
+              <Link
+                href="/comptes"
                 onClick={() => setShowMore(false)}
                 className="flex w-full items-center rounded-lg px-4 py-3 text-sm font-medium text-primary hover:bg-surface-2"
               >
@@ -49,11 +57,6 @@ export function MobileBottomNav() {
                <ThemeToggle />
             </div>
 
-            <div className="border-t border-border"></div>
-            
-            <div className="p-2">
-              <LogoutButton isSidebarContext />
-            </div>
           </div>
         </div>
       )}

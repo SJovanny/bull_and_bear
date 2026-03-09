@@ -10,6 +10,7 @@ import {
   IconCalendar,
   IconStats,
   IconAccounts,
+  IconProfile,
 } from "./icons";
 
 const navItems = [
@@ -17,7 +18,8 @@ const navItems = [
   { href: "/journal", label: "Journal", icon: IconJournal },
   { href: "/calendar", label: "Calendrier", icon: IconCalendar },
   { href: "/stats", label: "Stats", icon: IconStats },
-  { href: "/onboarding", label: "Comptes", icon: IconAccounts },
+  { href: "/profil", label: "Profil", icon: IconProfile },
+  { href: "/comptes", label: "Comptes", icon: IconAccounts },
 ];
 
 export function Sidebar() {

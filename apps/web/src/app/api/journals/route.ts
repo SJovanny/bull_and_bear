@@ -1,15 +1,12 @@
 import { NextResponse } from "next/server";
+import { getCurrentAppUser } from "@/lib/auth/current-user";
 import { prisma } from "@/lib/prisma";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 // GET /api/journals?accountId=xxx
 // Returns all DailyJournal entries for the given account, ordered newest first.
 export async function GET(request: Request) {
   try {
-    const supabase = await createSupabaseServerClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const user = await getCurrentAppUser();
 
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -23,8 +20,11 @@ export async function GET(request: Request) {
     }
 
     // Verify the account belongs to this user
-    const account = await prisma.account.findUnique({ where: { id: accountId } });
-    if (!account || account.userId !== user.id) {
+    const account = await prisma.account.findFirst({
+      where: { id: accountId, userId: user.id, isArchived: false },
+    });
+
+    if (!account) {
       return NextResponse.json({ error: "Unauthorized account" }, { status: 401 });
     }
 
