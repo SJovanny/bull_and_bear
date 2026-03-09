@@ -6,53 +6,31 @@ import { KpiCards } from "@/components/dashboard/kpi-cards";
 import { DashboardCharts } from "@/components/dashboard/charts";
 import { RecentTrades } from "@/components/dashboard/recent-trades";
 import { MiniCalendar } from "@/components/dashboard/mini-calendar";
-import { toDateKey } from "@/lib/format";
-import type { Account, Trade, DashboardPeriod } from "@/types";
-
-function monthBounds(anchor: Date) {
-  const firstDay = new Date(anchor.getFullYear(), anchor.getMonth(), 1);
-  const startWeekday = (firstDay.getDay() + 6) % 7;
-  const gridStart = new Date(firstDay);
-  gridStart.setDate(firstDay.getDate() - startWeekday);
-
-  return { firstDay, gridStart };
-}
+import { useSelectedAccountId } from "@/hooks/use-selected-account-id";
+import type { Account, DashboardPeriod, StatsCalendar, StatsEquity, StatsSummary, Trade } from "@/types";
 
 export default function Home() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [trades, setTrades] = useState<Trade[]>([]);
+  const [summary, setSummary] = useState<StatsSummary | null>(null);
+  const [equity, setEquity] = useState<StatsEquity | null>(null);
+  const [calendar, setCalendar] = useState<StatsCalendar | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [period, setPeriod] = useState<DashboardPeriod>("30D");
-  const [selectedAccountId, setSelectedAccountId] = useState("");
+  const selectedAccountId = useSelectedAccountId();
 
-  useEffect(() => {
-    function syncAccountFromUrl() {
-      const accountIdFromQuery = new URLSearchParams(window.location.search).get("accountId");
-      setSelectedAccountId(accountIdFromQuery ?? "");
-    }
-
-    syncAccountFromUrl();
-    window.addEventListener("bb-account-change", syncAccountFromUrl);
-    window.addEventListener("popstate", syncAccountFromUrl);
-
-    return () => {
-      window.removeEventListener("bb-account-change", syncAccountFromUrl);
-      window.removeEventListener("popstate", syncAccountFromUrl);
-    };
-  }, []);
-
-  const tradesEndpoint = useMemo(() => {
+  const accountScopedBase = useMemo(() => {
     if (!selectedAccountId) {
       return null;
     }
 
-    return `/api/trades?accountId=${encodeURIComponent(selectedAccountId)}`;
-  }, [selectedAccountId]);
+    return `accountId=${encodeURIComponent(selectedAccountId)}&period=${encodeURIComponent(period)}`;
+  }, [period, selectedAccountId]);
 
   useEffect(() => {
     async function loadData() {
-      if (!tradesEndpoint) {
+      if (!selectedAccountId || !accountScopedBase) {
         return;
       }
 
@@ -60,13 +38,21 @@ export default function Home() {
       setError(null);
 
       try {
-        const [accountsResponse, tradesResponse] = await Promise.all([
+        const now = new Date();
+        const month = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}`;
+        const [accountsResponse, tradesResponse, summaryResponse, equityResponse, calendarResponse] = await Promise.all([
           fetch("/api/accounts"),
-          fetch(tradesEndpoint),
+          fetch(`/api/trades?accountId=${encodeURIComponent(selectedAccountId)}`),
+          fetch(`/api/stats/summary?${accountScopedBase}`),
+          fetch(`/api/stats/equity?${accountScopedBase}&groupBy=day`),
+          fetch(`/api/stats/calendar?accountId=${encodeURIComponent(selectedAccountId)}&month=${month}`),
         ]);
 
         const accountPayload = (await accountsResponse.json()) as { accounts?: Account[]; error?: string };
         const tradePayload = (await tradesResponse.json()) as { trades?: Trade[]; error?: string };
+        const summaryPayload = (await summaryResponse.json()) as StatsSummary & { error?: string };
+        const equityPayload = (await equityResponse.json()) as StatsEquity & { error?: string };
+        const calendarPayload = (await calendarResponse.json()) as StatsCalendar & { error?: string };
 
         if (!accountsResponse.ok) {
           throw new Error(accountPayload.error ?? "Could not load accounts");
@@ -76,8 +62,23 @@ export default function Home() {
           throw new Error(tradePayload.error ?? "Could not load trades");
         }
 
+        if (!summaryResponse.ok) {
+          throw new Error(summaryPayload.error ?? "Could not load summary");
+        }
+
+        if (!equityResponse.ok) {
+          throw new Error(equityPayload.error ?? "Could not load equity");
+        }
+
+        if (!calendarResponse.ok) {
+          throw new Error(calendarPayload.error ?? "Could not load calendar");
+        }
+
         setAccounts(accountPayload.accounts ?? []);
         setTrades(tradePayload.trades ?? []);
+        setSummary(summaryPayload);
+        setEquity(equityPayload);
+        setCalendar(calendarPayload);
       } catch (requestError) {
         setError(requestError instanceof Error ? requestError.message : "Unexpected error");
       } finally {
@@ -86,110 +87,7 @@ export default function Home() {
     }
 
     loadData();
-  }, [tradesEndpoint]);
-
-  const currentMonth = useMemo(() => {
-    const now = new Date();
-    return new Date(now.getFullYear(), now.getMonth(), 1);
-  }, []);
-
-  const filteredTrades = useMemo(() => {
-    if (period === "ALL") {
-      return trades;
-    }
-
-    const now = new Date();
-    let threshold = new Date(0);
-
-    if (period === "7D") {
-      threshold = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-    } else if (period === "30D") {
-      threshold = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-    } else {
-      threshold = new Date(now.getFullYear(), 0, 1);
-    }
-
-    return trades.filter((trade) => new Date(trade.openedAt) >= threshold);
-  }, [trades, period]);
-
-  const { totalTrades, openTrades, closedTrades, totalNetPnl, winRate, profitFactor, equityCurve, last14Days, monthPnlByDay } =
-    useMemo(() => {
-      const parsed = filteredTrades.map((trade) => ({
-        ...trade,
-        pnl: Number(trade.netPnl ?? 0),
-      }));
-
-      const totalTradesValue = parsed.length;
-      const openTradesValue = parsed.filter((trade) => trade.status === "OPEN").length;
-      const closedTradesList = parsed.filter((trade) => trade.status === "CLOSED");
-      const closedTradesValue = closedTradesList.length;
-
-      const totalPnl = parsed.reduce((sum, trade) => sum + trade.pnl, 0);
-      const winners = closedTradesList.filter((trade) => trade.pnl > 0);
-      const losers = closedTradesList.filter((trade) => trade.pnl < 0);
-      const grossProfit = winners.reduce((sum, trade) => sum + trade.pnl, 0);
-      const grossLossAbs = Math.abs(losers.reduce((sum, trade) => sum + trade.pnl, 0));
-      const winRateValue = closedTradesValue === 0 ? 0 : (winners.length / closedTradesValue) * 100;
-
-      let profitFactorValue = 0;
-      if (grossLossAbs === 0) {
-        profitFactorValue = grossProfit > 0 ? Number.POSITIVE_INFINITY : 0;
-      } else {
-        profitFactorValue = grossProfit / grossLossAbs;
-      }
-
-      const sortedByDate = [...parsed].sort((a, b) => (a.openedAt > b.openedAt ? 1 : -1));
-      let cumulative = 0;
-      const equity = sortedByDate.map((trade) => {
-        cumulative += trade.pnl;
-        return cumulative;
-      });
-
-      const dailyMap = new Map<string, number>();
-      parsed.forEach((trade) => {
-        const key = toDateKey(new Date(trade.openedAt));
-        dailyMap.set(key, (dailyMap.get(key) ?? 0) + trade.pnl);
-      });
-
-      const last14 = [...dailyMap.entries()]
-        .sort((a, b) => (a[0] < b[0] ? 1 : -1))
-        .slice(0, 14)
-        .reverse()
-        .map(([date, pnl]) => ({ date, pnl }));
-
-      const monthMap = new Map<string, number>();
-      parsed.forEach((trade) => {
-        const date = new Date(trade.openedAt);
-        if (date.getMonth() !== currentMonth.getMonth() || date.getFullYear() !== currentMonth.getFullYear()) {
-          return;
-        }
-
-        const key = toDateKey(date);
-        monthMap.set(key, (monthMap.get(key) ?? 0) + trade.pnl);
-      });
-
-      return {
-        totalTrades: totalTradesValue,
-        openTrades: openTradesValue,
-        closedTrades: closedTradesValue,
-        totalNetPnl: totalPnl,
-        winRate: winRateValue,
-        profitFactor: profitFactorValue,
-        equityCurve: equity,
-        last14Days: last14,
-        monthPnlByDay: monthMap,
-      };
-    }, [filteredTrades, currentMonth]);
-
-  const { firstDay, gridStart } = useMemo(() => monthBounds(currentMonth), [currentMonth]);
-
-  const miniCalendarDays = useMemo(() => {
-    return Array.from({ length: 42 }, (_, index) => {
-      const day = new Date(gridStart);
-      day.setDate(gridStart.getDate() + index);
-      return day;
-    });
-  }, [gridStart]);
+  }, [accountScopedBase, period, selectedAccountId]);
 
   return (
     <DashboardShell
@@ -224,32 +122,28 @@ export default function Home() {
 
         <KpiCards
           loading={loading}
-          totalNetPnl={totalNetPnl}
-          winRate={winRate}
-          profitFactor={profitFactor}
-          totalTrades={totalTrades}
-          openTrades={openTrades}
-          closedTrades={closedTrades}
+          totalNetPnl={summary?.realized.netPnl ?? 0}
+          winRate={summary?.realized.winRate ?? 0}
+          profitFactor={summary?.realized.profitFactor ?? 0}
+          totalTrades={summary?.activity.totalTrades ?? 0}
+          openTrades={summary?.activity.openTrades ?? 0}
+          closedTrades={summary?.activity.closedTrades ?? 0}
         />
 
         <DashboardCharts
-          totalTrades={totalTrades}
+          totalTrades={summary?.activity.totalTrades ?? 0}
           period={period}
-          totalNetPnl={totalNetPnl}
-          equityCurve={equityCurve}
-          last14Days={last14Days}
-          openTrades={openTrades}
-          closedTrades={closedTrades}
+          totalNetPnl={equity?.totalNetPnl ?? 0}
+          cumulativeSeries={equity?.cumulativeSeries ?? []}
+          last14Days={equity?.recentDailySeries ?? []}
+          openTrades={summary?.activity.openTrades ?? 0}
+          closedTrades={summary?.activity.closedTrades ?? 0}
           accountsCount={accounts.length}
         />
 
         <section className="grid gap-3 xl:grid-cols-[0.55fr_1.45fr] items-start">
-          <RecentTrades loading={loading} trades={filteredTrades} />
-          <MiniCalendar 
-            miniCalendarDays={miniCalendarDays} 
-            monthPnlByDay={monthPnlByDay} 
-            firstDay={firstDay} 
-          />
+          <RecentTrades loading={loading} trades={trades} />
+          <MiniCalendar days={calendar?.days ?? []} />
         </section>
       </div>
     </DashboardShell>

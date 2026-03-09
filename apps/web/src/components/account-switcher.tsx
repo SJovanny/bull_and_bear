@@ -3,6 +3,8 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { useSelectedAccountId } from "@/hooks/use-selected-account-id";
+
 type Account = {
   id: string;
   name: string;
@@ -13,7 +15,7 @@ export function AccountSwitcher() {
   const pathname = usePathname();
   const router = useRouter();
   const [accounts, setAccounts] = useState<Account[]>([]);
-  const [selectedAccountId, setSelectedAccountId] = useState("");
+  const selectedAccountId = useSelectedAccountId();
 
   useEffect(() => {
     async function loadAccounts() {
@@ -35,9 +37,10 @@ export function AccountSwitcher() {
           const params = new URLSearchParams(window.location.search);
           params.set("accountId", firstAccountId);
           const nextUrl = `${pathname}?${params.toString()}`;
-          setSelectedAccountId(firstAccountId);
           router.replace(nextUrl, { scroll: false });
-          window.dispatchEvent(new CustomEvent("bb-account-change"));
+          window.dispatchEvent(
+            new CustomEvent("bb-account-change", { detail: { accountId: firstAccountId } }),
+          );
         }
       } catch {
         // Keep resilient
@@ -47,30 +50,15 @@ export function AccountSwitcher() {
     loadAccounts();
   }, [pathname, router]);
 
-  useEffect(() => {
-    function syncAccountFromUrl() {
-      const accountIdFromQuery = new URLSearchParams(window.location.search).get("accountId");
-      setSelectedAccountId(accountIdFromQuery ?? "");
-    }
-
-    syncAccountFromUrl();
-    window.addEventListener("bb-account-change", syncAccountFromUrl);
-    window.addEventListener("popstate", syncAccountFromUrl);
-
-    return () => {
-      window.removeEventListener("bb-account-change", syncAccountFromUrl);
-      window.removeEventListener("popstate", syncAccountFromUrl);
-    };
-  }, []);
-
   function handleAccountChange(nextAccountId: string) {
     const params = new URLSearchParams(window.location.search);
     params.set("accountId", nextAccountId);
 
     const nextUrl = params.toString() ? `${pathname}?${params.toString()}` : pathname;
-    setSelectedAccountId(nextAccountId);
     router.replace(nextUrl, { scroll: false });
-    window.dispatchEvent(new CustomEvent("bb-account-change"));
+    window.dispatchEvent(
+      new CustomEvent("bb-account-change", { detail: { accountId: nextAccountId } }),
+    );
   }
 
   if (accounts.length === 0) {

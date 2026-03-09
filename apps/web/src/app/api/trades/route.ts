@@ -6,7 +6,8 @@ import { prisma } from "@/lib/prisma";
 import { computeNetPnl, computeTradeOutcome, defaultContractMultiplier } from "@/lib/trade-calc";
 
 function parseDecimal(value: unknown, fieldName: string) {
-  const parsed = Number(value);
+  const normalized = typeof value === "string" ? value.trim().replace(",", ".") : value;
+  const parsed = Number(normalized);
 
   if (!Number.isFinite(parsed)) {
     throw new Error(`Invalid numeric value for ${fieldName}`);
@@ -43,37 +44,48 @@ const ASSET_CLASSES = [
 ] as const;
 
 export async function GET(request: Request) {
-  const user = await getCurrentAppUser();
+  try {
+    const user = await getCurrentAppUser();
 
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const { searchParams } = new URL(request.url);
-  const accountId = searchParams.get("accountId");
-  const date = searchParams.get("date");
-
-  let openedAtFilter: { gte: Date; lt: Date } | undefined;
-  if (date) {
-    const from = new Date(`${date}T00:00:00.000Z`);
-    const to = new Date(from);
-    to.setUTCDate(from.getUTCDate() + 1);
-    if (!Number.isNaN(from.getTime())) {
-      openedAtFilter = { gte: from, lt: to };
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const { searchParams } = new URL(request.url);
+    const accountId = searchParams.get("accountId");
+    const date = searchParams.get("date");
+
+    let openedAtFilter: { gte: Date; lt: Date } | undefined;
+    if (date) {
+      const from = new Date(`${date}T00:00:00.000Z`);
+      const to = new Date(from);
+      to.setUTCDate(from.getUTCDate() + 1);
+      if (!Number.isNaN(from.getTime())) {
+        openedAtFilter = { gte: from, lt: to };
+      }
+    }
+
+    const trades = await prisma.trade.findMany({
+      where: {
+        userId: user.id,
+        ...(accountId ? { accountId } : {}),
+        ...(openedAtFilter ? { openedAt: openedAtFilter } : {}),
+      },
+      orderBy: { openedAt: "desc" },
+      take: 200,
+    });
+
+    return NextResponse.json({ trades });
+  } catch (error) {
+    console.error("Error fetching trades:", error);
+    return NextResponse.json(
+      {
+        error: "Failed to load trades",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 },
+    );
   }
-
-  const trades = await prisma.trade.findMany({
-    where: {
-      userId: user.id,
-      ...(accountId ? { accountId } : {}),
-      ...(openedAtFilter ? { openedAt: openedAtFilter } : {}),
-    },
-    orderBy: { openedAt: "desc" },
-    take: 200,
-  });
-
-  return NextResponse.json({ trades });
 }
 
 export async function POST(request: Request) {

@@ -1,48 +1,102 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { DashboardShell } from "@/components/dashboard-shell";
+import { TradeEntryModal } from "@/components/trade-entry-modal";
+import { useSelectedAccountId } from "@/hooks/use-selected-account-id";
 
 type Trade = {
   id: string;
+  accountId: string;
+  symbol: string;
+  assetClass: "STOCK" | "FUTURES" | "FOREX" | "CRYPTO" | "OPTIONS" | "ETF" | "INDEX" | "CFD" | "OTHER";
+  side: "LONG" | "SHORT";
+  quantity: string;
+  entryPrice: string;
+  initialStopLoss: string | null;
+  initialTakeProfit: string | null;
+  riskAmount: string | null;
+  contractMultiplier: string;
+  exitPrice: string | null;
+  fees: string;
   openedAt: string;
+  closedAt: string | null;
+  status: "OPEN" | "CLOSED";
+  setupName: string | null;
+  entryTimeframe: string | null;
+  higherTimeframeBias: string | null;
+  strategyTag: string | null;
+  confluences: string[] | null;
+  emotionalState: string | null;
+  executionRating: number | null;
+  planFollowed: boolean | null;
+  entryReason: string | null;
+  exitReason: string | null;
+  lessonLearned: string | null;
+  chartScreenshots: string[] | null;
+  notes: string | null;
   netPnl: string | null;
 };
 
-type DaySummary = {
-  date: string;
-  pnl: number;
-  trades: number;
-};
+function toDateKey(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
 
-function getPnlClass(value: number) {
-  if (value > 0) return "bg-emerald-50 border-emerald-200 text-emerald-700";
-  if (value < 0) return "bg-rose-50 border-rose-200 text-rose-700";
-  return "bg-slate-50 border-slate-200 text-slate-700";
+function monthBounds(anchor: Date) {
+  const firstDay = new Date(anchor.getFullYear(), anchor.getMonth(), 1);
+  const startWeekday = (firstDay.getDay() + 6) % 7;
+  const gridStart = new Date(firstDay);
+  gridStart.setDate(firstDay.getDate() - startWeekday);
+
+  return { firstDay, gridStart };
+}
+
+function formatMonthYearUpper(date: Date) {
+  const parts = new Intl.DateTimeFormat("fr-FR", {
+    month: "long",
+    year: "numeric",
+  }).formatToParts(date);
+
+  return parts
+    .map((part) => (part.type === "month" ? part.value.toUpperCase() : part.value))
+    .join("");
+}
+
+function formatLongDateWithUpperMonth(date: Date) {
+  const parts = new Intl.DateTimeFormat("fr-FR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).formatToParts(date);
+
+  return parts
+    .map((part) => (part.type === "month" ? part.value.toUpperCase() : part.value))
+    .join("");
 }
 
 export default function CalendarPage() {
+  const [currentMonth, setCurrentMonth] = useState(() => {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), 1);
+  });
+  const [selectedDate, setSelectedDate] = useState<string>(() => toDateKey(new Date()));
+  const [isTradeModalOpen, setIsTradeModalOpen] = useState(false);
+  const [tradeModalDate, setTradeModalDate] = useState<string>(() => toDateKey(new Date()));
+  const [isEditTradeModalOpen, setIsEditTradeModalOpen] = useState(false);
+  const [editingTrade, setEditingTrade] = useState<Trade | null>(null);
+  const [deletingTradeId, setDeletingTradeId] = useState<string | null>(null);
+  const [isDayPanelHighlighted, setIsDayPanelHighlighted] = useState(false);
+
   const [trades, setTrades] = useState<Trade[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedAccountId, setSelectedAccountId] = useState("");
-
-  useEffect(() => {
-    function syncAccountFromUrl() {
-      const accountIdFromQuery = new URLSearchParams(window.location.search).get("accountId");
-      setSelectedAccountId(accountIdFromQuery ?? "");
-    }
-
-    syncAccountFromUrl();
-    window.addEventListener("bb-account-change", syncAccountFromUrl);
-    window.addEventListener("popstate", syncAccountFromUrl);
-
-    return () => {
-      window.removeEventListener("bb-account-change", syncAccountFromUrl);
-      window.removeEventListener("popstate", syncAccountFromUrl);
-    };
-  }, []);
+  const selectedAccountId = useSelectedAccountId();
 
   const tradesEndpoint = useMemo(() => {
     if (!selectedAccountId) {
@@ -52,78 +106,428 @@ export default function CalendarPage() {
     return `/api/trades?accountId=${encodeURIComponent(selectedAccountId)}`;
   }, [selectedAccountId]);
 
-  useEffect(() => {
-    async function loadTrades() {
-      if (!tradesEndpoint) {
-        return;
-      }
+  const { firstDay, gridStart } = useMemo(() => monthBounds(currentMonth), [currentMonth]);
 
-      setLoading(true);
-      setError(null);
+  const calendarDays = useMemo(() => {
+    return Array.from({ length: 42 }, (_, index) => {
+      const day = new Date(gridStart);
+      day.setDate(gridStart.getDate() + index);
+      return day;
+    });
+  }, [gridStart]);
 
-      try {
-        const response = await fetch(tradesEndpoint);
-        const payload = (await response.json()) as { trades?: Trade[]; error?: string };
-
-        if (!response.ok) {
-          throw new Error(payload.error ?? "Could not load trades");
-        }
-
-        setTrades(payload.trades ?? []);
-      } catch (requestError) {
-        setError(requestError instanceof Error ? requestError.message : "Unexpected error");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadTrades();
-  }, [tradesEndpoint]);
-
-  const daySummaries = useMemo<DaySummary[]>(() => {
-    const map = new Map<string, DaySummary>();
+  const tradesByDay = useMemo(() => {
+    const dayMap = new Map<string, Trade[]>();
 
     trades.forEach((trade) => {
-      const date = new Date(trade.openedAt).toISOString().slice(0, 10);
-      const pnl = Number(trade.netPnl ?? 0);
-      const current = map.get(date);
-
-      if (current) {
-        current.pnl += pnl;
-        current.trades += 1;
-        return;
-      }
-
-      map.set(date, { date, pnl, trades: 1 });
+      const key = toDateKey(new Date(trade.openedAt));
+      const bucket = dayMap.get(key) ?? [];
+      bucket.push(trade);
+      dayMap.set(key, bucket);
     });
 
-    return Array.from(map.values()).sort((a, b) => (a.date < b.date ? 1 : -1)).slice(0, 30);
+    dayMap.forEach((bucket) => bucket.sort((a, b) => (a.openedAt < b.openedAt ? 1 : -1)));
+
+    return dayMap;
   }, [trades]);
 
+  const pnlByDay = useMemo(() => {
+    const pnlMap = new Map<string, number>();
+
+    trades.forEach((trade) => {
+      const key = toDateKey(new Date(trade.openedAt));
+      const current = pnlMap.get(key) ?? 0;
+      pnlMap.set(key, current + Number(trade.netPnl ?? 0));
+    });
+
+    return pnlMap;
+  }, [trades]);
+
+  const selectedDayTrades = useMemo(() => {
+    return tradesByDay.get(selectedDate) ?? [];
+  }, [tradesByDay, selectedDate]);
+
+  const loadTrades = useCallback(async () => {
+    if (!tradesEndpoint) {
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch(tradesEndpoint);
+      const payload = (await response.json()) as { trades?: Trade[]; error?: string };
+
+      if (!response.ok) {
+        throw new Error(payload.error ?? "Could not load trades");
+      }
+
+      setTrades(payload.trades ?? []);
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : "Unexpected error");
+    } finally {
+      setLoading(false);
+    }
+  }, [tradesEndpoint]);
+
+  useEffect(() => {
+    loadTrades();
+  }, [loadTrades]);
+
+  function openTradeModal(dateKey: string) {
+    setTradeModalDate(dateKey);
+    setIsTradeModalOpen(true);
+  }
+
+  function handleDateSelectorChange(dateKey: string) {
+    if (!dateKey) {
+      return;
+    }
+
+    const [yearStr, monthStr, dayStr] = dateKey.split("-");
+    const year = Number(yearStr);
+    const month = Number(monthStr);
+    const day = Number(dayStr);
+
+    if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)) {
+      return;
+    }
+
+    setSelectedDate(dateKey);
+    setCurrentMonth(new Date(year, month - 1, 1));
+  }
+
+  function openEditTradeModal(trade: Trade) {
+    setEditingTrade(trade);
+    setIsEditTradeModalOpen(true);
+  }
+
+  async function deleteTrade(trade: Trade) {
+    const confirmed = window.confirm(`Supprimer le trade ${trade.symbol} (${trade.side}) ?`);
+    if (!confirmed) {
+      return;
+    }
+
+    setDeletingTradeId(trade.id);
+    setError(null);
+
+    try {
+      const response = await fetch(`/api/trades/${trade.id}`, { method: "DELETE" });
+
+      if (!response.ok && response.status !== 204) {
+        const payload = (await response.json()) as { error?: string };
+        throw new Error(payload.error ?? "Could not delete trade");
+      }
+
+      if (editingTrade?.id === trade.id) {
+        setIsEditTradeModalOpen(false);
+        setEditingTrade(null);
+      }
+
+      await loadTrades();
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : "Unexpected error");
+    } finally {
+      setDeletingTradeId(null);
+    }
+  }
+
+  function handleCalendarDayClick(dateKey: string) {
+    setSelectedDate(dateKey);
+    setIsDayPanelHighlighted(true);
+
+    requestAnimationFrame(() => {
+      document.getElementById("selected-day-panel")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+
+    setTimeout(() => setIsDayPanelHighlighted(false), 800);
+  }
+
   return (
-    <DashboardShell title="Calendrier" subtitle="Performance journalière et rythme de trading">
-      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        {error ? <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p> : null}
-        {loading ? <p className="text-sm text-slate-500">Loading daily performance...</p> : null}
+    <DashboardShell
+      title="Calendrier"
+      actions={
+        <>
+          <button
+            type="button"
+            onClick={() =>
+              setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1))
+            }
+            className="inline-flex h-10 items-center justify-center rounded-lg border border-border px-3 text-sm font-medium text-secondary hover:bg-surface-2 transition-colors font-sans"
+          >
+            Mois précédent
+          </button>
+          <button
+            type="button"
+            onClick={() =>
+              setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1))
+            }
+            className="inline-flex h-10 items-center justify-center rounded-lg border border-border px-3 text-sm font-medium text-secondary hover:bg-surface-2 transition-colors font-sans"
+          >
+            Mois suivant
+          </button>
+        </>
+      }
+    >
+      <div className="mx-auto w-full max-w-7xl">
+        <section className="rounded-2xl border border-border bg-surface-1 p-6 shadow-sm">
+          <div className="mb-5">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-brand-500 font-sans">Calendrier</p>
+                <h2 className="mt-2 text-2xl font-semibold text-primary font-sans">{formatMonthYearUpper(firstDay)}</h2>
+                <p className="mt-1 text-sm text-secondary font-sans">
+                  Chaque case affiche le nombre de trades. Clique un jour pour voir les trades en détail.
+                </p>
+              </div>
 
-        {!loading && daySummaries.length === 0 ? (
-          <p className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600">
-            No trading days yet. Add trades to populate the calendar view.
-          </p>
-        ) : null}
+              <div className="flex items-center gap-2">
+                <label htmlFor="journal-date-selector" className="text-xs font-semibold uppercase tracking-[0.1em] text-secondary font-sans">
+                  Date
+                </label>
+                <input
+                  id="journal-date-selector"
+                  type="date"
+                  value={selectedDate}
+                  onChange={(event) => handleDateSelectorChange(event.target.value)}
+                  className="h-10 rounded-lg border border-border bg-surface-2 px-3 text-sm text-primary outline-none focus:ring-2 focus:ring-brand-500 font-sans"
+                />
+              </div>
+            </div>
+          </div>
 
-        <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-          {daySummaries.map((day) => (
-            <article key={day.date} className={`rounded-xl border p-3 ${getPnlClass(day.pnl)}`}>
-              <p className="text-xs font-semibold uppercase tracking-[0.1em]">{new Date(day.date).toLocaleDateString()}</p>
-              <p className="mt-2 text-lg font-semibold">
-                {day.pnl.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-              </p>
-              <p className="text-sm opacity-90">{day.trades} trade(s)</p>
-            </article>
-          ))}
-        </div>
+          {error ? <p className="mb-3 rounded-lg bg-pnl-negative/10 px-3 py-2 text-sm text-pnl-negative font-sans">{error}</p> : null}
+          {loading ? <p className="mb-3 text-sm text-secondary font-sans">Chargement du calendrier...</p> : null}
+
+          <div className="grid grid-cols-7 gap-2 text-center text-xs font-semibold uppercase tracking-[0.08em] text-secondary font-sans">
+            {["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"].map((label) => (
+              <div key={label} className="py-2">
+                {label}
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-2 grid grid-cols-7 gap-2">
+            {calendarDays.map((day) => {
+              const key = toDateKey(day);
+              const tradeCount = tradesByDay.get(key)?.length ?? 0;
+              const pnl = pnlByDay.get(key) ?? 0;
+              const isCurrentMonth = day.getMonth() === firstDay.getMonth();
+              const isSelected = key === selectedDate;
+
+              let cellClass = isCurrentMonth
+                ? "border-border bg-surface-1 hover:bg-surface-2"
+                : "border-border/40 bg-surface-2/40 text-secondary/50";
+
+              if (tradeCount > 0) {
+                if (pnl > 0) {
+                  cellClass = "border-pnl-positive/30 bg-pnl-positive/10 text-pnl-positive hover:bg-pnl-positive/20";
+                } else if (pnl < 0) {
+                  cellClass = "border-pnl-negative/30 bg-pnl-negative/10 text-pnl-negative hover:bg-pnl-negative/20";
+                } else {
+                  cellClass = "border-border bg-surface-2 text-primary hover:bg-surface-2";
+                }
+              }
+
+              if (isSelected) {
+                cellClass += " ring-2 ring-brand-500 ring-offset-1";
+              }
+
+              return (
+                <div key={key} className={`relative rounded-xl border transition ${cellClass}`}>
+                  <button
+                    type="button"
+                    onClick={() => handleCalendarDayClick(key)}
+                    className="flex min-h-24 w-full flex-col px-2 py-2 text-left"
+                  >
+                    <p className="text-xs font-semibold">{day.getDate()}</p>
+
+                    {tradeCount > 0 && (
+                      <div className="mt-auto flex flex-col items-start gap-1">
+                        <p className="inline-flex rounded-full bg-black/5 px-2 py-0.5 text-[11px] font-medium">
+                          {tradeCount} trade{tradeCount > 1 ? "s" : ""}
+                        </p>
+                        <p className="inline-flex rounded-full bg-black/5 px-2 py-0.5 text-[11px] font-medium">
+                          {pnl > 0 ? "+" : ""}
+                          {pnl.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                        </p>
+                      </div>
+                    )}
+                  </button>
+
+                  {isCurrentMonth ? (
+                    <button
+                      type="button"
+                      onClick={() => openTradeModal(key)}
+                      aria-label={`Ajouter un trade le ${key}`}
+                      className="absolute right-1 top-1 inline-flex h-5 w-5 items-center justify-center rounded-full border border-border bg-surface-1/90 text-xs font-semibold text-secondary hover:bg-surface-2 hover:text-primary"
+                    >
+                      +
+                    </button>
+                  ) : null}
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        <section
+          id="selected-day-panel"
+          className={`mt-4 rounded-2xl border border-border bg-surface-1 p-6 shadow-sm transition ${
+            isDayPanelHighlighted ? "ring-2 ring-brand-500 ring-offset-1" : ""
+          }`}
+        >
+          <div className="mb-4 flex items-center justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-secondary font-sans">Jour sélectionné</p>
+              <h3 className="mt-1 text-lg font-semibold text-primary font-sans">
+                {formatLongDateWithUpperMonth(new Date(`${selectedDate}T00:00:00`))}
+              </h3>
+            </div>
+            <button
+              type="button"
+              onClick={() => openTradeModal(selectedDate)}
+              className="inline-flex h-9 items-center justify-center rounded-lg border border-border px-3 text-sm font-medium text-secondary hover:bg-surface-2 hover:text-primary transition-colors font-sans"
+            >
+              + Ajouter
+            </button>
+          </div>
+
+          {selectedDayTrades.length === 0 ? (
+            <p className="text-sm text-secondary font-sans">Aucun trade sur ce jour.</p>
+          ) : (
+            <div className="space-y-2">
+              {selectedDayTrades.map((trade) => {
+                const pnlValue = Number(trade.netPnl ?? 0);
+
+                return (
+                  <article
+                    key={trade.id}
+                    className="flex flex-col gap-3 rounded-xl border border-border bg-surface-2 px-3 py-3 sm:flex-row sm:items-center sm:justify-between"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-primary font-sans">
+                        {trade.symbol} · {trade.side}
+                      </p>
+                      <p className="text-xs text-secondary font-sans">
+                        {new Date(trade.openedAt).toLocaleTimeString(undefined, {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                        {trade.status === "CLOSED" && trade.closedAt
+                          ? ` → ${new Date(trade.closedAt).toLocaleTimeString(undefined, {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}`
+                          : " · OPEN"}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`rounded-full px-2 py-1 text-xs font-semibold font-mono ${
+                          pnlValue >= 0
+                            ? "bg-pnl-positive/10 text-pnl-positive"
+                            : "bg-pnl-negative/10 text-pnl-negative"
+                        }`}
+                      >
+                        {pnlValue > 0 ? "+" : ""}
+                        {pnlValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                      </span>
+
+                      <Link
+                        href={`/trades/${trade.id}`}
+                        className="inline-flex h-8 items-center justify-center rounded-lg border border-border px-3 text-xs font-medium text-secondary hover:bg-surface-1 hover:text-primary transition-colors font-sans"
+                      >
+                        Voir
+                      </Link>
+
+                      <button
+                        type="button"
+                        onClick={() => openEditTradeModal(trade)}
+                        className="inline-flex h-8 items-center justify-center rounded-lg border border-brand-500/30 px-3 text-xs font-medium text-brand-500 hover:bg-brand-500/10 transition-colors font-sans"
+                      >
+                        Éditer
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => deleteTrade(trade)}
+                        disabled={deletingTradeId === trade.id}
+                        aria-label={`Supprimer le trade ${trade.symbol}`}
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-pnl-negative/30 text-pnl-negative hover:bg-pnl-negative/10 disabled:opacity-50 transition-colors"
+                      >
+                        <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M3 6h18" />
+                          <path d="M8 6V4h8v2" />
+                          <path d="M19 6l-1 14H6L5 6" />
+                          <path d="M10 11v6" />
+                          <path d="M14 11v6" />
+                        </svg>
+                      </button>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          )}
+        </section>
       </div>
+
+      <TradeEntryModal
+        isOpen={isTradeModalOpen}
+        initialDate={tradeModalDate}
+        onClose={() => setIsTradeModalOpen(false)}
+        onCreated={loadTrades}
+      />
+
+      {editingTrade ? (
+        <TradeEntryModal
+          isOpen={isEditTradeModalOpen}
+          initialDate={editingTrade.openedAt.slice(0, 10)}
+          mode="edit"
+          tradeId={editingTrade.id}
+          initialTrade={{
+            accountId: editingTrade.accountId,
+            assetClass: editingTrade.assetClass,
+            symbol: editingTrade.symbol,
+            side: editingTrade.side,
+            quantity: editingTrade.quantity,
+            openedAt: editingTrade.openedAt,
+            entryPrice: editingTrade.entryPrice,
+            initialStopLoss: editingTrade.initialStopLoss,
+            initialTakeProfit: editingTrade.initialTakeProfit,
+            riskAmount: editingTrade.riskAmount,
+            contractMultiplier: editingTrade.contractMultiplier,
+            status: editingTrade.status,
+            closedAt: editingTrade.closedAt,
+            exitPrice: editingTrade.exitPrice,
+            fees: editingTrade.fees,
+            setupName: editingTrade.setupName,
+            entryTimeframe: editingTrade.entryTimeframe,
+            higherTimeframeBias: editingTrade.higherTimeframeBias,
+            strategyTag: editingTrade.strategyTag,
+            confluences: editingTrade.confluences,
+            emotionalState: editingTrade.emotionalState,
+            executionRating: editingTrade.executionRating,
+            planFollowed: editingTrade.planFollowed,
+            entryReason: editingTrade.entryReason,
+            exitReason: editingTrade.exitReason,
+            lessonLearned: editingTrade.lessonLearned,
+            chartScreenshots: editingTrade.chartScreenshots,
+            notes: editingTrade.notes,
+          }}
+          onClose={() => {
+            setIsEditTradeModalOpen(false);
+            setEditingTrade(null);
+          }}
+          onSaved={loadTrades}
+        />
+      ) : null}
     </DashboardShell>
   );
 }

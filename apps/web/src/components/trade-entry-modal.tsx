@@ -1,6 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+
+import {
+  computePipInfo,
+  convertForexPnl,
+  defaultContractMultiplier,
+  quoteCurrency,
+} from "@/lib/trade-calc";
+import { useSelectedAccountId } from "@/hooks/use-selected-account-id";
 
 type Account = {
   id: string;
@@ -132,7 +140,13 @@ function initialOpenedAt(dateKey: string) {
 }
 
 function parseNumber(value: string) {
-  const parsed = Number(value);
+  const normalized = value.trim().replace(",", ".");
+
+  if (!normalized) {
+    return null;
+  }
+
+  const parsed = Number(normalized);
   return Number.isFinite(parsed) ? parsed : null;
 }
 
@@ -151,30 +165,7 @@ function formatDateTimeForInput(value: string | null | undefined) {
 }
 
 function suggestedMultiplier(assetClass: AssetClass, symbol: string) {
-  const normalized = symbol.trim().toUpperCase();
-
-  if (assetClass === "OPTIONS") {
-    return 100;
-  }
-
-  if (assetClass === "FUTURES") {
-    const known: Record<string, number> = {
-      ES: 50,
-      MES: 5,
-      NQ: 20,
-      MNQ: 2,
-      YM: 5,
-      RTY: 50,
-      M2K: 5,
-      CL: 1000,
-      MCL: 100,
-      GC: 100,
-      MGC: 10,
-    };
-    return known[normalized] ?? 1;
-  }
-
-  return 1;
+  return defaultContractMultiplier(assetClass, symbol);
 }
 
 function computePreviewNetPnl(params: {
@@ -188,6 +179,16 @@ function computePreviewNetPnl(params: {
   const { side, entryPrice, exitPrice, quantity, fees, contractMultiplier } = params;
   const delta = side === "LONG" ? exitPrice - entryPrice : entryPrice - exitPrice;
   return delta * quantity * contractMultiplier - fees;
+}
+
+function formatPreviewNetPnl(value: number) {
+  const abs = Math.abs(value);
+  const fractionDigits = abs >= 100 ? 2 : abs >= 1 ? 4 : 6;
+
+  return value.toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: fractionDigits,
+  });
 }
 
 function outcomeFromPnl(value: number): TradeOutcome {
@@ -219,9 +220,10 @@ export function TradeEntryModal({
   initialTrade,
   onSaved,
 }: TradeEntryModalProps) {
+  const previousPositionStatusRef = useRef<"OPEN" | "CLOSED" | null>(null);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [accountsLoading, setAccountsLoading] = useState(false);
-  const [selectedAccountFromQuery, setSelectedAccountFromQuery] = useState("");
+  const selectedAccountFromQuery = useSelectedAccountId();
 
   const [currentStep, setCurrentStep] = useState<Step>(1);
 
@@ -265,22 +267,6 @@ export function TradeEntryModal({
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    function syncAccountFromUrl() {
-      const accountIdFromQuery = new URLSearchParams(window.location.search).get("accountId");
-      setSelectedAccountFromQuery(accountIdFromQuery ?? "");
-    }
-
-    syncAccountFromUrl();
-    window.addEventListener("bb-account-change", syncAccountFromUrl);
-    window.addEventListener("popstate", syncAccountFromUrl);
-
-    return () => {
-      window.removeEventListener("bb-account-change", syncAccountFromUrl);
-      window.removeEventListener("popstate", syncAccountFromUrl);
-    };
-  }, []);
 
   useEffect(() => {
     if (!isOpen) {
@@ -408,10 +394,14 @@ export function TradeEntryModal({
   }, [assetClass, symbol, multiplierTouched]);
 
   useEffect(() => {
-    if (positionStatus === "OPEN") {
+    const previousStatus = previousPositionStatusRef.current;
+
+    if (previousStatus === "CLOSED" && positionStatus === "OPEN") {
       setClosedAt("");
       setExitPrice("");
     }
+
+    previousPositionStatusRef.current = positionStatus;
   }, [positionStatus]);
 
   const previewNetPnl = useMemo(() => {
@@ -446,6 +436,54 @@ export function TradeEntryModal({
 
     return outcomeFromPnl(previewNetPnl);
   }, [previewNetPnl]);
+
+  const previewPipInfo = useMemo(() => {
+    if (assetClass !== "FOREX" || previewNetPnl == null) {
+      return null;
+    }
+
+    const entry = parseNumber(entryPrice);
+    const exit = parseNumber(exitPrice);
+    const qty = parseNumber(quantity);
+
+    if (entry == null || exit == null || qty == null) {
+      return null;
+    }
+
+    const multiplier = parseNumber(contractMultiplier) ?? 100000;
+
+    return computePipInfo({
+      symbol,
+      side,
+      entryPrice: entry,
+      exitPrice: exit,
+      quantity: qty,
+      contractMultiplier: multiplier,
+    });
+  }, [assetClass, symbol, side, entryPrice, exitPrice, quantity, contractMultiplier, previewNetPnl]);
+
+  const selectedAccountCurrency = useMemo(() => {
+    return accounts.find((account) => account.id === accountId)?.currency ?? "USD";
+  }, [accounts, accountId]);
+
+  const convertedPreviewNetPnl = useMemo(() => {
+    if (assetClass !== "FOREX" || previewNetPnl == null) {
+      return null;
+    }
+
+    const exit = parseNumber(exitPrice);
+
+    if (exit == null) {
+      return null;
+    }
+
+    return convertForexPnl({
+      symbol,
+      accountCurrency: selectedAccountCurrency,
+      rawPnl: previewNetPnl,
+      exitPrice: exit,
+    });
+  }, [assetClass, previewNetPnl, exitPrice, selectedAccountCurrency, symbol]);
 
   const symbolSuggestions = useMemo(() => {
     return symbolSuggestionsByAssetClass[assetClass] ?? [];
@@ -574,24 +612,24 @@ export function TradeEntryModal({
           assetClass,
           symbol: symbol.toUpperCase().trim(),
           side,
-          quantity: Number(quantity),
+          quantity: parseNumber(quantity),
           openedAt: new Date(openedAt).toISOString(),
-          entryPrice: Number(entryPrice),
-          initialStopLoss: initialStopLoss ? Number(initialStopLoss) : null,
-          initialTakeProfit: initialTakeProfit ? Number(initialTakeProfit) : null,
-          riskAmount: riskAmount ? Number(riskAmount) : null,
-          contractMultiplier: contractMultiplier ? Number(contractMultiplier) : 1,
+          entryPrice: parseNumber(entryPrice),
+          initialStopLoss: initialStopLoss ? parseNumber(initialStopLoss) : null,
+          initialTakeProfit: initialTakeProfit ? parseNumber(initialTakeProfit) : null,
+          riskAmount: riskAmount ? parseNumber(riskAmount) : null,
+          contractMultiplier: contractMultiplier ? parseNumber(contractMultiplier) : 1,
           status: positionStatus,
           closedAt: closedAt ? new Date(closedAt).toISOString() : null,
-          exitPrice: exitPrice ? Number(exitPrice) : null,
-          fees: fees ? Number(fees) : 0,
+          exitPrice: exitPrice ? parseNumber(exitPrice) : null,
+          fees: fees ? parseNumber(fees) : 0,
           setupName: setupName.trim() || null,
           entryTimeframe: entryTimeframe || null,
           higherTimeframeBias: higherTimeframeBias || null,
           strategyTag: strategyTag.trim() || null,
           confluences,
           emotionalState: emotionalState || null,
-          executionRating: executionRating ? Number(executionRating) : null,
+          executionRating: executionRating ? parseNumber(executionRating) : null,
           planFollowed,
           entryReason: entryReason.trim() || null,
           exitReason: exitReason.trim() || null,
@@ -629,7 +667,11 @@ export function TradeEntryModal({
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-3"
-      onClick={onClose}
+      onClick={(event) => {
+        if (event.target === event.currentTarget) {
+          onClose();
+        }
+      }}
       aria-hidden="true"
     >
       <div
@@ -773,7 +815,9 @@ export function TradeEntryModal({
                 </div>
 
                 <label className="flex flex-col gap-2">
-                  <span className="text-sm font-medium text-slate-700">Quantity *</span>
+                  <span className="text-sm font-medium text-slate-700">
+                    {assetClass === "FOREX" ? "Lots *" : "Quantity *"}
+                  </span>
                   <input
                     value={quantity}
                     onChange={(event) => setQuantity(event.target.value)}
@@ -783,6 +827,11 @@ export function TradeEntryModal({
                     className="h-11 rounded-xl border border-slate-300 px-3 text-sm outline-none ring-sky-500 transition focus:ring-2"
                     required
                   />
+                  {assetClass === "FOREX" && (
+                    <p className="text-xs text-slate-500">
+                      1 lot = 100,000 | 0.1 = mini | 0.01 = micro
+                    </p>
+                  )}
                 </label>
 
                 <label className="flex flex-col gap-2">
@@ -849,23 +898,25 @@ export function TradeEntryModal({
                   />
                 </label>
 
-                <label className="flex flex-col gap-2">
-                  <span className="text-sm font-medium text-slate-700">Contract multiplier</span>
-                  <input
-                    value={contractMultiplier}
-                    onChange={(event) => {
-                      setContractMultiplier(event.target.value);
-                      setMultiplierTouched(true);
-                    }}
-                    type="number"
-                    min="0.000001"
-                    step="0.000001"
-                    className="h-11 rounded-xl border border-slate-300 px-3 text-sm outline-none ring-sky-500 transition focus:ring-2"
-                  />
-                  <p className="text-xs text-slate-500">
-                    Suggestions: NQ=20, ES=50, CL=1000, GC=100, options=100.
-                  </p>
-                </label>
+                {assetClass !== "FOREX" ? (
+                  <label className="flex flex-col gap-2">
+                    <span className="text-sm font-medium text-slate-700">Contract multiplier</span>
+                    <input
+                      value={contractMultiplier}
+                      onChange={(event) => {
+                        setContractMultiplier(event.target.value);
+                        setMultiplierTouched(true);
+                      }}
+                      type="number"
+                      min="0.000001"
+                      step="0.000001"
+                      className="h-11 rounded-xl border border-slate-300 px-3 text-sm outline-none ring-sky-500 transition focus:ring-2"
+                    />
+                    <p className="text-xs text-slate-500">
+                      Suggestions: NQ=20, ES=50, CL=1000, GC=100, options=100.
+                    </p>
+                  </label>
+                ) : null}
               </div>
             ) : null}
 
@@ -944,11 +995,25 @@ export function TradeEntryModal({
                             : "text-slate-700"
                     }`}
                   >
-                    {previewNetPnl == null ? "En attente de donnees de cloture" : previewNetPnl.toFixed(2)}
+                    {previewNetPnl == null
+                      ? "En attente de donnees de cloture"
+                      : `${formatPreviewNetPnl(previewNetPnl)}${assetClass === "FOREX" ? ` ${quoteCurrency(symbol) || ""}` : ""}`}
                   </p>
+                  {assetClass === "FOREX" && previewNetPnl != null && convertedPreviewNetPnl ? (
+                    <p className="mt-1 text-sm text-slate-500">
+                      ~ {formatPreviewNetPnl(convertedPreviewNetPnl.converted)} {convertedPreviewNetPnl.currency}
+                    </p>
+                  ) : null}
                   <p className="mt-1 text-sm text-slate-600">
                     Trade status: {previewOutcome ?? "N/A"} {previewOutcome ? "(auto)" : ""}
                   </p>
+                  {previewPipInfo ? (
+                    <p className="mt-1 text-xs text-slate-500 font-medium">
+                      Pip value: {formatPreviewNetPnl(previewPipInfo.pipValue)} | Move:{" "}
+                      {previewPipInfo.pipsMove > 0 ? "+" : ""}
+                      {previewPipInfo.pipsMove.toFixed(1)} pips
+                    </p>
+                  ) : null}
                 </div>
               </div>
             ) : null}

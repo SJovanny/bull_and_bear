@@ -6,7 +6,8 @@ import { prisma } from "@/lib/prisma";
 import { computeNetPnl, computeTradeOutcome, defaultContractMultiplier } from "@/lib/trade-calc";
 
 function parseDecimal(value: unknown, fieldName: string) {
-  const parsed = Number(value);
+  const normalized = typeof value === "string" ? value.trim().replace(",", ".") : value;
+  const parsed = Number(normalized);
 
   if (!Number.isFinite(parsed)) {
     throw new Error(`Invalid numeric value for ${fieldName}`);

@@ -3,47 +3,56 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { DashboardShell } from "@/components/dashboard-shell";
+import { useSelectedAccountId } from "@/hooks/use-selected-account-id";
+import { formatNumber, pnlColorClass } from "@/lib/format";
+import type {
+  BreakdownKey,
+  DistributionMetric,
+  StatsBreakdown,
+  StatsDistribution,
+  StatsSummary,
+  StatsTimeAnalysis,
+} from "@/types";
 
-type Trade = {
-  id: string;
-  status: string;
-  netPnl: string | null;
-  side: "LONG" | "SHORT";
-};
+const BREAKDOWN_OPTIONS: { value: BreakdownKey; label: string }[] = [
+  { value: "symbol", label: "Symbol" },
+  { value: "setupName", label: "Setup" },
+  { value: "strategyTag", label: "Strategy" },
+  { value: "assetClass", label: "Asset class" },
+  { value: "side", label: "Direction" },
+  { value: "entryTimeframe", label: "Entry TF" },
+  { value: "planFollowed", label: "Plan followed" },
+  { value: "executionRating", label: "Execution" },
+];
+
+const DISTRIBUTION_OPTIONS: { value: DistributionMetric; label: string }[] = [
+  { value: "pnl", label: "PnL" },
+  { value: "rMultiple", label: "R multiple" },
+  { value: "holdingTime", label: "Holding time" },
+];
 
 export default function StatsPage() {
-  const [trades, setTrades] = useState<Trade[]>([]);
+  const selectedAccountId = useSelectedAccountId();
+  const [summary, setSummary] = useState<StatsSummary | null>(null);
+  const [breakdown, setBreakdown] = useState<StatsBreakdown | null>(null);
+  const [distribution, setDistribution] = useState<StatsDistribution | null>(null);
+  const [timeAnalysis, setTimeAnalysis] = useState<StatsTimeAnalysis | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedAccountId, setSelectedAccountId] = useState("");
+  const [breakdownBy, setBreakdownBy] = useState<BreakdownKey>("symbol");
+  const [distributionMetric, setDistributionMetric] = useState<DistributionMetric>("pnl");
 
-  useEffect(() => {
-    function syncAccountFromUrl() {
-      const accountIdFromQuery = new URLSearchParams(window.location.search).get("accountId");
-      setSelectedAccountId(accountIdFromQuery ?? "");
-    }
-
-    syncAccountFromUrl();
-    window.addEventListener("bb-account-change", syncAccountFromUrl);
-    window.addEventListener("popstate", syncAccountFromUrl);
-
-    return () => {
-      window.removeEventListener("bb-account-change", syncAccountFromUrl);
-      window.removeEventListener("popstate", syncAccountFromUrl);
-    };
-  }, []);
-
-  const tradesEndpoint = useMemo(() => {
+  const baseQuery = useMemo(() => {
     if (!selectedAccountId) {
       return null;
     }
 
-    return `/api/trades?accountId=${encodeURIComponent(selectedAccountId)}`;
+    return `accountId=${encodeURIComponent(selectedAccountId)}&period=ALL`;
   }, [selectedAccountId]);
 
   useEffect(() => {
-    async function loadTrades() {
-      if (!tradesEndpoint) {
+    async function loadStats() {
+      if (!baseQuery) {
         return;
       }
 
@@ -51,14 +60,27 @@ export default function StatsPage() {
       setError(null);
 
       try {
-        const response = await fetch(tradesEndpoint);
-        const payload = (await response.json()) as { trades?: Trade[]; error?: string };
+        const [summaryResponse, breakdownResponse, distributionResponse, timeAnalysisResponse] = await Promise.all([
+          fetch(`/api/stats/summary?${baseQuery}`),
+          fetch(`/api/stats/breakdown?${baseQuery}&by=${breakdownBy}`),
+          fetch(`/api/stats/distribution?${baseQuery}&metric=${distributionMetric}`),
+          fetch(`/api/stats/time-analysis?${baseQuery}`),
+        ]);
 
-        if (!response.ok) {
-          throw new Error(payload.error ?? "Could not load trades");
-        }
+        const summaryPayload = (await summaryResponse.json()) as StatsSummary & { error?: string };
+        const breakdownPayload = (await breakdownResponse.json()) as StatsBreakdown & { error?: string };
+        const distributionPayload = (await distributionResponse.json()) as StatsDistribution & { error?: string };
+        const timeAnalysisPayload = (await timeAnalysisResponse.json()) as StatsTimeAnalysis & { error?: string };
 
-        setTrades(payload.trades ?? []);
+        if (!summaryResponse.ok) throw new Error(summaryPayload.error ?? "Could not load summary");
+        if (!breakdownResponse.ok) throw new Error(breakdownPayload.error ?? "Could not load breakdown");
+        if (!distributionResponse.ok) throw new Error(distributionPayload.error ?? "Could not load distribution");
+        if (!timeAnalysisResponse.ok) throw new Error(timeAnalysisPayload.error ?? "Could not load time analysis");
+
+        setSummary(summaryPayload);
+        setBreakdown(breakdownPayload);
+        setDistribution(distributionPayload);
+        setTimeAnalysis(timeAnalysisPayload);
       } catch (requestError) {
         setError(requestError instanceof Error ? requestError.message : "Unexpected error");
       } finally {
@@ -66,96 +88,197 @@ export default function StatsPage() {
       }
     }
 
-    loadTrades();
-  }, [tradesEndpoint]);
+    loadStats();
+  }, [baseQuery, breakdownBy, distributionMetric]);
 
-  const metrics = useMemo(() => {
-    const total = trades.length;
-    const closed = trades.filter((trade) => trade.status === "CLOSED");
-    const winners = closed.filter((trade) => Number(trade.netPnl ?? 0) > 0);
-    const losers = closed.filter((trade) => Number(trade.netPnl ?? 0) < 0);
-    const net = closed.reduce((sum, trade) => sum + Number(trade.netPnl ?? 0), 0);
-    const winRate = closed.length > 0 ? (winners.length / closed.length) * 100 : 0;
-
-    return {
-      total,
-      closed: closed.length,
-      winners: winners.length,
-      losers: losers.length,
-      net,
-      winRate,
-    };
-  }, [trades]);
+  const topBreakdown = breakdown?.items.slice(0, 8) ?? [];
+  const strongestWeekday = [...(timeAnalysis?.weekday ?? [])].sort((a, b) => b.netPnl - a.netPnl)[0] ?? null;
+  const strongestHour = [...(timeAnalysis?.hourly ?? [])].sort((a, b) => b.netPnl - a.netPnl)[0] ?? null;
 
   return (
-    <DashboardShell title="Statistiques" subtitle="Vue synthétique de performance basée sur les trades saisis">
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+    <DashboardShell title="Statistiques" subtitle="Analytics backend-first, aucune logique de calcul dans le front">
+      <div className="mx-auto flex max-w-[1440px] flex-col gap-4">
         {error ? (
-          <div className="sm:col-span-2 xl:col-span-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+          <section className="rounded-xl border border-pnl-negative/20 bg-pnl-negative/5 px-4 py-3 text-sm text-pnl-negative font-sans">
             {error}
-          </div>
+          </section>
         ) : null}
 
-        <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-xs uppercase tracking-[0.1em] text-slate-500">Trades total</p>
-          <p className="mt-2 text-3xl font-semibold text-slate-900">{loading ? "..." : metrics.total}</p>
-        </article>
+        <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <article className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm">
+            <p className="text-xs uppercase tracking-[0.1em] text-secondary font-sans">Net PnL</p>
+            <p className={`mt-2 text-3xl font-semibold font-mono ${pnlColorClass(summary?.realized.netPnl ?? 0)}`}>
+              {loading ? "..." : `${(summary?.realized.netPnl ?? 0) > 0 ? "+" : ""}${formatNumber(summary?.realized.netPnl ?? 0)}`}
+            </p>
+          </article>
+          <article className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm">
+            <p className="text-xs uppercase tracking-[0.1em] text-secondary font-sans">Expectancy</p>
+            <p className={`mt-2 text-3xl font-semibold font-mono ${pnlColorClass(summary?.realized.expectancy ?? 0)}`}>
+              {loading ? "..." : formatNumber(summary?.realized.expectancy ?? 0)}
+            </p>
+          </article>
+          <article className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm">
+            <p className="text-xs uppercase tracking-[0.1em] text-secondary font-sans">Avg holding</p>
+            <p className="mt-2 text-3xl font-semibold text-primary font-mono">
+              {loading ? "..." : `${formatNumber(summary?.realized.averageHoldingHours ?? 0)}h`}
+            </p>
+          </article>
+          <article className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm">
+            <p className="text-xs uppercase tracking-[0.1em] text-secondary font-sans">Best / Worst</p>
+            <p className="mt-2 text-sm font-semibold text-primary font-mono">
+              {loading
+                ? "..."
+                : `+${formatNumber(summary?.realized.bestTrade ?? 0)} / ${formatNumber(summary?.realized.worstTrade ?? 0)}`}
+            </p>
+          </article>
+        </section>
 
-        <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-xs uppercase tracking-[0.1em] text-slate-500">Trades fermés</p>
-          <p className="mt-2 text-3xl font-semibold text-slate-900">{loading ? "..." : metrics.closed}</p>
-        </article>
+        <section className="grid gap-4 xl:grid-cols-[1.4fr_0.6fr]">
+          <article className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm">
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <div>
+                <h2 className="text-sm font-semibold uppercase tracking-[0.08em] text-secondary font-sans">Breakdown</h2>
+                <p className="mt-1 text-xs text-secondary font-sans">Server-side grouped performance analytics</p>
+              </div>
+              <select
+                value={breakdownBy}
+                onChange={(event) => setBreakdownBy(event.target.value as BreakdownKey)}
+                className="rounded-lg border border-border bg-surface-2 px-3 py-2 text-xs font-semibold text-primary font-sans"
+              >
+                {BREAKDOWN_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-        <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-xs uppercase tracking-[0.1em] text-slate-500">Win rate</p>
-          <div className="mt-3 flex items-center justify-center">
-            <div className="relative h-28 w-28">
-              <svg className="h-28 w-28 -rotate-90 transform">
-                <circle
-                  cx="56"
-                  cy="56"
-                  r="46"
-                  stroke="currentColor"
-                  strokeWidth="10"
-                  fill="none"
-                  className="text-slate-200"
-                />
-                <circle
-                  cx="56"
-                  cy="56"
-                  r="46"
-                  stroke="currentColor"
-                  strokeWidth="10"
-                  fill="none"
-                  strokeDasharray={`${(metrics.winRate / 100) * 289.03} 289.03`}
-                  className="text-emerald-600 transition-all duration-500"
-                />
-              </svg>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <p className="text-2xl font-semibold text-slate-900">
-                  {loading ? "..." : `${metrics.winRate.toFixed(1)}%`}
+            <div className="overflow-auto">
+              <table className="min-w-full text-xs">
+                <thead className="text-left uppercase tracking-[0.08em] text-secondary font-sans">
+                  <tr>
+                    <th className="px-2 py-2">Group</th>
+                    <th className="px-2 py-2">Trades</th>
+                    <th className="px-2 py-2">Win Rate</th>
+                    <th className="px-2 py-2">Net</th>
+                    <th className="px-2 py-2">PF</th>
+                    <th className="px-2 py-2">Avg R</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {topBreakdown.map((item) => (
+                    <tr key={item.key} className="border-t border-border">
+                      <td className="px-2 py-2 font-semibold text-primary font-sans">{item.label}</td>
+                      <td className="px-2 py-2 text-secondary font-mono">{item.trades}</td>
+                      <td className="px-2 py-2 text-secondary font-mono">{formatNumber(item.winRate, 1)}%</td>
+                      <td className={`px-2 py-2 font-mono ${pnlColorClass(item.netPnl)}`}>{formatNumber(item.netPnl)}</td>
+                      <td className="px-2 py-2 text-secondary font-mono">{Number.isFinite(item.profitFactor) ? formatNumber(item.profitFactor) : "∞"}</td>
+                      <td className="px-2 py-2 text-secondary font-mono">{item.averageRMultiple == null ? "-" : formatNumber(item.averageRMultiple)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </article>
+
+          <article className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm">
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <div>
+                <h2 className="text-sm font-semibold uppercase tracking-[0.08em] text-secondary font-sans">Distribution</h2>
+                <p className="mt-1 text-xs text-secondary font-sans">Histogram built from backend bins</p>
+              </div>
+              <select
+                value={distributionMetric}
+                onChange={(event) => setDistributionMetric(event.target.value as DistributionMetric)}
+                className="rounded-lg border border-border bg-surface-2 px-3 py-2 text-xs font-semibold text-primary font-sans"
+              >
+                {DISTRIBUTION_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex h-48 items-end gap-2 rounded-xl bg-surface-2 p-3">
+              {(distribution?.bins ?? []).map((bin) => {
+                const maxCount = Math.max(1, ...(distribution?.bins ?? []).map((item) => item.count));
+                const height = `${Math.max(12, (bin.count / maxCount) * 100)}%`;
+                return (
+                  <div key={bin.label} className="group relative flex flex-1 flex-col items-center justify-end gap-2">
+                    <div className="absolute bottom-full mb-2 hidden rounded bg-slate-800 px-2 py-1 text-[10px] text-white group-hover:block">
+                      {bin.label}: {bin.count}
+                    </div>
+                    <div className="w-full rounded-t-md bg-brand-500/80" style={{ height }} />
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="mt-3 grid grid-cols-2 gap-3 text-xs text-secondary font-mono">
+              <p>Avg: {loading ? "..." : formatNumber(distribution?.average ?? 0)}</p>
+              <p>Median: {loading ? "..." : formatNumber(distribution?.median ?? 0)}</p>
+              <p>Min: {loading ? "..." : formatNumber(distribution?.min ?? 0)}</p>
+              <p>Max: {loading ? "..." : formatNumber(distribution?.max ?? 0)}</p>
+            </div>
+          </article>
+        </section>
+
+        <section className="grid gap-4 xl:grid-cols-3">
+          <article className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm">
+            <h2 className="text-sm font-semibold uppercase tracking-[0.08em] text-secondary font-sans">Weekday Edge</h2>
+            <div className="mt-4 space-y-2">
+              {(timeAnalysis?.weekday ?? []).map((bucket) => (
+                <div key={bucket.key}>
+                  <div className="mb-1 flex items-center justify-between text-xs font-sans text-secondary">
+                    <span>{bucket.label}</span>
+                    <span className={pnlColorClass(bucket.netPnl)}>{formatNumber(bucket.netPnl)}</span>
+                  </div>
+                  <div className="h-2 rounded-full bg-surface-2">
+                    <div
+                      className={`h-full rounded-full ${bucket.netPnl >= 0 ? "bg-pnl-positive" : "bg-pnl-negative"}`}
+                      style={{ width: `${Math.min(100, Math.abs(bucket.netPnl) / Math.max(1, ...(timeAnalysis?.weekday ?? []).map((item) => Math.abs(item.netPnl))) * 100)}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </article>
+
+          <article className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm">
+            <h2 className="text-sm font-semibold uppercase tracking-[0.08em] text-secondary font-sans">Best Windows</h2>
+            <div className="mt-4 space-y-4 text-sm font-sans">
+              <div>
+                <p className="text-secondary">Best weekday</p>
+                <p className="mt-1 font-semibold text-primary">{strongestWeekday?.label ?? "-"}</p>
+                <p className={`text-xs font-mono ${pnlColorClass(strongestWeekday?.netPnl ?? 0)}`}>{formatNumber(strongestWeekday?.netPnl ?? 0)}</p>
+              </div>
+              <div>
+                <p className="text-secondary">Best hour</p>
+                <p className="mt-1 font-semibold text-primary">{strongestHour?.label ?? "-"}</p>
+                <p className={`text-xs font-mono ${pnlColorClass(strongestHour?.netPnl ?? 0)}`}>{formatNumber(strongestHour?.netPnl ?? 0)}</p>
+              </div>
+              <div>
+                <p className="text-secondary">Win/Loss streaks</p>
+                <p className="mt-1 font-semibold text-primary font-mono">
+                  {loading ? "..." : `${summary?.realized.maxWinStreak ?? 0} / ${summary?.realized.maxLossStreak ?? 0}`}
                 </p>
               </div>
             </div>
-          </div>
-        </article>
+          </article>
 
-        <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-xs uppercase tracking-[0.1em] text-slate-500">Trades gagnants</p>
-          <p className="mt-2 text-3xl font-semibold text-emerald-600">{loading ? "..." : metrics.winners}</p>
-        </article>
-
-        <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-xs uppercase tracking-[0.1em] text-slate-500">Trades perdants</p>
-          <p className="mt-2 text-3xl font-semibold text-rose-600">{loading ? "..." : metrics.losers}</p>
-        </article>
-
-        <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-xs uppercase tracking-[0.1em] text-slate-500">Net PnL (raw)</p>
-          <p className={`mt-2 text-3xl font-semibold ${metrics.net >= 0 ? "text-emerald-600" : "text-rose-600"}`}>
-            {loading ? "..." : metrics.net.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-          </p>
-        </article>
+          <article className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm">
+            <h2 className="text-sm font-semibold uppercase tracking-[0.08em] text-secondary font-sans">Monthly Seasonality</h2>
+            <div className="mt-4 space-y-2">
+              {(timeAnalysis?.monthly ?? []).slice(-6).map((bucket) => (
+                <div key={bucket.key} className="flex items-center justify-between rounded-lg bg-surface-2 px-3 py-2 text-xs">
+                  <span className="font-sans text-secondary">{bucket.label}</span>
+                  <span className={`font-mono ${pnlColorClass(bucket.netPnl)}`}>{formatNumber(bucket.netPnl)}</span>
+                </div>
+              ))}
+            </div>
+          </article>
+        </section>
       </div>
     </DashboardShell>
   );
