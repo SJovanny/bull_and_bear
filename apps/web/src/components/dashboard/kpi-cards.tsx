@@ -1,5 +1,6 @@
 "use client";
 
+import { MetricLabel } from "@/components/metric-label";
 import { formatNumber, pnlColorClass } from "@/lib/format";
 
 type KpiCardsProps = {
@@ -10,6 +11,7 @@ type KpiCardsProps = {
   totalTrades: number;
   openTrades: number;
   closedTrades: number;
+  currency?: string;
 };
 
 export function KpiCards({
@@ -20,20 +22,26 @@ export function KpiCards({
   totalTrades,
   openTrades,
   closedTrades,
+  currency = "USD",
 }: KpiCardsProps) {
   return (
     <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
       {/* Net PnL — featured card */}
       <article className="relative overflow-hidden rounded-2xl bg-surface-1 p-5 shadow-sm border border-border group transition-all hover:shadow-md">
         <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-brand-500 to-transparent opacity-50 transition-opacity group-hover:opacity-100" />
-        <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-secondary font-sans">Net PnL</p>
+        <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-secondary font-sans">
+          <MetricLabel
+            label="Net PnL"
+            description="Total net profit or loss on closed trades for the selected period."
+          />
+        </div>
         <p
           className={`mt-3 text-4xl font-black tabular-nums leading-none tracking-tight font-mono ${pnlColorClass(totalNetPnl)}`}
         >
           {loading ? (
             <span className="text-secondary">—</span>
           ) : (
-            (totalNetPnl > 0 ? "+" : "") + formatNumber(totalNetPnl)
+            `${totalNetPnl > 0 ? "+" : ""}${formatNumber(totalNetPnl)} ${currency}`
           )}
         </p>
         <div
@@ -50,7 +58,12 @@ export function KpiCards({
 
       {/* Win Rate — circular gauge */}
       <article className="relative overflow-hidden rounded-2xl bg-surface-1 border border-border p-5 shadow-sm transition-all hover:shadow-md">
-        <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-secondary font-sans">Win Rate</p>
+        <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-secondary font-sans">
+          <MetricLabel
+            label="Win Rate"
+            description="Percentage of closed trades that finished positive."
+          />
+        </div>
         <div className="mt-2 flex items-center justify-center">
           <div className="relative h-28 w-28">
             <svg className="h-28 w-28 -rotate-90" viewBox="0 0 56 56">
@@ -79,7 +92,12 @@ export function KpiCards({
 
       {/* Profit Factor */}
       <article className="relative overflow-hidden rounded-2xl border border-border bg-surface-1 p-5 shadow-sm transition-all hover:shadow-md">
-        <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-secondary font-sans">Profit Factor</p>
+        <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-secondary font-sans">
+          <MetricLabel
+            label="Profit Factor"
+            description="Gross profits divided by gross losses. Above 1 means gains outweigh losses overall."
+          />
+        </div>
         <p
           className={`mt-3 text-4xl font-black tabular-nums leading-none tracking-tight font-mono ${
             profitFactor >= 1 ? "text-pnl-positive" : "text-pnl-negative"
@@ -100,7 +118,12 @@ export function KpiCards({
 
       {/* Total Trades */}
       <article className="relative overflow-hidden rounded-2xl border border-border bg-surface-1 p-5 shadow-sm transition-all hover:shadow-md">
-        <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-secondary font-sans">Total Trades</p>
+        <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-secondary font-sans">
+          <MetricLabel
+            label="Total Trades"
+            description="All trades opened in the selected range, including open and closed positions."
+          />
+        </div>
         <p className="mt-3 text-4xl font-black tabular-nums leading-none tracking-tight text-primary font-mono">
           {loading ? "—" : totalTrades}
         </p>
@@ -118,7 +141,12 @@ export function KpiCards({
 
       {/* Open / Closed */}
       <article className="relative overflow-hidden rounded-2xl border border-border bg-surface-1 p-5 shadow-sm transition-all hover:shadow-md">
-        <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-secondary font-sans">Open / Closed</p>
+        <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-secondary font-sans">
+          <MetricLabel
+            label="Open / Closed"
+            description="Current split between active positions and trades already closed in the selected period."
+          />
+        </div>
         <div className="mt-3 flex items-end gap-3">
           <div>
             <p className="text-4xl font-black tabular-nums leading-none tracking-tight text-amber-500 font-mono">

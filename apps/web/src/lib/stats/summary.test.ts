@@ -52,5 +52,25 @@ describe("buildSummary", () => {
     expect(summary.realized.breakeven).toBe(1);
     expect(summary.realized.winRate).toBeCloseTo(33.333, 2);
     expect(summary.realized.profitFactor).toBe(3);
+    expect(summary.realized.maxDrawdown).toBe(50);
+    expect(summary.realized.maxWinStreak).toBe(1);
+    expect(summary.realized.maxLossStreak).toBe(1);
+  });
+
+  it("tracks drawdown from equity peaks and longest streaks", () => {
+    const closed = [
+      makeTrade({ id: "1", netPnl: 100 }),
+      makeTrade({ id: "2", netPnl: 80 }),
+      makeTrade({ id: "3", netPnl: -40 }),
+      makeTrade({ id: "4", netPnl: -70 }),
+      makeTrade({ id: "5", netPnl: -30 }),
+      makeTrade({ id: "6", netPnl: 20 }),
+    ];
+
+    const summary = buildSummary(filters, closed, closed);
+
+    expect(summary.realized.maxDrawdown).toBe(140);
+    expect(summary.realized.maxLossStreak).toBe(3);
+    expect(summary.realized.maxWinStreak).toBe(2);
   });
 });

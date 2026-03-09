@@ -19,6 +19,11 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [period, setPeriod] = useState<DashboardPeriod>("30D");
   const selectedAccountId = useSelectedAccountId();
+  const selectedAccount = useMemo(
+    () => accounts.find((account) => account.id === selectedAccountId) ?? null,
+    [accounts, selectedAccountId],
+  );
+  const selectedAccountCurrency = selectedAccount?.currency ?? "USD";
 
   const accountScopedBase = useMemo(() => {
     if (!selectedAccountId) {
@@ -128,6 +133,7 @@ export default function Home() {
           totalTrades={summary?.activity.totalTrades ?? 0}
           openTrades={summary?.activity.openTrades ?? 0}
           closedTrades={summary?.activity.closedTrades ?? 0}
+          currency={selectedAccountCurrency}
         />
 
         <DashboardCharts

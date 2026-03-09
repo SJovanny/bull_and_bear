@@ -51,6 +51,7 @@ export type StatsSummary = {
     profitFactor: number;
     expectancy: number;
     averageHoldingHours: number;
+    maxDrawdown: number;
     maxWinStreak: number;
     maxLossStreak: number;
     bestTrade: number;

@@ -19,6 +19,20 @@ function computeLongestStreak(values: number[], predicate: (value: number) => bo
   return best;
 }
 
+function computeMaxDrawdown(values: number[]) {
+  let peak = 0;
+  let equity = 0;
+  let maxDrawdown = 0;
+
+  for (const value of values) {
+    equity += value;
+    peak = Math.max(peak, equity);
+    maxDrawdown = Math.max(maxDrawdown, peak - equity);
+  }
+
+  return maxDrawdown;
+}
+
 export function buildSummary(filters: StatsQuery, activityTrades: StatsTrade[], closedTrades: StatsTrade[]): StatsSummary {
   const pnlValues = closedTrades.map(tradePnl);
   const winners = pnlValues.filter((value) => value > 0);
@@ -66,6 +80,7 @@ export function buildSummary(filters: StatsQuery, activityTrades: StatsTrade[], 
       profitFactor,
       expectancy,
       averageHoldingHours,
+      maxDrawdown: computeMaxDrawdown(pnlValues),
       maxWinStreak: computeLongestStreak(pnlValues, (value) => value > 0),
       maxLossStreak: computeLongestStreak(pnlValues, (value) => value < 0),
       bestTrade: closedTrades.length > 0 ? Math.max(...pnlValues) : 0,
