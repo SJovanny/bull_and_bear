@@ -1,5 +1,10 @@
 /plan.md
 
+# environment files
+**/.env*
+!**/.env.example
+!**/.env*.example
+
 # macOS Finder metadata
 .DS_Store
 **/.DS_Store

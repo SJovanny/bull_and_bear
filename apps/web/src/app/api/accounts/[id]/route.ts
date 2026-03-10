@@ -1,27 +1,11 @@
-import { AccountType, Prisma } from "@prisma/client";
-import { NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 
-import { getCurrentAppUser } from "@/lib/auth/current-user";
+import { safeErrorResponse, withAuth } from "@/lib/api";
+import { accountUpdateSchema } from "@/lib/api-schemas";
 import { prisma } from "@/lib/prisma";
 
-function normalizeAccountType(value: unknown) {
-  const raw = String(value ?? "CASH").trim().toUpperCase();
-  return Object.values(AccountType).includes(raw as AccountType)
-    ? (raw as AccountType)
-    : null;
-}
-
-export async function PATCH(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
-  const user = await getCurrentAppUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const { id } = await params;
+export const PATCH = withAuth(async (request, { user, params }) => {
+  const { id } = params;
 
   const existing = await prisma.account.findFirst({
     where: { id, userId: user.id, isArchived: false },
@@ -29,80 +13,50 @@ export async function PATCH(
   });
 
   if (!existing) {
-    return NextResponse.json({ error: "Account not found" }, { status: 404 });
+    return safeErrorResponse("Account not found", 404);
+  }
+
+  const body = await request.json();
+  const parsedBody = accountUpdateSchema.safeParse(body);
+
+  if (!parsedBody.success) {
+    return safeErrorResponse("Invalid request body", 400);
+  }
+
+  const { name, broker, currency, accountType } = parsedBody.data;
+
+  const duplicate = await prisma.account.findFirst({
+    where: {
+      userId: user.id,
+      isArchived: false,
+      name,
+      id: { not: id },
+    },
+    select: { id: true },
+  });
+
+  if (duplicate) {
+    return safeErrorResponse("You already have an account with this name", 409);
   }
 
   try {
-    const body = await request.json();
-    const name = String(body.name ?? "").trim();
-    const broker = body.broker ? String(body.broker).trim() : null;
-    const currency = String(body.currency ?? "USD").trim().toUpperCase();
-    const accountType = normalizeAccountType(body.accountType);
-
-    if (!name) {
-      return NextResponse.json({ error: "Account name is required" }, { status: 400 });
-    }
-
-    if (currency.length !== 3) {
-      return NextResponse.json({ error: "Currency must use a 3-letter code" }, { status: 400 });
-    }
-
-    if (!accountType) {
-      return NextResponse.json({ error: "Invalid account type" }, { status: 400 });
-    }
-
-    const duplicate = await prisma.account.findFirst({
-      where: {
-        userId: user.id,
-        isArchived: false,
-        name,
-        id: { not: id },
-      },
-      select: { id: true },
+    const account = await prisma.account.update({
+      where: { id },
+      data: { name, broker, currency, accountType },
     });
 
-    if (duplicate) {
-      return NextResponse.json({ error: "You already have an account with this name" }, { status: 409 });
-    }
-
-    try {
-      const account = await prisma.account.update({
-        where: { id },
-        data: {
-          name,
-          broker,
-          currency,
-          accountType,
-        },
-      });
-
-      return NextResponse.json({ account });
-    } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
-        return NextResponse.json({ error: "You already have an account with this name" }, { status: 409 });
-      }
-
-      throw error;
-    }
+    return Response.json({ account });
   } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Invalid request payload" },
-      { status: 400 },
-    );
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      return safeErrorResponse("You already have an account with this name", 409);
+    }
+
+    throw error;
   }
-}
+});
 
-export async function DELETE(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
-  const user = await getCurrentAppUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const { id } = await params;
+export const DELETE = withAuth(async (_request, { user, params }) => {
+  const { id } = params;
 
   const existing = await prisma.account.findFirst({
     where: { id, userId: user.id, isArchived: false },
@@ -110,7 +64,7 @@ export async function DELETE(
   });
 
   if (!existing) {
-    return NextResponse.json({ error: "Account not found" }, { status: 404 });
+    return safeErrorResponse("Account not found", 404);
   }
 
   await prisma.account.update({
@@ -118,5 +72,5 @@ export async function DELETE(
     data: { isArchived: true },
   });
 
-  return new NextResponse(null, { status: 204 });
-}
+  return new Response(null, { status: 204 });
+});

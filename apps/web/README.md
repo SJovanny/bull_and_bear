@@ -2,6 +2,22 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
+### Environment Variables
+
+Copy the example file and fill in your own Supabase and database credentials:
+
+```bash
+cp .env.example .env.local
+```
+
+Required variables:
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` or `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY`
+- `DATABASE_URL`
+- `DIRECT_URL`
+- `SUPABASE_SERVICE_ROLE_KEY` when using the admin client
+
 ### Node Version
 
 This app supports Node.js versions `>=20.9.0 <25`.

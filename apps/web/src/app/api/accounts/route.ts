@@ -1,44 +1,27 @@
-import { AccountType, Prisma } from "@prisma/client";
-import { NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 
-import { getCurrentAppUser } from "@/lib/auth/current-user";
+import { safeErrorResponse, withAuth } from "@/lib/api";
+import { accountCreateSchema } from "@/lib/api-schemas";
 import { prisma } from "@/lib/prisma";
 
-export async function GET() {
-  const user = await getCurrentAppUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
+export const GET = withAuth(async (_request, { user }) => {
   const accounts = await prisma.account.findMany({
     where: { userId: user.id, isArchived: false },
     orderBy: { createdAt: "asc" },
   });
 
-  return NextResponse.json({ accounts });
-}
+  return Response.json({ accounts });
+});
 
-export async function POST(request: Request) {
-  const user = await getCurrentAppUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
+export const POST = withAuth(async (request, { user }) => {
   const body = await request.json();
-  const name = String(body.name ?? "").trim();
-  const broker = body.broker ? String(body.broker).trim() : null;
-  const currency = String(body.currency ?? "USD").trim().toUpperCase();
-  const accountTypeRaw = String(body.accountType ?? "CASH").toUpperCase();
+  const parsedBody = accountCreateSchema.safeParse(body);
 
-  if (!name) {
-    return NextResponse.json({ error: "Account name is required" }, { status: 400 });
+  if (!parsedBody.success) {
+    return safeErrorResponse("Invalid request body", 400);
   }
 
-  const accountType = Object.values(AccountType).includes(accountTypeRaw as AccountType)
-    ? (accountTypeRaw as AccountType)
-    : AccountType.CASH;
+  const { name, broker, currency, accountType } = parsedBody.data;
 
   try {
     const account = await prisma.account.create({
@@ -51,12 +34,12 @@ export async function POST(request: Request) {
       },
     });
 
-    return NextResponse.json({ account }, { status: 201 });
+    return Response.json({ account }, { status: 201 });
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
-      return NextResponse.json({ error: "You already have an account with this name" }, { status: 409 });
+      return safeErrorResponse("You already have an account with this name", 409);
     }
 
     throw error;
   }
-}
+});
