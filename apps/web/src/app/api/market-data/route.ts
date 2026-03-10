@@ -1,9 +1,9 @@
 import { safeErrorResponse, withAuth } from "@/lib/api";
 import {
   computeChartWindow,
-  mapTradeIntervalToTwelveData,
   mapTradeSymbolCandidates,
   parseTwelveDataBars,
+  resolveChartInterval,
   toTwelveDataDateTime,
 } from "@/lib/market-data";
 
@@ -25,7 +25,7 @@ export const GET = withAuth(async (request) => {
   }
 
   const providerSymbols = mapTradeSymbolCandidates(symbol, assetClass);
-  const providerInterval = mapTradeIntervalToTwelveData(interval);
+  const providerInterval = resolveChartInterval(interval);
   const { start, end } = computeChartWindow(openedAt, closedAt, interval);
   let lastError = "Unable to load market data";
 
@@ -37,7 +37,7 @@ export const GET = withAuth(async (request) => {
     upstreamUrl.searchParams.set("end_date", toTwelveDataDateTime(end, interval));
     upstreamUrl.searchParams.set("timezone", "UTC");
     upstreamUrl.searchParams.set("order", "ASC");
-    upstreamUrl.searchParams.set("outputsize", "500");
+    upstreamUrl.searchParams.set("outputsize", "1500");
     upstreamUrl.searchParams.set("apikey", apiKey);
 
     const upstreamResponse = await fetch(upstreamUrl.toString(), {

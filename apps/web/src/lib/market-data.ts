@@ -58,6 +58,14 @@ export function mapTradeIntervalToTwelveData(interval: string | null) {
   }
 }
 
+export function resolveChartInterval(interval: string | null) {
+  if (interval === "1D" || interval === "1W") {
+    return mapTradeIntervalToTwelveData(interval);
+  }
+
+  return "1min";
+}
+
 function mapForexSymbol(symbol: string) {
   const normalized = cleanSymbol(symbol).replace(/[\/_-]/g, "");
   if (normalized.includes("/")) return normalized;
@@ -178,31 +186,22 @@ export function mapTradeSymbolCandidates(symbol: string, assetClass: SupportedAs
 export function computeChartWindow(openedAt: string, closedAt: string | null, interval: string | null) {
   const opened = new Date(openedAt);
   const closed = closedAt ? new Date(closedAt) : opened;
+  const isHigherTimeframe = interval === "1D" || interval === "1W";
 
-  const msPerBar = (() => {
-    switch (interval) {
-      case "1m":
-        return 60_000;
-      case "3m":
-        return 3 * 60_000;
-      case "5m":
-        return 5 * 60_000;
-      case "15m":
-        return 15 * 60_000;
-      case "30m":
-        return 30 * 60_000;
-      case "1h":
-        return 60 * 60_000;
-      case "4h":
-        return 4 * 60 * 60_000;
-      case "1D":
-        return 24 * 60 * 60_000;
-      case "1W":
-        return 7 * 24 * 60 * 60_000;
-      default:
-        return 15 * 60_000;
-    }
-  })();
+  if (!isHigherTimeframe) {
+    const centeredWindowMs = 1_500 * 60_000;
+    const minimumContextMs = 120 * 60_000;
+    const span = Math.max(closed.getTime() - opened.getTime(), 0);
+    const totalWindowMs = Math.max(centeredWindowMs, span + minimumContextMs * 2);
+    const midpointMs = opened.getTime() + span / 2;
+
+    return {
+      start: new Date(midpointMs - totalWindowMs / 2),
+      end: new Date(midpointMs + totalWindowMs / 2),
+    };
+  }
+
+  const msPerBar = interval === "1W" ? 7 * 24 * 60 * 60_000 : 24 * 60 * 60_000;
 
   const span = Math.max(closed.getTime() - opened.getTime(), msPerBar * 24);
   const padding = Math.max(span * 2, msPerBar * 80);
@@ -214,7 +213,7 @@ export function computeChartWindow(openedAt: string, closedAt: string | null, in
 }
 
 export function toTwelveDataDateTime(value: Date, interval: string | null) {
-  if (interval === "1D" || interval === "1W") {
+  if (interval === "1D" || interval === "1W" || interval === "1day" || interval === "1week") {
     return value.toISOString().slice(0, 10);
   }
 

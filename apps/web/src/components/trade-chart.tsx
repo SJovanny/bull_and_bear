@@ -9,7 +9,13 @@ import {
   createChart,
   type CandlestickData,
   type IChartApi,
+  type IPrimitivePaneRenderer,
+  type IPrimitivePaneView,
+  type ISeriesApi,
+  type ISeriesPrimitive,
+  type SeriesAttachedParameter,
   type SeriesMarker,
+  type SeriesType,
   type Time,
 } from "lightweight-charts";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -45,6 +51,7 @@ type MarketDataResponse = {
 };
 
 type ChartBar = CandlestickData<Time>;
+type TrendPoint = { time: Time; price: number };
 
 function getInitialTheme(): ThemeMode {
   if (typeof document === "undefined") return "light";
@@ -65,12 +72,23 @@ function formatPrice(value: number | null) {
   });
 }
 
+/**
+ * Returns the local timezone offset in milliseconds for a given UTC timestamp.
+ * Positive when local time is ahead of UTC (e.g. +3_600_000 for UTC+1 Paris).
+ * Uses the timestamp-specific offset to handle DST transitions correctly.
+ */
+function localOffsetMs(utcMs: number): number {
+  return -new Date(utcMs).getTimezoneOffset() * 60_000;
+}
+
 function toChartTime(value: string): Time {
   if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
     return value as Time;
   }
 
-  return Math.floor(new Date(value.replace(" ", "T") + "Z").getTime() / 1000) as Time;
+  // Parse bar time as UTC, then shift by local offset so the chart axis shows local time.
+  const utcMs = new Date(value.replace(" ", "T") + "Z").getTime();
+  return Math.floor((utcMs + localOffsetMs(utcMs)) / 1000) as Time;
 }
 
 function timeToMillis(value: Time) {
@@ -81,9 +99,14 @@ function timeToMillis(value: Time) {
   return Number(value) * 1000;
 }
 
+/**
+ * Parse a trade ISO timestamp and shift it by the local timezone offset so it
+ * lives in the same "local-shifted" reference frame as the chart bar times.
+ */
 function parseTradeTimestamp(value: string) {
-  const parsed = new Date(value).getTime();
-  return Number.isNaN(parsed) ? null : parsed;
+  const utcMs = new Date(value).getTime();
+  if (Number.isNaN(utcMs)) return null;
+  return utcMs + localOffsetMs(utcMs);
 }
 
 function intervalToMs(interval: string | null) {
@@ -111,6 +134,11 @@ function intervalToMs(interval: string | null) {
   }
 }
 
+/**
+ * Snap a trade timestamp to the start of its candle bucket.
+ * All math is done in local-shifted time so the result can be compared directly
+ * against chart bar times produced by toChartTime().
+ */
 function bucketTradeTime(targetIso: string, interval: string | null) {
   const target = new Date(targetIso);
   if (Number.isNaN(target.getTime())) {
@@ -127,8 +155,11 @@ function bucketTradeTime(targetIso: string, interval: string | null) {
     return Date.UTC(target.getUTCFullYear(), target.getUTCMonth(), target.getUTCDate() - diff);
   }
 
+  // Shift UTC → local, then floor to the bucket boundary.
+  const utcMs = target.getTime();
+  const localMs = utcMs + localOffsetMs(utcMs);
   const bucket = intervalToMs(interval);
-  return Math.floor(target.getTime() / bucket) * bucket;
+  return Math.floor(localMs / bucket) * bucket;
 }
 
 function resolveTradeBarTime(bars: ChartBar[], targetIso: string, interval: string | null) {
@@ -169,12 +200,96 @@ function resolveTradeBarTime(bars: ChartBar[], targetIso: string, interval: stri
   return nearestBar.time;
 }
 
+function findBarIndex(bars: ChartBar[], time: Time | undefined) {
+  if (!time) {
+    return -1;
+  }
+
+  return bars.findIndex((bar) => bar.time === time);
+}
+
+class TradePathRenderer implements IPrimitivePaneRenderer {
+  constructor(
+    private chart: IChartApi,
+    private series: ISeriesApi<SeriesType, Time>,
+    private from: TrendPoint,
+    private to: TrendPoint,
+    private color: string,
+  ) {}
+
+  draw(target: Parameters<IPrimitivePaneRenderer["draw"]>[0]): void {
+    target.useMediaCoordinateSpace(({ context }) => {
+      const x1 = this.chart.timeScale().timeToCoordinate(this.from.time);
+      const y1 = this.series.priceToCoordinate(this.from.price);
+      const x2 = this.chart.timeScale().timeToCoordinate(this.to.time);
+      const y2 = this.series.priceToCoordinate(this.to.price);
+
+      if (x1 == null || y1 == null || x2 == null || y2 == null) {
+        return;
+      }
+
+      context.save();
+      context.beginPath();
+      context.setLineDash([6, 4]);
+      context.moveTo(x1, y1);
+      context.lineTo(x2, y2);
+      context.lineWidth = 2;
+      context.strokeStyle = this.color;
+      context.stroke();
+      context.restore();
+    });
+  }
+}
+
+class TradePathPaneView implements IPrimitivePaneView {
+  constructor(private rendererInstance: IPrimitivePaneRenderer) {}
+
+  zOrder() {
+    return "top" as const;
+  }
+
+  renderer() {
+    return this.rendererInstance;
+  }
+}
+
+class TradePathPrimitive implements ISeriesPrimitive<Time> {
+  private chart: IChartApi | null = null;
+  private series: ISeriesApi<SeriesType, Time> | null = null;
+
+  constructor(
+    private from: TrendPoint,
+    private to: TrendPoint,
+    private color: string,
+  ) {}
+
+  attached(param: SeriesAttachedParameter<Time, SeriesType>) {
+    this.chart = param.chart as IChartApi;
+    this.series = param.series;
+  }
+
+  detached() {
+    this.chart = null;
+    this.series = null;
+  }
+
+  paneViews() {
+    if (!this.chart || !this.series) {
+      return [];
+    }
+
+    return [
+      new TradePathPaneView(new TradePathRenderer(this.chart, this.series, this.from, this.to, this.color)),
+    ];
+  }
+}
+
 function buildTradeMarker(
   id: string,
   time: Time | undefined,
   price: number | null,
   color: string,
-  shape: "arrowUp" | "arrowDown",
+  shape: "circle" | "square",
   text: string,
 ): SeriesMarker<Time> | null {
   if (!time || price == null) {
@@ -187,9 +302,9 @@ function buildTradeMarker(
     price,
     color,
     shape,
-    position: shape === "arrowUp" ? "atPriceBottom" : "atPriceTop",
+    position: "atPriceMiddle",
     text,
-    size: 1.2,
+    size: 1.4,
   };
 }
 
@@ -262,6 +377,12 @@ export function TradeChart({
   const data = state.requestKey === requestKey ? state.data : null;
   const error = state.requestKey === requestKey ? state.error : null;
   const loading = state.requestKey !== requestKey;
+  const displayedInterval = useMemo(() => {
+    if (data?.interval === "1min") return "1m";
+    if (data?.interval === "1day") return "1D";
+    if (data?.interval === "1week") return "1W";
+    return interval ?? "15m";
+  }, [data?.interval, interval]);
 
   useEffect(() => {
     if (typeof document === "undefined") return;
@@ -351,8 +472,8 @@ export function TradeChart({
       timeScale: {
         borderColor: palette.border,
         rightOffset: 12,
-        barSpacing: 14,
-        minBarSpacing: 6,
+        barSpacing: 4,
+        minBarSpacing: 1.5,
         timeVisible: true,
         secondsVisible: false,
       },
@@ -372,15 +493,16 @@ export function TradeChart({
 
     series.setData(bars);
 
-    const entryTime = resolveTradeBarTime(bars, openedAt, interval);
-    const exitTime = closedAt ? resolveTradeBarTime(bars, closedAt, interval) : undefined;
+    const chartInterval = data?.interval === "1min" ? "1m" : data?.interval === "1day" ? "1D" : data?.interval === "1week" ? "1W" : interval;
+    const entryTime = resolveTradeBarTime(bars, openedAt, chartInterval);
+    const exitTime = closedAt ? resolveTradeBarTime(bars, closedAt, chartInterval) : undefined;
     const markers = [
       buildTradeMarker(
         "entry",
         entryTime,
         entry,
         palette.entry,
-        side === "LONG" ? "arrowUp" : "arrowDown",
+        "circle",
         `Entry ${formatPrice(entry)}`,
       ),
       buildTradeMarker(
@@ -388,7 +510,7 @@ export function TradeChart({
         exitTime,
         exit,
         palette.exit,
-        side === "LONG" ? "arrowDown" : "arrowUp",
+        "circle",
         `Exit ${formatPrice(exit)}`,
       ),
     ].filter((marker): marker is SeriesMarker<Time> => marker != null);
@@ -398,6 +520,16 @@ export function TradeChart({
       zOrder: "aboveSeries",
     });
 
+    if (entryTime && exitTime && entry != null && exit != null) {
+      series.attachPrimitive(
+        new TradePathPrimitive(
+          { time: entryTime, price: entry },
+          { time: exitTime, price: exit },
+          palette.exit,
+        ),
+      );
+    }
+
     if (entry != null) {
       series.createPriceLine({
         price: entry,
@@ -406,26 +538,6 @@ export function TradeChart({
         lineStyle: LineStyle.Solid,
         axisLabelVisible: true,
         title: "PE",
-      });
-    }
-    if (stop != null) {
-      series.createPriceLine({
-        price: stop,
-        color: palette.stop,
-        lineWidth: 2,
-        lineStyle: LineStyle.Dashed,
-        axisLabelVisible: true,
-        title: "SL",
-      });
-    }
-    if (take != null) {
-      series.createPriceLine({
-        price: take,
-        color: palette.take,
-        lineWidth: 2,
-        lineStyle: LineStyle.Dashed,
-        axisLabelVisible: true,
-        title: "TP",
       });
     }
     if (exit != null) {
@@ -439,7 +551,23 @@ export function TradeChart({
       });
     }
 
-    chart.timeScale().fitContent();
+    const entryIndex = findBarIndex(bars, entryTime);
+    const exitIndex = findBarIndex(bars, exitTime);
+    const focusIndex = exitIndex >= 0 ? exitIndex : entryIndex;
+
+    if (entryIndex >= 0) {
+      const leftPadding = 180;
+      const rightPadding = exitIndex >= 0 ? 180 : 360;
+      const from = Math.max(0, entryIndex - leftPadding);
+      const to = Math.min(
+        bars.length - 1,
+        Math.max(entryIndex, focusIndex >= 0 ? focusIndex : entryIndex) + rightPadding,
+      );
+
+      chart.timeScale().setVisibleLogicalRange({ from, to });
+    } else {
+      chart.timeScale().fitContent();
+    }
 
     chartRef.current = chart;
     const resizeObserver = new ResizeObserver(() => {
@@ -456,12 +584,10 @@ export function TradeChart({
       chart.remove();
       chartRef.current = null;
     };
-  }, [bars, closedAt, entry, exit, interval, openedAt, palette, side, stop, take]);
+  }, [bars, closedAt, entry, exit, interval, openedAt, palette]);
 
   const levels = [
     { label: "PE", value: entry, color: palette.entry },
-    { label: "SL", value: stop, color: palette.stop },
-    { label: "TP", value: take, color: palette.take },
     { label: "Sortie", value: exit, color: palette.exit },
   ].filter((level) => level.value != null);
 
@@ -471,7 +597,7 @@ export function TradeChart({
         <div>
           <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-secondary">Graphique du trade</p>
           <p className="mt-1 text-sm font-semibold text-primary">
-            {symbol} · {interval ?? "15m"}
+            {symbol} · {displayedInterval}
           </p>
           {data?.providerSymbol ? (
             <p className="mt-1 text-xs text-secondary">Source: Twelve Data · {data.providerSymbol}</p>
