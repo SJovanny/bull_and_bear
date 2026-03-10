@@ -1,13 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
-function requireEnv(name: string, value: string | undefined) {
-  if (!value) {
-    throw new Error(`Missing required environment variable: ${name}`);
-  }
-
-  return value;
-}
+import { requireEnv } from "@/lib/env";
 
 export async function createSupabaseServerClient() {
   const supabaseUrl = requireEnv(

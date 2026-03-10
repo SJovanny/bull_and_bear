@@ -1,22 +1,11 @@
-import { NextResponse } from "next/server";
-
-import { getCurrentAppUser } from "@/lib/auth/current-user";
+import { withAuth } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 
-export async function GET() {
-  const appUser = await getCurrentAppUser();
-
-  if (!appUser) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
+export const GET = withAuth(async (_request, { user }) => {
   const accounts = await prisma.account.findMany({
-    where: { userId: appUser.id, isArchived: false },
+    where: { userId: user.id, isArchived: false },
     orderBy: { createdAt: "asc" },
   });
 
-  return NextResponse.json({
-    user: appUser,
-    accounts,
-  });
-}
+  return Response.json({ user, accounts });
+});

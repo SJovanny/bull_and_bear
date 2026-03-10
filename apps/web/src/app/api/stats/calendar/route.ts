@@ -1,6 +1,4 @@
-import { NextResponse } from "next/server";
-
-import { getCurrentAppUser } from "@/lib/auth/current-user";
+import { withAuth, verifyAccountOwnership, safeErrorResponse } from "@/lib/api";
 import {
   buildCalendar,
   calendarRange,
@@ -9,27 +7,20 @@ import {
   withCalendarFilters,
 } from "@/lib/stats";
 
-export async function GET(request: Request) {
-  const user = await getCurrentAppUser();
+export const GET = withAuth(async (request, { user }) => {
+  const filters = withCalendarFilters(new URL(request.url).searchParams);
 
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const account = await verifyAccountOwnership(filters.accountId, user.id);
+  if (!account) {
+    return safeErrorResponse("Account not found", 404);
   }
 
-  try {
-    const filters = withCalendarFilters(new URL(request.url).searchParams);
-    const { start, end } = calendarRange(filters.month ?? "");
-    const scopedFilters = { ...filters, from: start, to: end };
-    const [activityTrades, journalDates] = await Promise.all([
-      fetchActivityTrades(scopedFilters),
-      fetchCalendarJournalDates(filters.accountId, start, end),
-    ]);
+  const { start, end } = calendarRange(filters.month ?? "");
+  const scopedFilters = { ...filters, from: start, to: end };
+  const [activityTrades, journalDates] = await Promise.all([
+    fetchActivityTrades(scopedFilters),
+    fetchCalendarJournalDates(filters.accountId, start, end),
+  ]);
 
-    return NextResponse.json(buildCalendar(scopedFilters, filters.month ?? "", activityTrades, journalDates));
-  } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to load calendar" },
-      { status: 400 },
-    );
-  }
-}
+  return Response.json(buildCalendar(scopedFilters, filters.month ?? "", activityTrades, journalDates));
+});

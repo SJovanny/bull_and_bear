@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { supabaseClient } from "@/lib/supabase/client";
+import { sanitizeRedirectPath } from "@/lib/validation";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -30,7 +31,8 @@ export default function LoginPage() {
       return;
     }
 
-    const nextPath = new URLSearchParams(window.location.search).get("next") || "/";
+    const rawNext = new URLSearchParams(window.location.search).get("next");
+    const nextPath = sanitizeRedirectPath(rawNext);
     router.push(nextPath);
     router.refresh();
   }

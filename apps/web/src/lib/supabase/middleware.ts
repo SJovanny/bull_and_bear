@@ -1,13 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-function requireEnv(name: string, value: string | undefined) {
-  if (!value) {
-    throw new Error(`Missing required environment variable: ${name}`);
-  }
-
-  return value;
-}
+import { requireEnv } from "@/lib/env";
 
 export async function updateSession(request: NextRequest) {
   const supabaseUrl = requireEnv(
@@ -44,9 +38,8 @@ export async function updateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const isAuthPage = pathname.startsWith("/auth/login") || pathname.startsWith("/auth/signup");
   const isAuthCallback = pathname.startsWith("/auth/callback");
-  const isPublicApi = pathname.startsWith("/api/public");
 
-  if (!user && !isAuthPage && !isAuthCallback && !isPublicApi) {
+  if (!user && !isAuthPage && !isAuthCallback) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/auth/login";
     redirectUrl.searchParams.set("next", pathname);

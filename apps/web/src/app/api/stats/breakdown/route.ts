@@ -1,24 +1,14 @@
-import { NextResponse } from "next/server";
-
-import { getCurrentAppUser } from "@/lib/auth/current-user";
+import { withAuth, verifyAccountOwnership, safeErrorResponse } from "@/lib/api";
 import { buildBreakdown, fetchClosedTrades, withBreakdownFilters } from "@/lib/stats";
 
-export async function GET(request: Request) {
-  const user = await getCurrentAppUser();
+export const GET = withAuth(async (request, { user }) => {
+  const filters = withBreakdownFilters(new URL(request.url).searchParams);
 
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const account = await verifyAccountOwnership(filters.accountId, user.id);
+  if (!account) {
+    return safeErrorResponse("Account not found", 404);
   }
 
-  try {
-    const filters = withBreakdownFilters(new URL(request.url).searchParams);
-    const closedTrades = await fetchClosedTrades(filters);
-
-    return NextResponse.json(buildBreakdown(filters, closedTrades));
-  } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to load breakdown" },
-      { status: 400 },
-    );
-  }
-}
+  const closedTrades = await fetchClosedTrades(filters);
+  return Response.json(buildBreakdown(filters, closedTrades));
+});

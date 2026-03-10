@@ -1,12 +1,6 @@
 import { createBrowserClient } from "@supabase/ssr";
 
-function requireEnv(name: string, value: string | undefined) {
-  if (!value) {
-    throw new Error(`Missing required environment variable: ${name}`);
-  }
-
-  return value;
-}
+import { requireEnv } from "@/lib/env";
 
 const supabaseUrl = requireEnv(
   "NEXT_PUBLIC_SUPABASE_URL",

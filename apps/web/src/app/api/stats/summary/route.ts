@@ -1,27 +1,18 @@
-import { NextResponse } from "next/server";
-
-import { getCurrentAppUser } from "@/lib/auth/current-user";
+import { withAuth, verifyAccountOwnership, safeErrorResponse } from "@/lib/api";
 import { buildSummary, fetchActivityTrades, fetchClosedTrades, resolveStatsPeriod } from "@/lib/stats";
 
-export async function GET(request: Request) {
-  const user = await getCurrentAppUser();
+export const GET = withAuth(async (request, { user }) => {
+  const filters = resolveStatsPeriod(new URL(request.url).searchParams);
 
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const account = await verifyAccountOwnership(filters.accountId, user.id);
+  if (!account) {
+    return safeErrorResponse("Account not found", 404);
   }
 
-  try {
-    const filters = resolveStatsPeriod(new URL(request.url).searchParams);
-    const [activityTrades, closedTrades] = await Promise.all([
-      fetchActivityTrades(filters),
-      fetchClosedTrades(filters),
-    ]);
+  const [activityTrades, closedTrades] = await Promise.all([
+    fetchActivityTrades(filters),
+    fetchClosedTrades(filters),
+  ]);
 
-    return NextResponse.json(buildSummary(filters, activityTrades, closedTrades));
-  } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to load summary" },
-      { status: 400 },
-    );
-  }
-}
+  return Response.json(buildSummary(filters, activityTrades, closedTrades));
+});
