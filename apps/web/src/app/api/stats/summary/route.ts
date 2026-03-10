@@ -2,7 +2,7 @@ import { withAuth, verifyAccountOwnership, safeErrorResponse } from "@/lib/api";
 import { buildSummary, fetchActivityTrades, fetchClosedTrades, resolveStatsPeriod } from "@/lib/stats";
 
 export const GET = withAuth(async (request, { user }) => {
-  const filters = resolveStatsPeriod(new URL(request.url).searchParams);
+  const filters = resolveStatsPeriod(new URL(request.url).searchParams, user.id);
 
   const account = await verifyAccountOwnership(filters.accountId, user.id);
   if (!account) {

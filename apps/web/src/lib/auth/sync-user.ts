@@ -1,3 +1,5 @@
+import "server-only";
+
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 import { prisma } from "@/lib/prisma";

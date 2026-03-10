@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { DashboardShell } from "@/components/dashboard-shell";
 import { ImageLightbox } from "@/components/image-lightbox";
+import { TradeChart } from "@/components/trade-chart";
 import { TradeEntryModal } from "@/components/trade-entry-modal";
 
 type Trade = {
@@ -370,31 +371,46 @@ export default function TradeDetailPage() {
                 <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 14l4-4m0 0l2-6 2 6m-4 0h4m2 4V4" /></svg>
                 Execution
               </SectionTitle>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                <InfoCard label="Prix d'entree">
-                  <InfoValue>{formatNumber(trade.entryPrice)}</InfoValue>
-                </InfoCard>
-                <InfoCard label="Prix de sortie">
-                  <InfoValue>{formatNumber(trade.exitPrice)}</InfoValue>
-                </InfoCard>
-                <InfoCard label="Quantite">
-                  <InfoValue>{formatNumber(trade.quantity)}</InfoValue>
-                </InfoCard>
-                <InfoCard label="Frais">
-                  <InfoValue>{formatNumber(trade.fees)}</InfoValue>
-                </InfoCard>
-                <InfoCard label="Stop loss initial">
-                  <InfoValue>{formatNumber(trade.initialStopLoss)}</InfoValue>
-                </InfoCard>
-                <InfoCard label="Take profit initial">
-                  <InfoValue>{formatNumber(trade.initialTakeProfit)}</InfoValue>
-                </InfoCard>
-                <InfoCard label="Risk amount">
-                  <InfoValue>{formatNumber(trade.riskAmount)}</InfoValue>
-                </InfoCard>
-                <InfoCard label="Multiplicateur contrat">
-                  <InfoValue>{formatNumber(trade.contractMultiplier)}</InfoValue>
-                </InfoCard>
+              <div className="space-y-4">
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  <InfoCard label="Prix d'entree">
+                    <InfoValue>{formatNumber(trade.entryPrice)}</InfoValue>
+                  </InfoCard>
+                  <InfoCard label="Prix de sortie">
+                    <InfoValue>{formatNumber(trade.exitPrice)}</InfoValue>
+                  </InfoCard>
+                  <InfoCard label="Quantite">
+                    <InfoValue>{formatNumber(trade.quantity)}</InfoValue>
+                  </InfoCard>
+                  <InfoCard label="Frais">
+                    <InfoValue>{formatNumber(trade.fees)}</InfoValue>
+                  </InfoCard>
+                  <InfoCard label="Stop loss initial">
+                    <InfoValue>{formatNumber(trade.initialStopLoss)}</InfoValue>
+                  </InfoCard>
+                  <InfoCard label="Take profit initial">
+                    <InfoValue>{formatNumber(trade.initialTakeProfit)}</InfoValue>
+                  </InfoCard>
+                  <InfoCard label="Risk amount">
+                    <InfoValue>{formatNumber(trade.riskAmount)}</InfoValue>
+                  </InfoCard>
+                  <InfoCard label="Multiplicateur contrat">
+                    <InfoValue>{formatNumber(trade.contractMultiplier)}</InfoValue>
+                  </InfoCard>
+                </div>
+
+                <TradeChart
+                  symbol={trade.symbol}
+                  assetClass={trade.assetClass}
+                  interval={trade.entryTimeframe}
+                  side={trade.side}
+                  openedAt={trade.openedAt}
+                  closedAt={trade.closedAt}
+                  entryPrice={trade.entryPrice}
+                  initialStopLoss={trade.initialStopLoss}
+                  initialTakeProfit={trade.initialTakeProfit}
+                  exitPrice={trade.exitPrice}
+                />
               </div>
             </section>
 

@@ -30,7 +30,7 @@ function endOfUtcDay(date: Date) {
   return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 23, 59, 59, 999));
 }
 
-export function resolveStatsPeriod(searchParams: URLSearchParams): StatsQuery {
+export function resolveStatsPeriod(searchParams: URLSearchParams, userId: string): StatsQuery {
   const accountId = searchParams.get("accountId")?.trim() ?? "";
   if (!accountId) {
     throw new Error("accountId is required");
@@ -76,7 +76,7 @@ export function resolveStatsPeriod(searchParams: URLSearchParams): StatsQuery {
     }
   }
 
-  return { accountId, period, from, to };
+  return { accountId, userId, period, from, to };
 }
 
 export function resolveBreakdownKey(searchParams: URLSearchParams): BreakdownKey {
@@ -108,30 +108,30 @@ export function resolveMonth(searchParams: URLSearchParams) {
   return month;
 }
 
-export function withBreakdownFilters(searchParams: URLSearchParams): ResolvedStatsFilters {
+export function withBreakdownFilters(searchParams: URLSearchParams, userId: string): ResolvedStatsFilters {
   return {
-    ...resolveStatsPeriod(searchParams),
+    ...resolveStatsPeriod(searchParams, userId),
     breakdownBy: resolveBreakdownKey(searchParams),
   };
 }
 
-export function withDistributionFilters(searchParams: URLSearchParams): ResolvedStatsFilters {
+export function withDistributionFilters(searchParams: URLSearchParams, userId: string): ResolvedStatsFilters {
   return {
-    ...resolveStatsPeriod(searchParams),
+    ...resolveStatsPeriod(searchParams, userId),
     distributionMetric: resolveDistributionMetric(searchParams),
   };
 }
 
-export function withEquityFilters(searchParams: URLSearchParams): ResolvedStatsFilters {
+export function withEquityFilters(searchParams: URLSearchParams, userId: string): ResolvedStatsFilters {
   return {
-    ...resolveStatsPeriod(searchParams),
+    ...resolveStatsPeriod(searchParams, userId),
     groupBy: resolveGroupBy(searchParams),
   };
 }
 
-export function withCalendarFilters(searchParams: URLSearchParams): ResolvedStatsFilters {
+export function withCalendarFilters(searchParams: URLSearchParams, userId: string): ResolvedStatsFilters {
   return {
-    ...resolveStatsPeriod(searchParams),
+    ...resolveStatsPeriod(searchParams, userId),
     month: resolveMonth(searchParams),
   };
 }

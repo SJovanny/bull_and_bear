@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { KpiCards } from "@/components/dashboard/kpi-cards";
 import { DashboardCharts } from "@/components/dashboard/charts";
@@ -10,6 +10,14 @@ import { useSelectedAccountId } from "@/hooks/use-selected-account-id";
 import type { Account, DashboardPeriod, StatsCalendar, StatsEquity, StatsSummary, Trade } from "@/types";
 
 export default function Home() {
+  return (
+    <Suspense>
+      <HomeContent />
+    </Suspense>
+  );
+}
+
+function HomeContent() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [trades, setTrades] = useState<Trade[]>([]);
   const [summary, setSummary] = useState<StatsSummary | null>(null);

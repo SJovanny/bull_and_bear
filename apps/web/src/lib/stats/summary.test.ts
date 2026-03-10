@@ -25,6 +25,7 @@ function makeTrade(overrides: Partial<StatsTrade>): StatsTrade {
 }
 
 const filters: StatsQuery = {
+  userId: "user-1",
   accountId: "acc-1",
   period: "30D",
   from: new Date("2026-03-01T00:00:00.000Z"),

@@ -4,6 +4,7 @@ import { buildEquity } from "./equity";
 import type { ResolvedStatsFilters, StatsTrade } from "./types";
 
 const filters: ResolvedStatsFilters = {
+  userId: "user-1",
   accountId: "acc-1",
   period: "30D",
   from: new Date("2026-03-01T00:00:00.000Z"),

@@ -3,6 +3,7 @@ import { TradeOutcome, TradeSide, TradeStatus } from "@prisma/client";
 import { safeErrorResponse, verifyAccountOwnership, withAuth } from "@/lib/api";
 import { tradeCreateSchema } from "@/lib/api-schemas";
 import { prisma } from "@/lib/prisma";
+import { normalizeStoredTradeSymbol } from "@/lib/symbol-normalization";
 import { computeNetPnl, computeTradeOutcome, defaultContractMultiplier } from "@/lib/trade-calc";
 
 export const GET = withAuth(async (request, { user }) => {
@@ -79,8 +80,10 @@ export const POST = withAuth(async (request, { user }) => {
     riskAmount,
   } = parsedBody.data;
 
+  const normalizedSymbol = normalizeStoredTradeSymbol(symbol, assetClass);
+
   const parsedContractMultiplier =
-    contractMultiplier ?? defaultContractMultiplier(assetClass, symbol);
+    contractMultiplier ?? defaultContractMultiplier(assetClass, normalizedSymbol);
 
   const computedNetPnl =
     exitPrice != null
@@ -119,7 +122,7 @@ export const POST = withAuth(async (request, { user }) => {
       userId: user.id,
       accountId,
       assetClass: assetClass as never,
-      symbol,
+      symbol: normalizedSymbol,
       setupName,
       entryTimeframe,
       higherTimeframeBias,

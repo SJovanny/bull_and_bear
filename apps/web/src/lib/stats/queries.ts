@@ -15,6 +15,7 @@ function buildActivityWhere(filters: StatsQuery, dateField: ActivityDateField) {
 
   return {
     accountId: filters.accountId,
+    userId: filters.userId,
     ...rangeFilter,
   };
 }
@@ -32,6 +33,7 @@ function buildClosedWhere(filters: StatsQuery) {
 
   return {
     accountId: filters.accountId,
+    userId: filters.userId,
     status: "CLOSED" as const,
     ...rangeFilter,
   };
@@ -95,10 +97,11 @@ export async function fetchRecentActivityTrades(filters: StatsQuery, take = 30) 
   });
 }
 
-export async function fetchCalendarJournalDates(accountId: string, start: Date, end: Date) {
+export async function fetchCalendarJournalDates(accountId: string, userId: string, start: Date, end: Date) {
   const rows = await prisma.dailyJournal.findMany({
     where: {
       accountId,
+      userId,
       date: {
         gte: start,
         lte: end,

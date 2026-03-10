@@ -3,7 +3,15 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { requireEnv } from "@/lib/env";
 
-export async function updateSession(request: NextRequest) {
+/**
+ * Refreshes the Supabase session and enforces auth redirects.
+ *
+ * @param request  – the incoming Next.js request
+ * @param response – an **optional** pre-built response (e.g. one that already
+ *                   carries CSP / nonce headers). When omitted, a fresh
+ *                   `NextResponse.next()` is created automatically.
+ */
+export async function updateSession(request: NextRequest, response?: NextResponse) {
   const supabaseUrl = requireEnv(
     "NEXT_PUBLIC_SUPABASE_URL",
     process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -14,7 +22,7 @@ export async function updateSession(request: NextRequest) {
       process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY,
   );
 
-  const response = NextResponse.next({ request });
+  const res = response ?? NextResponse.next({ request });
 
   const supabase = createServerClient(supabaseUrl, anonKey, {
     cookies: {
@@ -24,7 +32,7 @@ export async function updateSession(request: NextRequest) {
       setAll(cookiesToSet) {
         cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
         cookiesToSet.forEach(({ name, value, options }) =>
-          response.cookies.set(name, value, options),
+          res.cookies.set(name, value, options),
         );
       },
     },
@@ -53,5 +61,5 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
-  return response;
+  return res;
 }

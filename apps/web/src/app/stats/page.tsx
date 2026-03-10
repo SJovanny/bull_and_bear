@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 
 import { DashboardShell } from "@/components/dashboard-shell";
 import { MetricLabel } from "@/components/metric-label";
@@ -34,6 +34,14 @@ const DISTRIBUTION_OPTIONS: { value: DistributionMetric; label: string }[] = [
 ];
 
 export default function StatsPage() {
+  return (
+    <Suspense>
+      <StatsPageContent />
+    </Suspense>
+  );
+}
+
+function StatsPageContent() {
   const selectedAccountId = useSelectedAccountId();
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [summary, setSummary] = useState<StatsSummary | null>(null);

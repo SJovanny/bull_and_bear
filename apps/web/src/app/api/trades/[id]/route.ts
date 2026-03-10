@@ -3,6 +3,7 @@ import { TradeOutcome, TradeSide, TradeStatus } from "@prisma/client";
 import { safeErrorResponse, withAuth } from "@/lib/api";
 import { tradeUpdateSchema } from "@/lib/api-schemas";
 import { prisma } from "@/lib/prisma";
+import { normalizeStoredTradeSymbol } from "@/lib/symbol-normalization";
 import { computeNetPnl, computeTradeOutcome, defaultContractMultiplier } from "@/lib/trade-calc";
 
 export const GET = withAuth(async (_request, { user, params }) => {
@@ -53,7 +54,12 @@ export const PATCH = withAuth(async (request, { user, params }) => {
   const payload = parsedBody.data;
   const updateData: Record<string, unknown> = {};
 
-  if (payload.symbol !== undefined) updateData.symbol = payload.symbol;
+  const nextAssetClass = payload.assetClass ?? existing.assetClass;
+  const nextSymbol = payload.symbol !== undefined
+    ? normalizeStoredTradeSymbol(payload.symbol, nextAssetClass)
+    : existing.symbol;
+
+  if (payload.symbol !== undefined) updateData.symbol = nextSymbol;
   if (payload.side !== undefined) updateData.side = payload.side;
   if (payload.status !== undefined) updateData.status = payload.status;
   if (payload.assetClass !== undefined) updateData.assetClass = payload.assetClass;
@@ -85,8 +91,8 @@ export const PATCH = withAuth(async (request, { user, params }) => {
   if (payload.notes !== undefined) updateData.notes = payload.notes;
 
   if (payload.contractMultiplier !== undefined) {
-    const assetClass = payload.assetClass ?? existing.assetClass;
-    const symbol = payload.symbol ?? existing.symbol;
+    const assetClass = nextAssetClass;
+    const symbol = nextSymbol;
     updateData.contractMultiplier =
       payload.contractMultiplier ?? defaultContractMultiplier(assetClass, symbol);
   }
@@ -138,7 +144,7 @@ export const PATCH = withAuth(async (request, { user, params }) => {
   }
 
   const trade = await prisma.trade.update({
-    where: { id },
+    where: { id, userId: user.id },
     data: updateData,
   });
 
@@ -157,6 +163,6 @@ export const DELETE = withAuth(async (_request, { user, params }) => {
     return safeErrorResponse("Trade not found", 404);
   }
 
-  await prisma.trade.delete({ where: { id } });
+  await prisma.trade.delete({ where: { id, userId: user.id } });
   return new Response(null, { status: 204 });
 });

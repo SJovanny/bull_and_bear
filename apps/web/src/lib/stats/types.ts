@@ -2,6 +2,7 @@ import type { BreakdownKey, DistributionMetric, StatsPeriod } from "@/types";
 
 export type StatsQuery = {
   accountId: string;
+  userId: string;
   period: StatsPeriod;
   from: Date | null;
   to: Date | null;

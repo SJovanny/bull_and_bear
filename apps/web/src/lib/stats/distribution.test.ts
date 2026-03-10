@@ -46,6 +46,7 @@ describe("buildDistribution", () => {
   it("builds pnl histogram payload", () => {
     const result = buildDistribution(
       {
+        userId: "user-1",
         accountId: "acc-1",
         period: "ALL",
         from: null,
@@ -65,6 +66,7 @@ describe("buildDistribution", () => {
   it("supports holding time values", () => {
     const result = buildDistribution(
       {
+        userId: "user-1",
         accountId: "acc-1",
         period: "ALL",
         from: null,

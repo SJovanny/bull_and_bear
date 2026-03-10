@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 
 import { DashboardShell } from "@/components/dashboard-shell";
 import { TradeEntryModal } from "@/components/trade-entry-modal";
@@ -81,6 +81,14 @@ function formatLongDateWithUpperMonth(date: Date) {
 }
 
 export default function CalendarPage() {
+  return (
+    <Suspense>
+      <CalendarPageContent />
+    </Suspense>
+  );
+}
+
+function CalendarPageContent() {
   const [currentMonth, setCurrentMonth] = useState(() => {
     const now = new Date();
     return new Date(now.getFullYear(), now.getMonth(), 1);

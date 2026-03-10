@@ -70,13 +70,31 @@ const symbolSuggestionsByAssetClass: Record<AssetClass, string[]> = {
   STOCK: ["AAPL", "TSLA", "NVDA", "MSFT", "AMZN"],
   FUTURES: ["NQ", "MNQ", "ES", "MES", "CL", "GC"],
   FOREX: ["EURUSD", "GBPUSD", "USDJPY", "AUDUSD", "USDCAD"],
-  CRYPTO: ["BTCUSDT", "ETHUSDT", "SOLUSDT", "BNBUSDT", "XRPUSDT"],
+  CRYPTO: ["BTCUSD", "ETHUSD", "SOLUSD", "XRPUSD", "ADAUSD"],
   OPTIONS: ["AAPL 200C", "TSLA 180P", "SPY 500C", "QQQ 430P"],
   ETF: ["SPY", "QQQ", "IWM", "DIA", "XLF"],
-  INDEX: ["SPX", "NDX", "DJI", "RUT", "VIX"],
-  CFD: ["US30", "NAS100", "GER40", "XAUUSD", "UK100"],
+  INDEX: ["US500", "NAS100", "US30", "GER40", "UK100"],
+  CFD: ["US500", "NAS100", "US30", "GER40", "XAUUSD"],
   OTHER: ["CUSTOM1", "CUSTOM2"],
 };
+
+function normalizeSymbolInput(value: string) {
+  return value.toUpperCase().replace(/\s+/g, "").replace(/[^A-Z0-9./_-]/g, "");
+}
+
+function normalizeTradeSymbol(assetClass: AssetClass, value: string) {
+  const normalized = normalizeSymbolInput(value);
+
+  if (assetClass !== "CRYPTO") {
+    return normalized;
+  }
+
+  return normalized
+    .replace(/USDT$/g, "USD")
+    .replace(/USDC$/g, "USD")
+    .replace(/\/USDT$/g, "/USD")
+    .replace(/\/USDC$/g, "/USD");
+}
 
 const confluenceOptions = [
   "VWAP",
@@ -603,40 +621,40 @@ export function TradeEntryModal({
 
       const endpoint = mode === "edit" && tradeId ? `/api/trades/${tradeId}` : "/api/trades";
       const method = mode === "edit" ? "PATCH" : "POST";
+      const requestBody = {
+        assetClass,
+        symbol: normalizeTradeSymbol(assetClass, symbol),
+        side,
+        quantity: parseNumber(quantity),
+        openedAt: new Date(openedAt).toISOString(),
+        entryPrice: parseNumber(entryPrice),
+        initialStopLoss: initialStopLoss ? parseNumber(initialStopLoss) : null,
+        initialTakeProfit: initialTakeProfit ? parseNumber(initialTakeProfit) : null,
+        riskAmount: riskAmount ? parseNumber(riskAmount) : null,
+        contractMultiplier: contractMultiplier ? parseNumber(contractMultiplier) : 1,
+        status: positionStatus,
+        closedAt: closedAt ? new Date(closedAt).toISOString() : null,
+        exitPrice: exitPrice ? parseNumber(exitPrice) : null,
+        fees: fees ? parseNumber(fees) : 0,
+        setupName: setupName.trim() || null,
+        entryTimeframe: entryTimeframe || null,
+        higherTimeframeBias: higherTimeframeBias || null,
+        strategyTag: strategyTag.trim() || null,
+        confluences,
+        emotionalState: emotionalState || null,
+        executionRating: executionRating ? parseNumber(executionRating) : null,
+        planFollowed,
+        entryReason: entryReason.trim() || null,
+        exitReason: exitReason.trim() || null,
+        lessonLearned: lessonLearned.trim() || null,
+        chartScreenshots: [...existingScreenshotUrls, ...uploadedImages],
+        notes: notes.trim() || null,
+      };
 
       const response = await fetch(endpoint, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          accountId,
-          assetClass,
-          symbol: symbol.toUpperCase().trim(),
-          side,
-          quantity: parseNumber(quantity),
-          openedAt: new Date(openedAt).toISOString(),
-          entryPrice: parseNumber(entryPrice),
-          initialStopLoss: initialStopLoss ? parseNumber(initialStopLoss) : null,
-          initialTakeProfit: initialTakeProfit ? parseNumber(initialTakeProfit) : null,
-          riskAmount: riskAmount ? parseNumber(riskAmount) : null,
-          contractMultiplier: contractMultiplier ? parseNumber(contractMultiplier) : 1,
-          status: positionStatus,
-          closedAt: closedAt ? new Date(closedAt).toISOString() : null,
-          exitPrice: exitPrice ? parseNumber(exitPrice) : null,
-          fees: fees ? parseNumber(fees) : 0,
-          setupName: setupName.trim() || null,
-          entryTimeframe: entryTimeframe || null,
-          higherTimeframeBias: higherTimeframeBias || null,
-          strategyTag: strategyTag.trim() || null,
-          confluences,
-          emotionalState: emotionalState || null,
-          executionRating: executionRating ? parseNumber(executionRating) : null,
-          planFollowed,
-          entryReason: entryReason.trim() || null,
-          exitReason: exitReason.trim() || null,
-          lessonLearned: lessonLearned.trim() || null,
-          chartScreenshots: [...existingScreenshotUrls, ...uploadedImages],
-          notes: notes.trim() || null,
-        }),
+        body: JSON.stringify(mode === "edit" ? requestBody : { accountId, ...requestBody }),
       });
 
       const payload = (await response.json()) as { error?: string };
@@ -776,7 +794,7 @@ export function TradeEntryModal({
                   <span className="text-sm font-medium text-slate-700">Symbol / Ticker *</span>
                   <input
                     value={symbol}
-                    onChange={(event) => setSymbol(event.target.value.toUpperCase())}
+                    onChange={(event) => setSymbol(normalizeSymbolInput(event.target.value))}
                     list="symbol-suggestions"
                     placeholder={symbolPlaceholder}
                     className="h-11 rounded-xl border border-slate-300 px-3 text-sm uppercase outline-none ring-sky-500 transition focus:ring-2"
@@ -787,7 +805,10 @@ export function TradeEntryModal({
                       <option key={item} value={item} />
                     ))}
                   </datalist>
-                  <p className="text-xs text-slate-500">Suggestions {assetClass}: {symbolSuggestions.join(", ")}</p>
+                  <p className="text-xs text-slate-500">
+                    Suggestions {assetClass}: {symbolSuggestions.join(", ")}
+                    {assetClass === "CRYPTO" ? " - privilegie les paires USD pour le graphique." : ""}
+                  </p>
                 </label>
 
                 <div className="flex flex-col gap-2">

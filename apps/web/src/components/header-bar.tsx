@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode } from "react";
+import { ReactNode, Suspense } from "react";
 import { AccountSwitcher } from "./account-switcher";
 
 type HeaderBarProps = {
@@ -24,7 +24,9 @@ export function HeaderBar({ title, subtitle, actions }: HeaderBarProps) {
         <div className="flex items-center gap-3">
           {actions && <div className="flex items-center gap-2">{actions}</div>}
           <div>
-            <AccountSwitcher />
+            <Suspense>
+              <AccountSwitcher />
+            </Suspense>
           </div>
         </div>
       </div>

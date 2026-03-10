@@ -41,7 +41,7 @@ export const PATCH = withAuth(async (request, { user, params }) => {
 
   try {
     const account = await prisma.account.update({
-      where: { id },
+      where: { id, userId: user.id },
       data: { name, broker, currency, accountType },
     });
 
@@ -68,7 +68,7 @@ export const DELETE = withAuth(async (_request, { user, params }) => {
   }
 
   await prisma.account.update({
-    where: { id },
+    where: { id, userId: user.id },
     data: { isArchived: true },
   });
 

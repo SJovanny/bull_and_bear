@@ -4,6 +4,7 @@ import { buildTimeAnalysis } from "./time-analysis";
 import type { StatsQuery, StatsTrade } from "./types";
 
 const filters: StatsQuery = {
+  userId: "user-1",
   accountId: "acc-1",
   period: "ALL",
   from: null,

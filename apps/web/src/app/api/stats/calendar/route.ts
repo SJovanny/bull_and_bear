@@ -8,7 +8,7 @@ import {
 } from "@/lib/stats";
 
 export const GET = withAuth(async (request, { user }) => {
-  const filters = withCalendarFilters(new URL(request.url).searchParams);
+  const filters = withCalendarFilters(new URL(request.url).searchParams, user.id);
 
   const account = await verifyAccountOwnership(filters.accountId, user.id);
   if (!account) {
@@ -19,7 +19,7 @@ export const GET = withAuth(async (request, { user }) => {
   const scopedFilters = { ...filters, from: start, to: end };
   const [activityTrades, journalDates] = await Promise.all([
     fetchActivityTrades(scopedFilters),
-    fetchCalendarJournalDates(filters.accountId, start, end),
+    fetchCalendarJournalDates(filters.accountId, user.id, start, end),
   ]);
 
   return Response.json(buildCalendar(scopedFilters, filters.month ?? "", activityTrades, journalDates));

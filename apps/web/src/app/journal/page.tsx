@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { Suspense, useEffect, useMemo, useState, useCallback } from "react";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { JournalEntryModal } from "@/components/journal-entry-modal";
 import { formatNumber, compactPnl, pnlColorClass, pnlBgClass } from "@/lib/format";
@@ -39,6 +39,14 @@ function formatMonthYearUpper(date: Date) {
 }
 
 export default function JournalPage() {
+  return (
+    <Suspense>
+      <JournalPageContent />
+    </Suspense>
+  );
+}
+
+function JournalPageContent() {
   const selectedAccountId = useSelectedAccountId();
   const [trades, setTrades] = useState<Trade[]>([]);
   const [journals, setJournals] = useState<JournalEntry[]>([]);

@@ -1,3 +1,5 @@
+import "server-only";
+
 import { syncUserFromAuth } from "@/lib/auth/sync-user";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 

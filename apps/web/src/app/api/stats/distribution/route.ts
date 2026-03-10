@@ -2,7 +2,7 @@ import { withAuth, verifyAccountOwnership, safeErrorResponse } from "@/lib/api";
 import { buildDistribution, fetchClosedTrades, withDistributionFilters } from "@/lib/stats";
 
 export const GET = withAuth(async (request, { user }) => {
-  const filters = withDistributionFilters(new URL(request.url).searchParams);
+  const filters = withDistributionFilters(new URL(request.url).searchParams, user.id);
 
   const account = await verifyAccountOwnership(filters.accountId, user.id);
   if (!account) {

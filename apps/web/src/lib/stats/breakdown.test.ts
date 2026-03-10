@@ -4,6 +4,7 @@ import { buildBreakdown } from "./breakdown";
 import type { ResolvedStatsFilters, StatsTrade } from "./types";
 
 const filters: ResolvedStatsFilters = {
+  userId: "user-1",
   accountId: "acc-1",
   period: "ALL",
   from: null,
