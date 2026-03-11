@@ -12,6 +12,40 @@ import {
 } from "./serializers";
 import type { ResolvedStatsFilters, StatsTrade } from "./types";
 
+function startOfUtcDay(date: Date) {
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+}
+
+function addUtcDays(date: Date, days: number) {
+  return new Date(date.getTime() + days * 24 * 60 * 60 * 1000);
+}
+
+function buildRecentDailySeries(
+  grouped: Map<string, { key: string; label: string; pnl: number; tradeCount: number; date: Date }>,
+  anchorDate: Date,
+) {
+  const end = startOfUtcDay(anchorDate);
+  const start = addUtcDays(end, -13);
+  let cumulativePnl = 0;
+
+  return Array.from({ length: 14 }, (_, index) => {
+    const date = addUtcDays(start, index);
+    const key = toDateKey(date);
+    const entry = grouped.get(key);
+    const pnl = entry?.pnl ?? 0;
+
+    cumulativePnl += pnl;
+
+    return {
+      key,
+      label: formatDayLabel(date),
+      pnl,
+      cumulativePnl,
+      tradeCount: entry?.tradeCount ?? 0,
+    };
+  });
+}
+
 function bucketKey(date: Date, groupBy: "day" | "week" | "month") {
   if (groupBy === "month") {
     return formatMonthKey(date);
@@ -69,6 +103,7 @@ export function buildEquity(filters: ResolvedStatsFilters, closedTrades: StatsTr
         tradeCount: entry.tradeCount,
       };
     });
+  const recentDailySeries = buildRecentDailySeries(grouped, filters.to ?? new Date());
 
   return {
     period: filters.period,
@@ -77,6 +112,6 @@ export function buildEquity(filters: ResolvedStatsFilters, closedTrades: StatsTr
     totalNetPnl: cumulativePnl,
     realizedTrades: closedTrades.length,
     cumulativeSeries,
-    recentDailySeries: cumulativeSeries.slice(-14),
+    recentDailySeries,
   };
 }

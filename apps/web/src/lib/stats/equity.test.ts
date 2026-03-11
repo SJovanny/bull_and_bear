@@ -76,7 +76,27 @@ describe("buildEquity", () => {
     expect(result.totalNetPnl).toBe(120);
     expect(result.cumulativeSeries).toEqual([
       { key: "2026-03-01", label: "03/01", pnl: 80, cumulativePnl: 80, tradeCount: 2 },
-      { key: "2026-03-02", label: "03/02", pnl: 40, cumulativePnl: 120, tradeCount: 1 },
-    ]);
+        { key: "2026-03-02", label: "03/02", pnl: 40, cumulativePnl: 120, tradeCount: 1 },
+      ]);
+  });
+
+  it("builds a 14-day calendar series with zero-filled gaps", () => {
+    const result = buildEquity(filters, trades);
+
+    expect(result.recentDailySeries).toHaveLength(14);
+    expect(result.recentDailySeries[0]).toEqual({
+      key: "2026-03-17",
+      label: "03/17",
+      pnl: 0,
+      cumulativePnl: 0,
+      tradeCount: 0,
+    });
+    expect(result.recentDailySeries[13]).toEqual({
+      key: "2026-03-30",
+      label: "03/30",
+      pnl: 0,
+      cumulativePnl: 0,
+      tradeCount: 0,
+    });
   });
 });

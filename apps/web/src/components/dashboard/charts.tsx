@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { formatNumber, pnlColorClass } from "@/lib/format";
+import { DailyPnlHistogram } from "./daily-pnl-histogram";
 import type { DashboardPeriod, EquityPoint } from "@/types";
 
 type ChartsProps = {
@@ -73,10 +74,6 @@ export function DashboardCharts({
   accountsCount,
 }: ChartsProps) {
   const [hoveredDate, setHoveredDate] = useState<string | null>(null);
-
-  const maxAbs14d = useMemo(() => {
-    return Math.max(1, ...last14Days.map((day) => Math.abs(day.pnl)));
-  }, [last14Days]);
 
   const chart = useMemo(() => buildLineChart(cumulativeSeries), [cumulativeSeries]);
   const hoveredPoint = chart.pointPositions.find(({ point }) => point.key === hoveredDate) ?? null;
@@ -269,24 +266,11 @@ export function DashboardCharts({
         <div className="mb-2 flex items-center justify-between">
           <h2 className="text-sm font-semibold uppercase tracking-[0.08em] text-secondary font-sans">Daily Net PnL (14d)</h2>
         </div>
-        <div className="flex h-40 items-end gap-1 rounded-lg bg-surface-2 px-2 py-2">
+        <div className="rounded-lg bg-surface-2 px-3 py-3">
           {last14Days.length === 0 ? (
-            <p className="m-auto text-xs text-secondary font-sans">No data yet</p>
+            <div className="flex h-64 items-center justify-center text-xs text-secondary font-sans">No data yet</div>
           ) : (
-            last14Days.map((item) => {
-              const height = Math.max(10, (Math.abs(item.pnl) / maxAbs14d) * 120);
-              return (
-                <div key={item.key} className="flex flex-1 flex-col items-center justify-end gap-1 group relative cursor-pointer">
-                  <div className="absolute bottom-full mb-2 hidden whitespace-nowrap rounded bg-slate-800 px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:block group-hover:opacity-100 z-10 font-mono">
-                    {item.label}: {formatNumber(item.pnl)}
-                  </div>
-                  <div
-                    className={`w-full rounded-sm transition-opacity hover:opacity-80 ${item.pnl >= 0 ? "bg-pnl-positive" : "bg-pnl-negative"}`}
-                    style={{ height: `${height}px` }}
-                  />
-                </div>
-              );
-            })
+            <DailyPnlHistogram series={last14Days} />
           )}
         </div>
         <p className={`mt-2 text-xs font-medium font-sans ${pnlColorClass(totalNetPnl)}`}>
