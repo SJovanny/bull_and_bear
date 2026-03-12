@@ -1,4 +1,5 @@
 import type { AssetClass, TradeSide } from "@prisma/client";
+import { read, utils } from "xlsx";
 
 import {
   extractCompactSymbol,
@@ -62,21 +63,6 @@ type CTraderHeaderMap = {
   comment?: number;
 };
 
-type MetaTraderHeaderMap = {
-  ticket?: number;
-  symbol?: number;
-  type?: number;
-  openTime?: number;
-  closeTime?: number;
-  size?: number;
-  openPrice?: number;
-  closePrice?: number;
-  commission?: number;
-  swap?: number;
-  profit?: number;
-  comment?: number;
-};
-
 function splitCsvLine(line: string) {
   const cells: string[] = [];
   let current = "";
@@ -109,7 +95,12 @@ function splitCsvLine(line: string) {
 }
 
 function normalizeHeader(value: string) {
-  return value.trim().toLowerCase().replace(/\s+/g, " ");
+  return value
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ");
 }
 
 function parseNumber(value: string, fieldName: string) {
@@ -160,6 +151,13 @@ function parseDdMmDate(value: string, timezoneOffset?: string | null): Date | nu
   return new Date(withTimezoneSuffix(`${year}-${month}-${day}T${time}`, timezoneOffset));
 }
 
+function parseDottedDate(value: string, timezoneOffset?: string | null): Date | null {
+  const match = value.match(/^(\d{4})\.(\d{2})\.(\d{2})\s+(\d{2}:\d{2}:\d{2}(?:\.\d+)?)$/);
+  if (!match) return null;
+  const [, year, month, day, time] = match;
+  return new Date(withTimezoneSuffix(`${year}-${month}-${day}T${time}`, timezoneOffset));
+}
+
 function parseDate(value: string, fieldName: string, timezoneOffset?: string | null) {
   const trimmed = value.trim();
   if (!trimmed) {
@@ -168,6 +166,9 @@ function parseDate(value: string, fieldName: string, timezoneOffset?: string | n
 
   const ddMm = parseDdMmDate(trimmed, timezoneOffset);
   if (ddMm && !Number.isNaN(ddMm.getTime())) return ddMm;
+
+  const dotted = parseDottedDate(trimmed, timezoneOffset);
+  if (dotted && !Number.isNaN(dotted.getTime())) return dotted;
 
   const normalized = withTimezoneSuffix(trimmed.includes("T") ? trimmed : trimmed.replace(" ", "T"), timezoneOffset);
   const parsed = new Date(normalized);
@@ -212,20 +213,14 @@ function extractTimezoneOffsetFromHeader(header: string) {
   return match ? normalizeUtcOffset(match[1]) : null;
 }
 
-function normalizeTradeType(value: string) {
-  return value.trim().toLowerCase();
-}
+function detectSource(fileContent: string, fileName?: string): TradeImportSource | null {
+  if (fileName?.toLowerCase().endsWith(".xlsx")) {
+    return "METATRADER";
+  }
 
-function detectSource(fileContent: string): TradeImportSource | null {
   const snippet = fileContent.slice(0, 2000).toLowerCase();
   if (snippet.includes("opening direction") && snippet.includes("closing price")) {
     return "CTRADER";
-  }
-  if (snippet.includes("ticket") && snippet.includes("open time") && snippet.includes("close time")) {
-    return "METATRADER";
-  }
-  if (snippet.includes("<table") && snippet.includes("ticket") && snippet.includes("profit")) {
-    return "METATRADER";
   }
   return null;
 }
@@ -334,26 +329,6 @@ function buildCTraderHeaderMap(headerCells: string[]): CTraderHeaderMap {
   return map;
 }
 
-function buildMetaTraderHeaderMap(headerCells: string[]): MetaTraderHeaderMap {
-  const map: MetaTraderHeaderMap = {};
-  headerCells.forEach((cell, index) => {
-    const header = normalizeHeader(cell);
-    if (header === "ticket" || header === "order") map.ticket = index;
-    if (header === "symbol") map.symbol = index;
-    if (header === "type") map.type = index;
-    if (header === "open time" || header === "time") map.openTime = index;
-    if (header === "close time") map.closeTime = index;
-    if (header === "size" || header === "lots") map.size = index;
-    if (header === "price" || header === "open price") map.openPrice = index;
-    if (header === "close price") map.closePrice = index;
-    if (header === "commission") map.commission = index;
-    if (header === "swap") map.swap = index;
-    if (header === "profit") map.profit = index;
-    if (header === "comment") map.comment = index;
-  });
-  return map;
-}
-
 function readCell(cells: string[], index: number | undefined) {
   return index == null ? "" : (cells[index] ?? "").trim();
 }
@@ -439,63 +414,141 @@ function parseCTraderCsv(fileContent: string): TradeImportPreview {
   return { detectedSource: "CTRADER", rows, errors };
 }
 
-function stripHtml(value: string) {
-  return value
-    .replace(/<br\s*\/?>/gi, " ")
-    .replace(/<[^>]+>/g, " ")
-    .replace(/&nbsp;/gi, " ")
-    .replace(/&amp;/gi, "&")
-    .replace(/\s+/g, " ")
-    .trim();
+type MetaTraderXlsxHeaderMap = {
+  ticket?: number;
+  symbol?: number;
+  type?: number;
+  size?: number;
+  openTime?: number;
+  closeTime?: number;
+  openPrice?: number;
+  closePrice?: number;
+  commission?: number;
+  swap?: number;
+  profit?: number;
+  comment?: number;
+};
+
+function normalizeWorksheetCell(value: unknown) {
+  if (value == null) return "";
+  return String(value).trim();
 }
 
-function extractHtmlRows(fileContent: string) {
-  const rowMatches = [...fileContent.matchAll(/<tr[^>]*>([\s\S]*?)<\/tr>/gi)];
-  return rowMatches.map((match) => match[1]);
+function isMetaTraderSectionLabel(value: string) {
+  const header = normalizeHeader(value);
+  return header === "positions" || header === "ordres" || header === "orders" || header === "transactions" || header === "resultats" || header === "results";
 }
 
-function extractHtmlCells(rowContent: string) {
-  const cellMatches = [...rowContent.matchAll(/<t[dh][^>]*>([\s\S]*?)<\/t[dh]>/gi)];
-  return cellMatches.map((match) => stripHtml(match[1]));
+function buildMetaTraderXlsxHeaderMap(headerCells: string[]): MetaTraderXlsxHeaderMap {
+  const map: MetaTraderXlsxHeaderMap = {};
+
+  headerCells.forEach((cell, index) => {
+    const header = normalizeHeader(cell);
+
+    if (header === "position" || header === "ticket") map.ticket = index;
+    if (header === "symbole" || header === "symbol") map.symbol = index;
+    if (header === "type") map.type = index;
+    if (header === "volume" || header === "size" || header === "lots") map.size = index;
+    if ((header === "heure" || header === "time") && map.openTime == null) {
+      map.openTime = index;
+      return;
+    }
+    if (header === "heure" || header === "time") {
+      map.closeTime = index;
+      return;
+    }
+    if ((header === "prix" || header === "price" || header === "open price") && map.openPrice == null) {
+      map.openPrice = index;
+      return;
+    }
+    if (header === "prix" || header === "price" || header === "close price") {
+      map.closePrice = index;
+      return;
+    }
+    if (header === "commission") map.commission = index;
+    if (header === "echange" || header === "swap") map.swap = index;
+    if (header === "profit") map.profit = index;
+    if (header === "commentaire" || header === "comment") map.comment = index;
+  });
+
+  return map;
 }
 
-function parseMetaTraderHtml(fileContent: string): TradeImportPreview {
-  const htmlRows = extractHtmlRows(fileContent);
-  const tableRows = htmlRows.map(extractHtmlCells).filter((cells) => cells.length > 0);
-  const headerRowIndex = tableRows.findIndex((cells) => cells.some((cell) => normalizeHeader(cell) === "ticket" || normalizeHeader(cell) === "order"));
+function normalizeMetaTraderXlsxTradeType(value: string) {
+  return normalizeHeader(value)
+    .replace(/^achat$/, "buy")
+    .replace(/^vente$/, "sell");
+}
 
-  if (headerRowIndex === -1) {
-    return { detectedSource: "METATRADER", rows: [], errors: [{ rowNumber: 1, message: "Could not find trade table" }] };
+function parseMetaTraderXlsx(fileContent: string): TradeImportPreview {
+  let workbook;
+
+  try {
+    workbook = read(fileContent, { type: "base64" });
+  } catch {
+    return { detectedSource: "METATRADER", rows: [], errors: [{ rowNumber: 1, message: "Could not read XLSX file" }] };
   }
 
-  const headerMap = buildMetaTraderHeaderMap(tableRows[headerRowIndex]);
+  const firstSheetName = workbook.SheetNames[0];
+  const firstSheet = firstSheetName ? workbook.Sheets[firstSheetName] : null;
+
+  if (!firstSheet) {
+    return { detectedSource: "METATRADER", rows: [], errors: [{ rowNumber: 1, message: "Workbook is empty" }] };
+  }
+
+  const sheetRows = utils.sheet_to_json<(string | number | null)[]>(firstSheet, {
+    header: 1,
+    raw: false,
+    defval: "",
+    blankrows: false,
+  });
+  const rowsAsText = sheetRows.map((row) => row.map(normalizeWorksheetCell));
+  const positionsLabelIndex = rowsAsText.findIndex((cells) => normalizeHeader(cells[0] ?? "") === "positions");
+
+  if (positionsLabelIndex === -1) {
+    return { detectedSource: "METATRADER", rows: [], errors: [{ rowNumber: 1, message: "Could not find positions section" }] };
+  }
+
+  const headerRowIndex = positionsLabelIndex + 1;
+  const headerCells = rowsAsText[headerRowIndex] ?? [];
+  const headerMap = buildMetaTraderXlsxHeaderMap(headerCells);
   const rows: TradeImportPreviewRow[] = [];
   const errors: Array<{ rowNumber: number; message: string }> = [];
   const seenSourceIds = new Set<string>();
   const seenFingerprints = new Set<string>();
 
-  for (let index = headerRowIndex + 1; index < tableRows.length; index += 1) {
-    const cells = tableRows[index];
+  for (let index = headerRowIndex + 1; index < rowsAsText.length; index += 1) {
+    const cells = rowsAsText[index] ?? [];
     const rowNumber = index + 1;
-    const typeValue = normalizeTradeType(readCell(cells, headerMap.type));
+    const firstCell = readCell(cells, 0);
 
-    if (!typeValue || typeValue.includes("balance") || typeValue.includes("credit") || typeValue.includes("deposit")) {
+    if (!cells.some(Boolean)) {
       continue;
     }
 
+    if (isMetaTraderSectionLabel(firstCell)) {
+      break;
+    }
+
     try {
+      const typeValue = normalizeMetaTraderXlsxTradeType(readCell(cells, headerMap.type));
+
+      if (!typeValue || typeValue.includes("balance") || typeValue.includes("credit") || typeValue.includes("deposit")) {
+        continue;
+      }
+
       const isBuy = typeValue.includes("buy");
       const isSell = typeValue.includes("sell");
+
       if (!isBuy && !isSell) {
         continue;
       }
 
-      const openedAt = parseDate(readCell(cells, headerMap.openTime), "open time");
       const closeValue = readCell(cells, headerMap.closeTime);
       if (!closeValue) {
         continue;
       }
-      const closedAt = parseDate(closeValue, "close time");
+
       const sourceTradeId = readCell(cells, headerMap.ticket) || null;
       const draft = toImportedTradeDraft({
         source: "METATRADER",
@@ -508,8 +561,8 @@ function parseMetaTraderHtml(fileContent: string): TradeImportPreview {
         fees:
           Math.abs(parseSignedNumber(readCell(cells, headerMap.commission) || "0", "commission")) +
           Math.abs(parseSignedNumber(readCell(cells, headerMap.swap) || "0", "swap")),
-        openedAt,
-        closedAt,
+        openedAt: parseDate(readCell(cells, headerMap.openTime), "open time"),
+        closedAt: parseDate(closeValue, "close time"),
         notes: readCell(cells, headerMap.comment) || null,
         netPnl: readCell(cells, headerMap.profit) ? parseSignedNumber(readCell(cells, headerMap.profit), "profit") : null,
       });
@@ -537,14 +590,22 @@ function parseMetaTraderHtml(fileContent: string): TradeImportPreview {
   return { detectedSource: "METATRADER", rows, errors };
 }
 
-export function parseImportedTrades(fileContent: string, selectedSource: TradeImportSource): TradeImportPreview {
-  const detectedSource = detectSource(fileContent);
+export function parseImportedTrades(fileContent: string, selectedSource: TradeImportSource, fileName?: string): TradeImportPreview {
+  const detectedSource = detectSource(fileContent, fileName);
 
   if (selectedSource === "CTRADER") {
     const preview = parseCTraderCsv(fileContent);
     return { ...preview, detectedSource };
   }
 
-  const preview = parseMetaTraderHtml(fileContent);
+  if (!fileName?.toLowerCase().endsWith(".xlsx")) {
+    return {
+      detectedSource,
+      rows: [],
+      errors: [{ rowNumber: 1, message: "MetaTrader imports require an XLSX file" }],
+    };
+  }
+
+  const preview = parseMetaTraderXlsx(fileContent);
   return { ...preview, detectedSource };
 }

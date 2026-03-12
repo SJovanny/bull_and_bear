@@ -294,17 +294,18 @@ export const tradeUpdateSchema = z
   });
 
 const tradeImportSourceValue = z.enum(["CTRADER", "METATRADER"]);
+const MAX_IMPORT_FILE_CONTENT = 5_000_000;
 
 export const tradeImportPreviewSchema = z.strictObject({
   accountId: uuidValue,
   source: tradeImportSourceValue,
   fileName: requiredShortText("fileName"),
-  fileContent: z.string().trim().min(1, "fileContent is required").max(1_000_000),
+  fileContent: z.string().trim().min(1, "fileContent is required").max(MAX_IMPORT_FILE_CONTENT),
 });
 
 export const tradeImportConfirmSchema = z.strictObject({
   accountId: uuidValue,
   source: tradeImportSourceValue,
   fileName: requiredShortText("fileName"),
-  fileContent: z.string().trim().min(1, "fileContent is required").max(1_000_000),
+  fileContent: z.string().trim().min(1, "fileContent is required").max(MAX_IMPORT_FILE_CONTENT),
 });

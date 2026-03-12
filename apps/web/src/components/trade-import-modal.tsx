@@ -48,8 +48,8 @@ const sourceConfig: Record<TradeImportSource, { label: string; helper: string; a
   },
   METATRADER: {
     label: "MetaTrader",
-    helper: "Importe un rapport HTML d'historique de compte MT4 ou MT5.",
-    accept: ".html,.htm,text/html",
+    helper: "Importe un rapport XLSX d'historique de compte MT4 ou MT5.",
+    accept: ".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   },
 };
 
@@ -62,6 +62,17 @@ function duplicateLabel(reason: PreviewRow["duplicateReason"]) {
   if (reason === "fingerprint") return "Deja importe (empreinte)";
   if (reason === "same_file") return "Doublon dans le fichier";
   return "Pret";
+}
+
+function arrayBufferToBase64(buffer: ArrayBuffer) {
+  let binary = "";
+  const bytes = new Uint8Array(buffer);
+
+  for (let index = 0; index < bytes.length; index += 1) {
+    binary += String.fromCharCode(bytes[index] ?? 0);
+  }
+
+  return btoa(binary);
 }
 
 export function TradeImportModal({ isOpen, accountId, onClose, onImported }: TradeImportModalProps) {
@@ -114,8 +125,11 @@ export function TradeImportModal({ isOpen, accountId, onClose, onImported }: Tra
     setIsReading(true);
 
     try {
-      const text = await file.text();
-      setFileContent(text);
+      const nextContent =
+        source === "METATRADER"
+          ? arrayBufferToBase64(await file.arrayBuffer())
+          : await file.text();
+      setFileContent(nextContent);
     } catch {
       setError("Impossible de lire le fichier.");
       setFileContent("");
@@ -252,7 +266,7 @@ export function TradeImportModal({ isOpen, accountId, onClose, onImported }: Tra
                 <label className="mt-3 flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-surface-1 px-4 py-8 text-center transition hover:border-brand-500/50 hover:bg-brand-500/5">
                   <span className="text-sm font-semibold text-primary font-sans">{fileName || "Choisir un fichier"}</span>
                   <span className="mt-2 text-xs text-secondary font-sans">
-                    {source === "CTRADER" ? "CSV exporte depuis Statement" : "Rapport HTML exporte depuis Account History"}
+                    {source === "CTRADER" ? "CSV exporte depuis Statement" : "Rapport XLSX exporte depuis Account History"}
                   </span>
                   <input type="file" accept={sourceConfig[source].accept} onChange={handleFileChange} className="hidden" />
                 </label>

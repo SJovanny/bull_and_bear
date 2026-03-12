@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
 
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
+import { utils, write } from "xlsx";
+
 import { parseImportedTrades } from "./trade-import";
 
 describe("parseImportedTrades", () => {
@@ -24,32 +29,71 @@ describe("parseImportedTrades", () => {
     expect(preview.rows[1]?.duplicateReason).toBe("same_file");
   });
 
-  it("parses MetaTrader HTML rows and skips non-trade balance entries", () => {
-    const html = `
-      <table>
-        <tr>
-          <th>Ticket</th><th>Open Time</th><th>Type</th><th>Size</th><th>Symbol</th><th>Open Price</th><th>Close Time</th><th>Close Price</th><th>Commission</th><th>Swap</th><th>Profit</th><th>Comment</th>
-        </tr>
-        <tr>
-          <td>2001</td><td>2026-03-10 09:00:00</td><td>buy</td><td>1.00</td><td>EURUSD</td><td>1.1000</td><td>2026-03-10 09:30:00</td><td>1.1010</td><td>-2.00</td><td>0.00</td><td>98.00</td><td>scalp</td>
-        </tr>
-        <tr>
-          <td>0</td><td>2026-03-10 00:00:00</td><td>balance</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>1000.00</td><td>deposit</td>
-        </tr>
-      </table>
-    `;
+  it("rejects MetaTrader imports that are not XLSX files", () => {
+    const preview = parseImportedTrades("<table></table>", "METATRADER", "history.html");
 
-    const preview = parseImportedTrades(html, "METATRADER");
+    expect(preview.detectedSource).toBe(null);
+    expect(preview.rows).toEqual([]);
+    expect(preview.errors).toEqual([{ rowNumber: 1, message: "MetaTrader imports require an XLSX file" }]);
+  });
+
+  it("parses MetaTrader XLSX history exported from account history", () => {
+    const fileName = "ReportHistory-5977138.xlsx";
+    const xlsx = readFileSync(join(process.cwd(), fileName)).toString("base64");
+
+    const preview = parseImportedTrades(xlsx, "METATRADER", fileName);
 
     expect(preview.detectedSource).toBe("METATRADER");
     expect(preview.errors).toEqual([]);
-    expect(preview.rows).toHaveLength(1);
+    expect(preview.rows).toHaveLength(4);
+    expect(preview.rows[0]).toMatchObject({
+      importSourceTradeId: "5574605112",
+      symbol: "BTCUSD",
+      side: "LONG",
+      quantity: 0.01,
+      entryPrice: 63335.841,
+      exitPrice: 70149.037,
+      fees: 5.26,
+      netPnl: 59.11,
+      duplicateReason: null,
+    });
+    expect(preview.rows[3]).toMatchObject({
+      importSourceTradeId: "5578195765",
+      symbol: "EURUSD",
+      side: "SHORT",
+      netPnl: -95.57,
+    });
+  });
+
+  it("parses MetaTrader XLSX closed positions", () => {
+    const workbook = utils.book_new();
+    const sheet = utils.aoa_to_sheet([
+      ["Rapport d'historique de trading"],
+      ["Positions"],
+      ["Heure", "Position", "Symbole", "Type", "Volume", "Prix", "S / L", "T / P", "Heure", "Prix", "Commission", "Echange", "Profit", "Commentaire"],
+      ["2026.03.10 09:00:00", "2001", "EURUSD", "buy", "1.00", "1.1000", "", "", "2026.03.10 09:30:00", "1.1010", "-2.00", "0.00", "98.00", "scalp"],
+      ["2026.03.10 09:00:00", "2001", "EURUSD", "buy", "1.00", "1.1000", "", "", "2026.03.10 09:30:00", "1.1010", "-2.00", "0.00", "98.00", "duplicate"],
+      ["Ordres"],
+    ]);
+    utils.book_append_sheet(workbook, sheet, "Sheet1");
+
+    const xlsx = write(workbook, { type: "base64", bookType: "xlsx" });
+    const preview = parseImportedTrades(xlsx, "METATRADER", "history.xlsx");
+
+    expect(preview.detectedSource).toBe("METATRADER");
+    expect(preview.errors).toEqual([]);
+    expect(preview.rows).toHaveLength(2);
     expect(preview.rows[0]).toMatchObject({
       importSourceTradeId: "2001",
       symbol: "EURUSD",
       side: "LONG",
+      entryPrice: 1.1,
+      exitPrice: 1.101,
+      quantity: 1,
+      netPnl: 98,
       duplicateReason: null,
     });
+    expect(preview.rows[1]?.duplicateReason).toBe("same_file");
   });
 
   it("parses cTrader CSV without Opening time column and with DD/MM date format + Lots suffix", () => {

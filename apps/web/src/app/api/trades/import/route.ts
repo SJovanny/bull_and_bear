@@ -18,14 +18,14 @@ export const POST = withAuth(async (request, { user }) => {
     return safeErrorResponse("Invalid request body", 400);
   }
 
-  const { accountId, source, fileContent } = parsedBody.data;
+  const { accountId, source, fileContent, fileName } = parsedBody.data;
   const account = await verifyAccountOwnership(accountId, user.id);
 
   if (!account) {
     return safeErrorResponse("Account not found", 404);
   }
 
-  const preview = parseImportedTrades(fileContent, source);
+  const preview = parseImportedTrades(fileContent, source, fileName);
   const validRows: PersistableImportedTrade[] = preview.rows
     .filter((row) => !row.duplicateReason)
     .map((row) => ({
