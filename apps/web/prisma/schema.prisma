@@ -69,8 +69,9 @@ model Account {
   name        String
   broker      String?
   accountType AccountType    @default(CASH)
-  currency    String         @default("USD")
-  isArchived  Boolean        @default(false)
+  currency       String         @default("USD")
+  initialBalance Decimal?       @db.Decimal(18, 6)
+  isArchived     Boolean        @default(false)
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
   user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)

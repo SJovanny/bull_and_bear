@@ -33,7 +33,28 @@ function computeMaxDrawdown(values: number[]) {
   return maxDrawdown;
 }
 
-export function buildSummary(filters: StatsQuery, activityTrades: StatsTrade[], closedTrades: StatsTrade[]): StatsSummary {
+function computeMaxDrawdownPercent(values: number[], initialBalance: number) {
+  let peak = initialBalance;
+  let equity = initialBalance;
+  let maxDrawdownPercent = 0;
+
+  for (const value of values) {
+    equity += value;
+    peak = Math.max(peak, equity);
+    if (peak > 0) {
+      maxDrawdownPercent = Math.max(maxDrawdownPercent, ((peak - equity) / peak) * 100);
+    }
+  }
+
+  return maxDrawdownPercent;
+}
+
+export function buildSummary(
+  filters: StatsQuery,
+  activityTrades: StatsTrade[],
+  closedTrades: StatsTrade[],
+  initialBalance: number | null = null,
+): StatsSummary {
   const pnlValues = closedTrades.map(tradePnl);
   const winners = pnlValues.filter((value) => value > 0);
   const losers = pnlValues.filter((value) => value < 0);
@@ -56,9 +77,15 @@ export function buildSummary(filters: StatsQuery, activityTrades: StatsTrade[], 
   const averageHoldingHours =
     holdingHours.length > 0 ? holdingHours.reduce((sum, value) => sum + value, 0) / holdingHours.length : 0;
 
+  const hasBalance = initialBalance !== null && initialBalance > 0;
+
   return {
     period: filters.period,
     range: formatRange(filters),
+    initialBalance,
+    currentBalance: hasBalance ? initialBalance + netPnl : null,
+    returnPercent: hasBalance ? (netPnl / initialBalance) * 100 : null,
+    maxDrawdownPercent: hasBalance ? computeMaxDrawdownPercent(pnlValues, initialBalance) : null,
     activity: {
       totalTrades: activityTrades.length,
       openTrades: activityTrades.filter((trade) => trade.status === "OPEN").length,

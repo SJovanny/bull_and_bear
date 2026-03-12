@@ -14,13 +14,14 @@ type ChartsProps = {
   openTrades: number;
   closedTrades: number;
   accountsCount: number;
+  initialBalance: number | null;
 };
 
 function formatCurrency(value: number, fractionDigits = 2) {
   return `${value > 0 ? "+" : ""}${formatNumber(value, fractionDigits)}`;
 }
 
-function buildLineChart(series: EquityPoint[]) {
+function buildLineChart(series: EquityPoint[], mode: "dollar" | "percent") {
   if (series.length === 0) {
     return {
       points: "",
@@ -31,7 +32,9 @@ function buildLineChart(series: EquityPoint[]) {
     };
   }
 
-  const values = series.map((point) => point.cumulativePnl);
+  const values = series.map((point) =>
+    mode === "percent" && point.cumulativePercent !== null ? point.cumulativePercent : point.cumulativePnl,
+  );
   const minValue = Math.min(...values);
   const maxValue = Math.max(...values);
   const spread = maxValue - minValue;
@@ -72,15 +75,23 @@ export function DashboardCharts({
   openTrades,
   closedTrades,
   accountsCount,
+  initialBalance,
 }: ChartsProps) {
   const [hoveredDate, setHoveredDate] = useState<string | null>(null);
+  const hasBalance = initialBalance !== null && initialBalance > 0;
+  const [equityMode, setEquityMode] = useState<"dollar" | "percent">("dollar");
+  const activeMode = hasBalance ? equityMode : "dollar";
 
-  const chart = useMemo(() => buildLineChart(cumulativeSeries), [cumulativeSeries]);
+  const chart = useMemo(() => buildLineChart(cumulativeSeries, activeMode), [cumulativeSeries, activeMode]);
   const hoveredPoint = chart.pointPositions.find(({ point }) => point.key === hoveredDate) ?? null;
   const latestPoint = cumulativeSeries[cumulativeSeries.length - 1] ?? null;
   const labelEvery = xLabelInterval(cumulativeSeries.length);
-  const lineColor = totalNetPnl >= 0 ? "var(--color-pnl-positive)" : "var(--color-pnl-negative)";
-  const lineGlow = totalNetPnl >= 0 ? "rgba(16, 185, 129, 0.18)" : "rgba(239, 68, 68, 0.18)";
+
+  const displayValue = activeMode === "percent" && latestPoint?.cumulativePercent !== null
+    ? latestPoint?.cumulativePercent ?? 0
+    : totalNetPnl;
+  const lineColor = displayValue >= 0 ? "var(--color-pnl-positive)" : "var(--color-pnl-negative)";
+  const lineGlow = displayValue >= 0 ? "rgba(16, 185, 129, 0.18)" : "rgba(239, 68, 68, 0.18)";
 
   return (
     <section className="grid gap-3 xl:grid-cols-2">
@@ -96,6 +107,24 @@ export function DashboardCharts({
           </div>
 
           <div className="flex flex-wrap items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-secondary font-sans">
+            {hasBalance ? (
+              <span className="inline-flex overflow-hidden rounded-full border border-border bg-surface-2">
+                <button
+                  type="button"
+                  onClick={() => setEquityMode("dollar")}
+                  className={`px-2.5 py-1 transition ${activeMode === "dollar" ? "bg-brand-500 text-white" : "hover:bg-surface-1"}`}
+                >
+                  $
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEquityMode("percent")}
+                  className={`px-2.5 py-1 transition ${activeMode === "percent" ? "bg-brand-500 text-white" : "hover:bg-surface-1"}`}
+                >
+                  %
+                </button>
+              </span>
+            ) : null}
             <span className="rounded-full bg-surface-2 px-2.5 py-1">Open/Closed {openTrades}/{closedTrades}</span>
             <span className="rounded-full bg-surface-2 px-2.5 py-1">Accounts {accountsCount}</span>
           </div>
@@ -110,8 +139,10 @@ export function DashboardCharts({
               />
               <div className="flex items-baseline gap-2">
                 <span className="text-sm text-secondary font-sans">Cumulative</span>
-                <span className={`text-2xl font-black font-mono ${pnlColorClass(latestPoint?.cumulativePnl ?? totalNetPnl)}`}>
-                  {formatCurrency(latestPoint?.cumulativePnl ?? totalNetPnl)}
+                <span className={`text-2xl font-black font-mono ${pnlColorClass(displayValue)}`}>
+                  {activeMode === "percent"
+                    ? `${formatCurrency(displayValue, 1)}%`
+                    : formatCurrency(displayValue)}
                 </span>
               </div>
             </div>
@@ -138,7 +169,7 @@ export function DashboardCharts({
             <div className="grid grid-cols-[auto_1fr] gap-3 sm:gap-4">
               <div className="flex h-64 flex-col justify-between pb-8 pt-1 text-right text-[11px] font-medium text-secondary font-mono sm:text-xs">
                 {chart.ticks.map((tick) => (
-                  <span key={tick}>{formatNumber(tick)}</span>
+                  <span key={tick}>{activeMode === "percent" ? `${formatNumber(tick, 1)}%` : formatNumber(tick)}</span>
                 ))}
               </div>
 
@@ -151,16 +182,18 @@ export function DashboardCharts({
                       top: `calc(${Math.max(hoveredPoint.y - 16, 0)}% - 0.5rem)`,
                     }}
                   >
-                     <p className="font-semibold text-primary font-sans">{hoveredPoint.point.label}</p>
+                      <p className="font-semibold text-primary font-sans">{hoveredPoint.point.label}</p>
                      <p className="mt-1 text-secondary font-sans">
                        Daily: <span className={pnlColorClass(hoveredPoint.point.pnl)}>{formatCurrency(hoveredPoint.point.pnl)}</span>
                      </p>
                      <p className="text-secondary font-sans">
                        Cumulative: <span className={pnlColorClass(hoveredPoint.point.cumulativePnl)}>{formatCurrency(hoveredPoint.point.cumulativePnl)}</span>
                      </p>
-                     <p className="text-secondary font-mono">
-                       Net: {hoveredPoint.point.cumulativePnl > 0 ? "+" : ""}{formatNumber(hoveredPoint.point.cumulativePnl)}
-                     </p>
+                     {hoveredPoint.point.cumulativePercent !== null ? (
+                       <p className="text-secondary font-sans">
+                         Return: <span className={pnlColorClass(hoveredPoint.point.cumulativePercent)}>{hoveredPoint.point.cumulativePercent > 0 ? "+" : ""}{formatNumber(hoveredPoint.point.cumulativePercent, 1)}%</span>
+                       </p>
+                     ) : null}
                      <p className="text-secondary font-mono">Trades: {hoveredPoint.point.tradeCount}</p>
                    </div>
                  ) : null}

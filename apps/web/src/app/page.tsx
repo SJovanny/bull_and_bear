@@ -142,6 +142,9 @@ function HomeContent() {
           openTrades={summary?.activity.openTrades ?? 0}
           closedTrades={summary?.activity.closedTrades ?? 0}
           currency={selectedAccountCurrency}
+          currentBalance={summary?.currentBalance ?? null}
+          returnPercent={summary?.returnPercent ?? null}
+          maxDrawdownPercent={summary?.maxDrawdownPercent ?? null}
         />
 
         <DashboardCharts
@@ -153,6 +156,7 @@ function HomeContent() {
           openTrades={summary?.activity.openTrades ?? 0}
           closedTrades={summary?.activity.closedTrades ?? 0}
           accountsCount={accounts.length}
+          initialBalance={equity?.initialBalance ?? null}
         />
 
         <section className="grid gap-3 xl:grid-cols-[0.55fr_1.45fr] items-start">

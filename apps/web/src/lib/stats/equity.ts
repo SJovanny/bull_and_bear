@@ -23,10 +23,12 @@ function addUtcDays(date: Date, days: number) {
 function buildRecentDailySeries(
   grouped: Map<string, { key: string; label: string; pnl: number; tradeCount: number; date: Date }>,
   anchorDate: Date,
+  initialBalance: number | null,
 ) {
   const end = startOfUtcDay(anchorDate);
   const start = addUtcDays(end, -13);
   let cumulativePnl = 0;
+  const hasBalance = initialBalance !== null && initialBalance > 0;
 
   return Array.from({ length: 14 }, (_, index) => {
     const date = addUtcDays(start, index);
@@ -41,6 +43,7 @@ function buildRecentDailySeries(
       label: formatDayLabel(date),
       pnl,
       cumulativePnl,
+      cumulativePercent: hasBalance ? (cumulativePnl / initialBalance) * 100 : null,
       tradeCount: entry?.tradeCount ?? 0,
     };
   });
@@ -70,9 +73,10 @@ function bucketLabel(date: Date, groupBy: "day" | "week" | "month") {
   return formatDayLabel(date);
 }
 
-export function buildEquity(filters: ResolvedStatsFilters, closedTrades: StatsTrade[]): StatsEquity {
+export function buildEquity(filters: ResolvedStatsFilters, closedTrades: StatsTrade[], initialBalance: number | null = null): StatsEquity {
   const grouped = new Map<string, { key: string; label: string; pnl: number; tradeCount: number; date: Date }>();
   const groupBy = filters.groupBy ?? "day";
+  const hasBalance = initialBalance !== null && initialBalance > 0;
 
   for (const trade of closedTrades) {
     const closeDate = trade.closedAt ? new Date(trade.closedAt) : new Date(trade.openedAt);
@@ -100,10 +104,11 @@ export function buildEquity(filters: ResolvedStatsFilters, closedTrades: StatsTr
         label: entry.label,
         pnl: entry.pnl,
         cumulativePnl,
+        cumulativePercent: hasBalance ? (cumulativePnl / initialBalance) * 100 : null,
         tradeCount: entry.tradeCount,
       };
     });
-  const recentDailySeries = buildRecentDailySeries(grouped, filters.to ?? new Date());
+  const recentDailySeries = buildRecentDailySeries(grouped, filters.to ?? new Date(), initialBalance);
 
   return {
     period: filters.period,
@@ -111,6 +116,7 @@ export function buildEquity(filters: ResolvedStatsFilters, closedTrades: StatsTr
     groupBy,
     totalNetPnl: cumulativePnl,
     realizedTrades: closedTrades.length,
+    initialBalance,
     cumulativeSeries,
     recentDailySeries,
   };

@@ -12,6 +12,9 @@ type KpiCardsProps = {
   openTrades: number;
   closedTrades: number;
   currency?: string;
+  currentBalance: number | null;
+  returnPercent: number | null;
+  maxDrawdownPercent: number | null;
 };
 
 export function KpiCards({
@@ -23,9 +26,55 @@ export function KpiCards({
   openTrades,
   closedTrades,
   currency = "USD",
+  currentBalance,
+  returnPercent,
+  maxDrawdownPercent,
 }: KpiCardsProps) {
+  const hasBalance = currentBalance !== null;
+
   return (
-    <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+    <section className={`grid gap-3 sm:grid-cols-2 ${hasBalance ? "xl:grid-cols-6" : "xl:grid-cols-5"}`}>
+      {/* Account Balance — only shown when initialBalance is set */}
+      {hasBalance ? (
+        <article className="relative overflow-hidden rounded-2xl bg-surface-1 p-5 shadow-sm border border-border group transition-all hover:shadow-md">
+          <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-brand-500 to-transparent opacity-50 transition-opacity group-hover:opacity-100" />
+          <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-secondary font-sans">
+            <MetricLabel
+              label="Account Balance"
+              description="Current account value: initial balance plus total net PnL from all closed trades."
+            />
+          </div>
+          <p
+            className="mt-3 text-4xl font-black tabular-nums leading-none tracking-tight font-mono text-primary"
+          >
+            {loading ? (
+              <span className="text-secondary">—</span>
+            ) : (
+              `${formatNumber(currentBalance)} ${currency}`
+            )}
+          </p>
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            {returnPercent !== null ? (
+              <span
+                className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide font-sans ${
+                  returnPercent >= 0
+                    ? "bg-pnl-positive/10 text-pnl-positive"
+                    : "bg-pnl-negative/10 text-pnl-negative"
+                }`}
+              >
+                <span>{returnPercent >= 0 ? "▲" : "▼"}</span>
+                <span>{returnPercent >= 0 ? "+" : ""}{formatNumber(returnPercent, 1)}%</span>
+              </span>
+            ) : null}
+            {maxDrawdownPercent !== null && maxDrawdownPercent > 0 ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-pnl-negative/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-pnl-negative font-sans">
+                DD {formatNumber(maxDrawdownPercent, 1)}%
+              </span>
+            ) : null}
+          </div>
+        </article>
+      ) : null}
+
       {/* Net PnL — featured card */}
       <article className="relative overflow-hidden rounded-2xl bg-surface-1 p-5 shadow-sm border border-border group transition-all hover:shadow-md">
         <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-brand-500 to-transparent opacity-50 transition-opacity group-hover:opacity-100" />

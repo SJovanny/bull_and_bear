@@ -49,7 +49,7 @@ export async function verifyAccountOwnership(
 ) {
   return prisma.account.findFirst({
     where: { id: accountId, userId, isArchived: false },
-    select: { id: true },
+    select: { id: true, initialBalance: true },
   });
 }
 

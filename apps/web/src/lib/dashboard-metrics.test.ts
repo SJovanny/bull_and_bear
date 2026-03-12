@@ -51,14 +51,14 @@ describe("buildCumulativePnlSeries", () => {
         label: "09/12",
         pnl: 25,
         cumulativePnl: 25,
-        cumulativePercent: 0.25,
+        cumulativePercent: null,
       },
       {
         date: "2026-09-13",
         label: "09/13",
         pnl: 30,
         cumulativePnl: 55,
-        cumulativePercent: 0.55,
+        cumulativePercent: null,
       },
     ]);
   });
@@ -86,7 +86,44 @@ describe("buildCumulativePnlSeries", () => {
         label: "09/14",
         pnl: 15,
         cumulativePnl: 15,
-        cumulativePercent: 0.15,
+        cumulativePercent: null,
+      },
+    ]);
+  });
+
+  it("computes cumulativePercent when initialBalance is provided", () => {
+    const series = buildCumulativePnlSeries(
+      [
+        makeTrade({
+          id: "t1",
+          openedAt: "2026-09-12T08:00:00.000Z",
+          closedAt: "2026-09-12T12:00:00.000Z",
+          netPnl: "50",
+        }),
+        makeTrade({
+          id: "t2",
+          openedAt: "2026-09-13T09:00:00.000Z",
+          closedAt: "2026-09-13T16:00:00.000Z",
+          netPnl: "-20",
+        }),
+      ],
+      1000,
+    );
+
+    expect(series).toEqual([
+      {
+        date: "2026-09-12",
+        label: "09/12",
+        pnl: 50,
+        cumulativePnl: 50,
+        cumulativePercent: 5,
+      },
+      {
+        date: "2026-09-13",
+        label: "09/13",
+        pnl: -20,
+        cumulativePnl: 30,
+        cumulativePercent: 3,
       },
     ]);
   });

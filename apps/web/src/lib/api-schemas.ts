@@ -213,6 +213,7 @@ export const accountCreateSchema = z.strictObject({
     .transform((value) => value.toUpperCase())
     .default("USD"),
   accountType: z.enum(ACCOUNT_TYPES).default("CASH"),
+  initialBalance: nullableDecimalValue("initialBalance").default(null),
 });
 
 export const accountUpdateSchema = z.strictObject({
@@ -226,6 +227,7 @@ export const accountUpdateSchema = z.strictObject({
     .transform((value) => value.toUpperCase())
     .default("USD"),
   accountType: z.enum(ACCOUNT_TYPES),
+  initialBalance: nullableDecimalValue("initialBalance").optional(),
 });
 
 export const tradeCreateSchema = z.strictObject({

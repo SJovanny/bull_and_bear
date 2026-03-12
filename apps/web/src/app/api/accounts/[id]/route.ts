@@ -23,7 +23,7 @@ export const PATCH = withAuth(async (request, { user, params }) => {
     return safeErrorResponse("Invalid request body", 400);
   }
 
-  const { name, broker, currency, accountType } = parsedBody.data;
+  const { name, broker, currency, accountType, initialBalance } = parsedBody.data;
 
   const duplicate = await prisma.account.findFirst({
     where: {
@@ -42,7 +42,7 @@ export const PATCH = withAuth(async (request, { user, params }) => {
   try {
     const account = await prisma.account.update({
       where: { id, userId: user.id },
-      data: { name, broker, currency, accountType },
+      data: { name, broker, currency, accountType, ...(initialBalance !== undefined && { initialBalance }) },
     });
 
     return Response.json({ account });

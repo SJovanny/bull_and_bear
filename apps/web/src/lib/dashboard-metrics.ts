@@ -11,10 +11,10 @@ export type CumulativePnlPoint = {
   label: string;
   pnl: number;
   cumulativePnl: number;
-  cumulativePercent: number;
+  cumulativePercent: number | null;
 };
 
-export function buildCumulativePnlSeries(trades: Trade[]): CumulativePnlPoint[] {
+export function buildCumulativePnlSeries(trades: Trade[], initialBalance: number | null = null): CumulativePnlPoint[] {
   const grouped = new Map<string, number>();
 
   trades
@@ -48,6 +48,7 @@ export function buildCumulativePnlSeries(trades: Trade[]): CumulativePnlPoint[] 
     });
 
   let cumulativePnl = 0;
+  const hasBalance = initialBalance !== null && initialBalance > 0;
 
   return [...grouped.entries()].map(([date, pnl]) => {
     cumulativePnl += pnl;
@@ -56,7 +57,7 @@ export function buildCumulativePnlSeries(trades: Trade[]): CumulativePnlPoint[] 
       label: formatChartDateLabel(date),
       pnl,
       cumulativePnl,
-      cumulativePercent: cumulativePnl / 100,
+      cumulativePercent: hasBalance ? (cumulativePnl / initialBalance) * 100 : null,
     };
   });
 }

@@ -2,6 +2,7 @@ export type Account = {
   id: string;
   name: string;
   currency: string;
+  initialBalance: string | null;
 };
 
 export type Trade = {
@@ -30,6 +31,10 @@ export type StatsRange = {
 export type StatsSummary = {
   period: StatsPeriod;
   range: StatsRange;
+  initialBalance: number | null;
+  currentBalance: number | null;
+  returnPercent: number | null;
+  maxDrawdownPercent: number | null;
   activity: {
     totalTrades: number;
     openTrades: number;
@@ -64,6 +69,7 @@ export type EquityPoint = {
   label: string;
   pnl: number;
   cumulativePnl: number;
+  cumulativePercent: number | null;
   tradeCount: number;
 };
 
@@ -73,6 +79,7 @@ export type StatsEquity = {
   groupBy: "day" | "week" | "month";
   totalNetPnl: number;
   realizedTrades: number;
+  initialBalance: number | null;
   cumulativeSeries: EquityPoint[];
   recentDailySeries: EquityPoint[];
 };

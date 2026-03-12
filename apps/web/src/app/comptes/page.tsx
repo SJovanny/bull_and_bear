@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { DashboardShell } from "@/components/dashboard-shell";
+import { formatNumber, pnlColorClass } from "@/lib/format";
 
 type AccountType = "CASH" | "MARGIN" | "PROP" | "SIM";
 
@@ -12,20 +13,31 @@ type TradingAccount = {
   broker?: string | null;
   currency: string;
   accountType: AccountType;
+  initialBalance?: string | null;
   createdAt?: string;
 };
 
 const accountTypeOptions: AccountType[] = ["CASH", "MARGIN", "PROP", "SIM"];
+
+type AccountBalance = {
+  accountId: string;
+  initialBalance: number | null;
+  totalPnl: number;
+  currentBalance: number | null;
+  returnPercent: number | null;
+};
 
 const initialForm = {
   name: "",
   broker: "",
   currency: "USD",
   accountType: "CASH" as AccountType,
+  initialBalance: "",
 };
 
 export default function ComptesPage() {
   const [accounts, setAccounts] = useState<TradingAccount[]>([]);
+  const [balances, setBalances] = useState<AccountBalance[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingAccountId, setEditingAccountId] = useState<string | null>(null);
@@ -40,16 +52,40 @@ export default function ComptesPage() {
     [form.currency, form.name],
   );
 
+  const balanceMap = useMemo(() => {
+    const map = new Map<string, AccountBalance>();
+    for (const b of balances) {
+      map.set(b.accountId, b);
+    }
+    return map;
+  }, [balances]);
+
+  async function loadBalances() {
+    try {
+      const response = await fetch("/api/accounts/balances");
+      const payload = (await response.json()) as { balances?: AccountBalance[]; error?: string };
+      setBalances(payload.balances ?? []);
+    } catch {
+      // Keep resilient — balances are supplementary
+    }
+  }
+
   async function loadAccounts() {
     try {
-      const response = await fetch("/api/accounts");
-      const payload = (await response.json()) as { accounts?: TradingAccount[]; error?: string };
+      const [accountsResponse, balancesResponse] = await Promise.all([
+        fetch("/api/accounts"),
+        fetch("/api/accounts/balances"),
+      ]);
 
-      if (!response.ok) {
-        throw new Error(payload.error ?? "Could not load accounts");
+      const accountsPayload = (await accountsResponse.json()) as { accounts?: TradingAccount[]; error?: string };
+      const balancesPayload = (await balancesResponse.json()) as { balances?: AccountBalance[]; error?: string };
+
+      if (!accountsResponse.ok) {
+        throw new Error(accountsPayload.error ?? "Could not load accounts");
       }
 
-      setAccounts(payload.accounts ?? []);
+      setAccounts(accountsPayload.accounts ?? []);
+      setBalances(balancesPayload.balances ?? []);
       setLoaded(true);
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : "Unexpected error");
@@ -82,6 +118,7 @@ export default function ComptesPage() {
       broker: account.broker ?? "",
       currency: account.currency,
       accountType: account.accountType,
+      initialBalance: account.initialBalance ? String(account.initialBalance) : "",
     });
     setShowCreateForm(true);
     setError(null);
@@ -104,6 +141,7 @@ export default function ComptesPage() {
       broker: form.broker.trim() || null,
       currency: form.currency.trim().toUpperCase(),
       accountType: form.accountType,
+      initialBalance: form.initialBalance.trim() ? Number(form.initialBalance) : null,
     };
 
     try {
@@ -131,6 +169,8 @@ export default function ComptesPage() {
 
       setMessage(editingAccountId ? "Trading account updated successfully." : "Trading account created successfully.");
       closeForm();
+      // Reload balances after account changes
+      void loadBalances();
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : "Unexpected error");
     } finally {
@@ -220,44 +260,71 @@ export default function ComptesPage() {
               </div>
             ) : (
               <div className="grid gap-3 sm:grid-cols-2">
-                {accounts.map((account) => (
-                  <article key={account.id} className="rounded-xl border border-border bg-surface-2 p-4">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="text-lg font-semibold text-primary font-sans">{account.name}</p>
-                        <p className="mt-1 text-xs uppercase tracking-[0.08em] text-secondary font-sans">{account.accountType}</p>
+                {accounts.map((account) => {
+                  const bal = balanceMap.get(account.id);
+                  const hasBalance = bal?.currentBalance != null;
+
+                  return (
+                    <article key={account.id} className="rounded-xl border border-border bg-surface-2 p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="text-lg font-semibold text-primary font-sans">{account.name}</p>
+                          <p className="mt-1 text-xs uppercase tracking-[0.08em] text-secondary font-sans">{account.accountType}</p>
+                        </div>
+                        <span className="rounded-full bg-surface-1 px-2.5 py-1 text-xs font-semibold text-primary font-mono">
+                          {account.currency}
+                        </span>
                       </div>
-                      <span className="rounded-full bg-surface-1 px-2.5 py-1 text-xs font-semibold text-primary font-mono">
-                        {account.currency}
-                      </span>
-                    </div>
 
-                    <div className="mt-4 space-y-2 text-sm text-secondary font-sans">
-                      <p>Broker: {account.broker || "Not set"}</p>
-                      <p>
-                        Created: {account.createdAt ? new Date(account.createdAt).toLocaleDateString("en-US") : "-"}
-                      </p>
-                    </div>
+                      {hasBalance ? (
+                        <div className="mt-3 rounded-lg bg-surface-1 p-3">
+                          <div className="flex items-baseline justify-between gap-2">
+                            <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-secondary font-sans">Balance</span>
+                            <span className={`text-lg font-black tabular-nums font-mono ${pnlColorClass(bal.currentBalance ?? 0)}`}>
+                              {formatNumber(bal.currentBalance ?? 0)} {account.currency}
+                            </span>
+                          </div>
+                          <div className="mt-1.5 flex items-center justify-between gap-2 text-xs text-secondary font-sans">
+                            <span>PnL: <span className={`font-semibold font-mono ${pnlColorClass(bal.totalPnl)}`}>{bal.totalPnl > 0 ? "+" : ""}{formatNumber(bal.totalPnl)}</span></span>
+                            {bal.returnPercent != null ? (
+                              <span className={`font-semibold font-mono ${pnlColorClass(bal.returnPercent)}`}>
+                                {bal.returnPercent > 0 ? "+" : ""}{formatNumber(bal.returnPercent, 1)}%
+                              </span>
+                            ) : null}
+                          </div>
+                        </div>
+                      ) : null}
 
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      <button
-                        type="button"
-                        onClick={() => openEditForm(account)}
-                        className="inline-flex h-9 items-center justify-center rounded-lg border border-border bg-surface-1 px-3 text-sm font-semibold text-primary transition hover:bg-white"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => void handleDelete(account)}
-                        disabled={isDeletingId === account.id}
-                        className="inline-flex h-9 items-center justify-center rounded-lg border border-pnl-negative/20 bg-pnl-negative/5 px-3 text-sm font-semibold text-pnl-negative transition hover:bg-pnl-negative/10 disabled:opacity-50"
-                      >
-                        {isDeletingId === account.id ? "Deleting..." : "Delete"}
-                      </button>
-                    </div>
-                  </article>
-                ))}
+                      <div className="mt-3 space-y-2 text-sm text-secondary font-sans">
+                        <p>Broker: {account.broker || "Not set"}</p>
+                        {account.initialBalance ? (
+                          <p>Starting capital: {formatNumber(Number(account.initialBalance))} {account.currency}</p>
+                        ) : null}
+                        <p>
+                          Created: {account.createdAt ? new Date(account.createdAt).toLocaleDateString("en-US") : "-"}
+                        </p>
+                      </div>
+
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={() => openEditForm(account)}
+                          className="inline-flex h-9 items-center justify-center rounded-lg border border-border bg-surface-1 px-3 text-sm font-semibold text-primary transition hover:bg-white"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => void handleDelete(account)}
+                          disabled={isDeletingId === account.id}
+                          className="inline-flex h-9 items-center justify-center rounded-lg border border-pnl-negative/20 bg-pnl-negative/5 px-3 text-sm font-semibold text-pnl-negative transition hover:bg-pnl-negative/10 disabled:opacity-50"
+                        >
+                          {isDeletingId === account.id ? "Deleting..." : "Delete"}
+                        </button>
+                      </div>
+                    </article>
+                  );
+                })}
               </div>
             )}
           </article>
@@ -325,6 +392,20 @@ export default function ComptesPage() {
                     </select>
                   </label>
                 </div>
+
+                <label className="flex flex-col gap-2">
+                  <span className="text-sm font-medium text-primary font-sans">Initial balance</span>
+                  <input
+                    type="number"
+                    step="any"
+                    min="0"
+                    value={form.initialBalance}
+                    onChange={(event) => setForm((current) => ({ ...current, initialBalance: event.target.value }))}
+                    placeholder="e.g. 50000"
+                    className="h-11 rounded-xl border border-border bg-surface-2 px-3 text-sm text-primary outline-none ring-brand-500 transition focus:ring-2"
+                  />
+                  <span className="text-xs text-secondary font-sans">Optional. Used to compute ROI %, current balance and drawdown %.</span>
+                </label>
 
                 <div className="flex flex-wrap gap-3">
                   <button

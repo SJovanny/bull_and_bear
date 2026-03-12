@@ -1,5 +1,5 @@
 import { withAuth, verifyAccountOwnership, safeErrorResponse } from "@/lib/api";
-import { buildSummary, fetchActivityTrades, fetchClosedTrades, resolveStatsPeriod } from "@/lib/stats";
+import { buildSummary, fetchActivityTrades, fetchClosedTrades, resolveStatsPeriod, toNumber } from "@/lib/stats";
 
 export const GET = withAuth(async (request, { user }) => {
   const filters = resolveStatsPeriod(new URL(request.url).searchParams, user.id);
@@ -9,10 +9,12 @@ export const GET = withAuth(async (request, { user }) => {
     return safeErrorResponse("Account not found", 404);
   }
 
+  const initialBalance = account.initialBalance !== null ? toNumber(account.initialBalance) : null;
+
   const [activityTrades, closedTrades] = await Promise.all([
     fetchActivityTrades(filters),
     fetchClosedTrades(filters),
   ]);
 
-  return Response.json(buildSummary(filters, activityTrades, closedTrades));
+  return Response.json(buildSummary(filters, activityTrades, closedTrades, initialBalance));
 });

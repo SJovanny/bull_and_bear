@@ -21,7 +21,7 @@ export const POST = withAuth(async (request, { user }) => {
     return safeErrorResponse("Invalid request body", 400);
   }
 
-  const { name, broker, currency, accountType } = parsedBody.data;
+  const { name, broker, currency, accountType, initialBalance } = parsedBody.data;
 
   try {
     const account = await prisma.account.create({
@@ -31,6 +31,7 @@ export const POST = withAuth(async (request, { user }) => {
         broker,
         currency,
         accountType,
+        initialBalance,
       },
     });
 

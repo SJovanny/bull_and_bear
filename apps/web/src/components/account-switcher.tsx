@@ -11,24 +11,53 @@ type Account = {
   currency: string;
 };
 
+type AccountBalance = {
+  accountId: string;
+  currentBalance: number | null;
+};
+
+function formatCompact(value: number) {
+  if (Math.abs(value) >= 1_000_000) {
+    return `${(value / 1_000_000).toFixed(1)}M`;
+  }
+  if (Math.abs(value) >= 1_000) {
+    return `${(value / 1_000).toFixed(1)}K`;
+  }
+  return value.toFixed(0);
+}
+
 export function AccountSwitcher() {
   const pathname = usePathname();
   const router = useRouter();
   const [accounts, setAccounts] = useState<Account[]>([]);
+  const [balances, setBalances] = useState<Map<string, number>>(new Map());
   const selectedAccountId = useSelectedAccountId();
 
   useEffect(() => {
     async function loadAccounts() {
       try {
-        const response = await fetch("/api/accounts");
-        const payload = (await response.json()) as { accounts?: Account[] };
+        const [accountsResponse, balancesResponse] = await Promise.all([
+          fetch("/api/accounts"),
+          fetch("/api/accounts/balances"),
+        ]);
 
-        if (!response.ok) {
+        const accountPayload = (await accountsResponse.json()) as { accounts?: Account[] };
+        const balancesPayload = (await balancesResponse.json()) as { balances?: AccountBalance[] };
+
+        if (!accountsResponse.ok) {
           return;
         }
 
-        const accountList = payload.accounts ?? [];
+        const accountList = accountPayload.accounts ?? [];
         setAccounts(accountList);
+
+        const balMap = new Map<string, number>();
+        for (const b of balancesPayload.balances ?? []) {
+          if (b.currentBalance !== null) {
+            balMap.set(b.accountId, b.currentBalance);
+          }
+        }
+        setBalances(balMap);
 
         // Auto-select first account if no accountId in URL
         const currentAccountId = new URLSearchParams(window.location.search).get("accountId");
@@ -69,14 +98,21 @@ export function AccountSwitcher() {
     <select
       value={selectedAccountId}
       onChange={(event) => handleAccountChange(event.target.value)}
-      className="h-10 rounded-lg border border-border bg-surface-1 px-3 py-2 text-sm text-primary outline-none ring-brand-500 transition focus:ring-2 max-w-[200px]"
+      className="h-10 rounded-lg border border-border bg-surface-1 px-3 py-2 text-sm text-primary outline-none ring-brand-500 transition focus:ring-2 max-w-[260px]"
       aria-label="Choisir un compte"
     >
-      {accounts.map((account) => (
-        <option key={account.id} value={account.id}>
-          {account.name} ({account.currency})
-        </option>
-      ))}
+      {accounts.map((account) => {
+        const bal = balances.get(account.id);
+        const label = bal !== undefined
+          ? `${account.name} (${account.currency}) · ${formatCompact(bal)}`
+          : `${account.name} (${account.currency})`;
+
+        return (
+          <option key={account.id} value={account.id}>
+            {label}
+          </option>
+        );
+      })}
     </select>
   );
 }
