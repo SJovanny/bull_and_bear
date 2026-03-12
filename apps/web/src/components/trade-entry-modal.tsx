@@ -8,6 +8,7 @@ import {
   defaultContractMultiplier,
   quoteCurrency,
 } from "@/lib/trade-calc";
+import { SYMBOL_SUGGESTIONS } from "@/lib/symbol-database";
 import { useSelectedAccountId } from "@/hooks/use-selected-account-id";
 
 type Account = {
@@ -67,15 +68,15 @@ const emotionOptions = [
 ];
 
 const symbolSuggestionsByAssetClass: Record<AssetClass, string[]> = {
-  STOCK: ["AAPL", "TSLA", "NVDA", "MSFT", "AMZN"],
-  FUTURES: ["NQ", "MNQ", "ES", "MES", "CL", "GC"],
-  FOREX: ["EURUSD", "GBPUSD", "USDJPY", "AUDUSD", "USDCAD"],
-  CRYPTO: ["BTCUSD", "ETHUSD", "SOLUSD", "XRPUSD", "ADAUSD"],
-  OPTIONS: ["AAPL 200C", "TSLA 180P", "SPY 500C", "QQQ 430P"],
-  ETF: ["SPY", "QQQ", "IWM", "DIA", "XLF"],
-  INDEX: ["US500", "NAS100", "US30", "GER40", "UK100"],
-  CFD: ["US500", "NAS100", "US30", "GER40", "XAUUSD"],
-  OTHER: ["CUSTOM1", "CUSTOM2"],
+  STOCK: [...SYMBOL_SUGGESTIONS.STOCK],
+  FUTURES: [...SYMBOL_SUGGESTIONS.FUTURES],
+  FOREX: [...SYMBOL_SUGGESTIONS.FOREX],
+  CRYPTO: [...SYMBOL_SUGGESTIONS.CRYPTO],
+  OPTIONS: [...SYMBOL_SUGGESTIONS.OPTIONS],
+  ETF: [...SYMBOL_SUGGESTIONS.ETF],
+  INDEX: [...SYMBOL_SUGGESTIONS.INDEX],
+  CFD: [...SYMBOL_SUGGESTIONS.CFD],
+  OTHER: [...SYMBOL_SUGGESTIONS.OTHER],
 };
 
 function normalizeSymbolInput(value: string) {

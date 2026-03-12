@@ -12,6 +12,7 @@ datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
 enum AccountType {
@@ -84,6 +85,10 @@ model Trade {
   id                  String        @id @default(uuid())
   userId              String
   accountId           String
+  importSource        String?
+  importSourceTradeId String?
+  importFingerprint   String?
+  importedAt          DateTime?
   assetClass          AssetClass    @default(STOCK)
   symbol              String
   setupName           String?
@@ -121,6 +126,8 @@ model Trade {
   @@index([userId, openedAt])
   @@index([accountId, openedAt])
   @@index([symbol])
+  @@unique([accountId, importSource, importSourceTradeId])
+  @@unique([accountId, importFingerprint])
 }
 
 model DailyJournal {

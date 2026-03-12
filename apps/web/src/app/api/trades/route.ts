@@ -35,7 +35,7 @@ export const GET = withAuth(async (request, { user }) => {
       ...(openedAtFilter ? { openedAt: openedAtFilter } : {}),
     },
     orderBy: { openedAt: "desc" },
-    take: 200,
+    take: 1000,
   });
 
   return Response.json({ trades });

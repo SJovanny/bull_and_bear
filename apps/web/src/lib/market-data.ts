@@ -1,5 +1,7 @@
 type SupportedAssetClass = "CRYPTO" | "FOREX" | "INDEX" | "STOCK" | "ETF" | "FUTURES" | string;
 
+import { CRYPTO_QUOTES, INDEX_SYMBOL_ALIASES } from "./symbol-database";
+
 export type MarketChartBar = {
   time: string;
   open: number;
@@ -80,8 +82,7 @@ function mapCryptoSymbol(symbol: string) {
   if (normalized.includes("/")) return normalized;
   if (normalized.includes("-")) return normalized.replace("-", "/");
 
-  const knownQuotes = ["USD", "BTC", "ETH", "EUR"];
-  const quote = knownQuotes.find((candidate) => normalized.endsWith(candidate));
+  const quote = CRYPTO_QUOTES.find((candidate) => normalized.endsWith(candidate));
   if (!quote) return symbol;
 
   const base = normalized.slice(0, normalized.length - quote.length);
@@ -90,25 +91,7 @@ function mapCryptoSymbol(symbol: string) {
 
 function mapIndexSymbol(symbol: string) {
   const normalized = cleanSymbol(symbol).replace(/[\/_-]/g, "");
-  const aliases: Record<string, string> = {
-    SPX: "SPX",
-    SP500: "SPX",
-    US500: "SPX",
-    NAS100: "IXIC",
-    NDX: "NDX",
-    US30: "DJI",
-    DJI: "DJI",
-    DAX: "GDAXI",
-    GER40: "GDAXI",
-    UK100: "FTSE",
-    FTSE100: "FTSE",
-    CAC40: "FCHI",
-    FRA40: "FCHI",
-    JP225: "N225",
-    NIKKEI225: "N225",
-  };
-
-  return aliases[normalized] ?? normalized;
+  return INDEX_SYMBOL_ALIASES[normalized]?.[0] ?? normalized;
 }
 
 export function mapTradeSymbolToTwelveData(symbol: string, assetClass: SupportedAssetClass) {
@@ -144,8 +127,7 @@ export function mapTradeSymbolCandidates(symbol: string, assetClass: SupportedAs
 
   if (assetClass === "CRYPTO") {
     const compact = normalized.replace(/[\/_-]/g, "");
-    const quotes = ["USD", "BTC", "ETH", "EUR"];
-    const quote = quotes.find((candidate) => compact.endsWith(candidate));
+    const quote = CRYPTO_QUOTES.find((candidate) => compact.endsWith(candidate));
 
     if (!quote) {
       return unique([mapCryptoSymbol(symbol), normalized]);
@@ -156,28 +138,7 @@ export function mapTradeSymbolCandidates(symbol: string, assetClass: SupportedAs
   }
 
   if (assetClass === "INDEX" || assetClass === "CFD") {
-    const aliases: Record<string, string[]> = {
-      SPX: ["SPX", "GSPC"],
-      SP500: ["SPX", "GSPC"],
-      US500: ["SPX", "GSPC"],
-      NAS100: ["IXIC", "NDX"],
-      USTEC: ["IXIC", "NDX"],
-      NDX: ["NDX", "IXIC"],
-      US30: ["DJI"],
-      DJI: ["DJI"],
-      GER40: ["GDAXI", "DAX"],
-      DAX: ["GDAXI", "DAX"],
-      UK100: ["FTSE"],
-      FTSE100: ["FTSE"],
-      CAC40: ["FCHI"],
-      FRA40: ["FCHI"],
-      VIX: ["VIX"],
-      RUT: ["RUT"],
-      XAUUSD: ["XAU/USD"],
-      XAGUSD: ["XAG/USD"],
-    };
-
-    return unique(aliases[normalized] ?? [mapIndexSymbol(symbol), normalized]);
+    return unique(INDEX_SYMBOL_ALIASES[normalized] ?? [mapIndexSymbol(symbol), normalized]);
   }
 
   return unique([mapTradeSymbolToTwelveData(symbol, assetClass), normalized]);

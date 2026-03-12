@@ -18,6 +18,40 @@ Required variables:
 - `DIRECT_URL`
 - `SUPABASE_SERVICE_ROLE_KEY` when using the admin client
 
+### Prisma workflow
+
+Use two different environments:
+
+- `.env.local` for the real Supabase database used by the app
+- `.env.prisma.local` for local Docker Postgres used by `prisma migrate dev`
+
+Create the Prisma local env from the example:
+
+```bash
+cp .env.prisma.local.example .env.prisma.local
+```
+
+Start the local Postgres + shadow databases:
+
+```bash
+npm run db:up
+```
+
+Then use Prisma locally:
+
+```bash
+npm run prisma:generate
+npm run prisma:migrate
+```
+
+Apply committed migrations to Supabase without using a shadow database:
+
+```bash
+npm run prisma:deploy
+```
+
+Supabase Row Level Security is managed separately in `prisma/rls.sql`.
+
 ### Node Version
 
 This app supports Node.js versions `>=20.9.0 <25`.

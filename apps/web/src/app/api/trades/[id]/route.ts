@@ -114,6 +114,14 @@ export const PATCH = withAuth(async (request, { user, params }) => {
       : existing.exitPrice != null
         ? Number(existing.exitPrice)
         : null;
+  const shouldRecomputePnl =
+    payload.side !== undefined ||
+    payload.status !== undefined ||
+    payload.entryPrice !== undefined ||
+    payload.exitPrice !== undefined ||
+    payload.quantity !== undefined ||
+    payload.fees !== undefined ||
+    payload.contractMultiplier !== undefined;
 
   if (status === "CLOSED" && exitPriceSource == null) {
     return safeErrorResponse("exitPrice is required when status is CLOSED", 400);
@@ -127,7 +135,7 @@ export const PATCH = withAuth(async (request, { user, params }) => {
     return safeErrorResponse("closedAt must be greater than or equal to openedAt", 400);
   }
 
-  if (exitPriceSource != null && Number.isFinite(Number(exitPriceSource))) {
+  if (shouldRecomputePnl && exitPriceSource != null && Number.isFinite(Number(exitPriceSource))) {
     const netPnl = computeNetPnl({
       side,
       entryPrice,
@@ -138,7 +146,7 @@ export const PATCH = withAuth(async (request, { user, params }) => {
     });
     updateData.netPnl = netPnl;
     updateData.tradeOutcome = computeTradeOutcome(netPnl) as TradeOutcome;
-  } else {
+  } else if (shouldRecomputePnl) {
     updateData.netPnl = null;
     updateData.tradeOutcome = null;
   }

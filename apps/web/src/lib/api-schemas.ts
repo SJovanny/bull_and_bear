@@ -292,3 +292,19 @@ export const tradeUpdateSchema = z
   .refine((value) => Object.keys(value).length > 0, {
     message: "At least one field must be provided",
   });
+
+const tradeImportSourceValue = z.enum(["CTRADER", "METATRADER"]);
+
+export const tradeImportPreviewSchema = z.strictObject({
+  accountId: uuidValue,
+  source: tradeImportSourceValue,
+  fileName: requiredShortText("fileName"),
+  fileContent: z.string().trim().min(1, "fileContent is required").max(1_000_000),
+});
+
+export const tradeImportConfirmSchema = z.strictObject({
+  accountId: uuidValue,
+  source: tradeImportSourceValue,
+  fileName: requiredShortText("fileName"),
+  fileContent: z.string().trim().min(1, "fileContent is required").max(1_000_000),
+});

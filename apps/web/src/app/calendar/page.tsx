@@ -5,7 +5,9 @@ import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 
 import { DashboardShell } from "@/components/dashboard-shell";
 import { TradeEntryModal } from "@/components/trade-entry-modal";
+import { TradeImportModal } from "@/components/trade-import-modal";
 import { useSelectedAccountId } from "@/hooks/use-selected-account-id";
+import { toDateKey } from "@/lib/format";
 
 type Trade = {
   id: string;
@@ -39,13 +41,6 @@ type Trade = {
   notes: string | null;
   netPnl: string | null;
 };
-
-function toDateKey(date: Date) {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
 
 function monthBounds(anchor: Date) {
   const firstDay = new Date(anchor.getFullYear(), anchor.getMonth(), 1);
@@ -95,6 +90,7 @@ function CalendarPageContent() {
   });
   const [selectedDate, setSelectedDate] = useState<string>(() => toDateKey(new Date()));
   const [isTradeModalOpen, setIsTradeModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [tradeModalDate, setTradeModalDate] = useState<string>(() => toDateKey(new Date()));
   const [isEditTradeModalOpen, setIsEditTradeModalOpen] = useState(false);
   const [editingTrade, setEditingTrade] = useState<Trade | null>(null);
@@ -260,6 +256,13 @@ function CalendarPageContent() {
       title="Calendrier"
       actions={
         <>
+          <button
+            type="button"
+            onClick={() => setIsImportModalOpen(true)}
+            className="inline-flex h-10 items-center justify-center rounded-lg border border-brand-500/30 bg-brand-500/5 px-3 text-sm font-medium text-brand-600 hover:bg-brand-500/10 transition-colors font-sans"
+          >
+            Import trades
+          </button>
           <button
             type="button"
             onClick={() =>
@@ -491,6 +494,13 @@ function CalendarPageContent() {
         initialDate={tradeModalDate}
         onClose={() => setIsTradeModalOpen(false)}
         onCreated={loadTrades}
+      />
+
+      <TradeImportModal
+        isOpen={isImportModalOpen}
+        accountId={selectedAccountId}
+        onClose={() => setIsImportModalOpen(false)}
+        onImported={loadTrades}
       />
 
       {editingTrade ? (
