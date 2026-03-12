@@ -4,9 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
   computePipInfo,
-  convertForexPnl,
   defaultContractMultiplier,
-  quoteCurrency,
 } from "@/lib/trade-calc";
 import { SYMBOL_SUGGESTIONS } from "@/lib/symbol-database";
 import { useSelectedAccountId } from "@/hooks/use-selected-account-id";
@@ -137,6 +135,7 @@ type TradeEntryModalProps = {
     closedAt: string | null;
     exitPrice: string | null;
     fees: string;
+    netPnl: string | null;
     setupName: string | null;
     entryTimeframe: string | null;
     higherTimeframeBias: string | null;
@@ -185,19 +184,6 @@ function formatDateTimeForInput(value: string | null | undefined) {
 
 function suggestedMultiplier(assetClass: AssetClass, symbol: string) {
   return defaultContractMultiplier(assetClass, symbol);
-}
-
-function computePreviewNetPnl(params: {
-  side: TradeSide;
-  entryPrice: number;
-  exitPrice: number;
-  quantity: number;
-  fees: number;
-  contractMultiplier: number;
-}) {
-  const { side, entryPrice, exitPrice, quantity, fees, contractMultiplier } = params;
-  const delta = side === "LONG" ? exitPrice - entryPrice : entryPrice - exitPrice;
-  return delta * quantity * contractMultiplier - fees;
 }
 
 function formatPreviewNetPnl(value: number) {
@@ -264,6 +250,7 @@ export function TradeEntryModal({
   const [closedAt, setClosedAt] = useState("");
   const [exitPrice, setExitPrice] = useState("");
   const [fees, setFees] = useState("0");
+  const [netPnl, setNetPnl] = useState("");
 
   const [setupName, setSetupName] = useState("");
   const [entryTimeframe, setEntryTimeframe] = useState("");
@@ -312,6 +299,7 @@ export function TradeEntryModal({
       setClosedAt(formatDateTimeForInput(initialTrade.closedAt));
       setExitPrice(initialTrade.exitPrice ?? "");
       setFees(initialTrade.fees ?? "0");
+      setNetPnl(initialTrade.netPnl ?? "");
       setSetupName(initialTrade.setupName ?? "");
       setEntryTimeframe(initialTrade.entryTimeframe ?? "");
       setHigherTimeframeBias(initialTrade.higherTimeframeBias ?? "");
@@ -348,6 +336,7 @@ export function TradeEntryModal({
     setClosedAt("");
     setExitPrice("");
     setFees("0");
+    setNetPnl("");
     setSetupName("");
     setEntryTimeframe("");
     setHigherTimeframeBias("");
@@ -418,6 +407,7 @@ export function TradeEntryModal({
     if (previousStatus === "CLOSED" && positionStatus === "OPEN") {
       setClosedAt("");
       setExitPrice("");
+      setNetPnl("");
     }
 
     previousPositionStatusRef.current = positionStatus;
@@ -428,25 +418,8 @@ export function TradeEntryModal({
       return null;
     }
 
-    const entry = parseNumber(entryPrice);
-    const exit = parseNumber(exitPrice);
-    const qty = parseNumber(quantity);
-    const feeValue = parseNumber(fees) ?? 0;
-    const multiplier = parseNumber(contractMultiplier) ?? 1;
-
-    if (entry == null || exit == null || qty == null) {
-      return null;
-    }
-
-    return computePreviewNetPnl({
-      side,
-      entryPrice: entry,
-      exitPrice: exit,
-      quantity: qty,
-      fees: feeValue,
-      contractMultiplier: multiplier,
-    });
-  }, [positionStatus, entryPrice, exitPrice, quantity, fees, contractMultiplier, side]);
+    return parseNumber(netPnl);
+  }, [positionStatus, netPnl]);
 
   const previewOutcome = useMemo(() => {
     if (previewNetPnl == null) {
@@ -457,7 +430,7 @@ export function TradeEntryModal({
   }, [previewNetPnl]);
 
   const previewPipInfo = useMemo(() => {
-    if (assetClass !== "FOREX" || previewNetPnl == null) {
+    if (positionStatus !== "CLOSED") {
       return null;
     }
 
@@ -469,9 +442,10 @@ export function TradeEntryModal({
       return null;
     }
 
-    const multiplier = parseNumber(contractMultiplier) ?? 100000;
+    const multiplier = parseNumber(contractMultiplier) ?? suggestedMultiplier(assetClass, symbol);
 
     return computePipInfo({
+      assetClass,
       symbol,
       side,
       entryPrice: entry,
@@ -479,30 +453,7 @@ export function TradeEntryModal({
       quantity: qty,
       contractMultiplier: multiplier,
     });
-  }, [assetClass, symbol, side, entryPrice, exitPrice, quantity, contractMultiplier, previewNetPnl]);
-
-  const selectedAccountCurrency = useMemo(() => {
-    return accounts.find((account) => account.id === accountId)?.currency ?? "USD";
-  }, [accounts, accountId]);
-
-  const convertedPreviewNetPnl = useMemo(() => {
-    if (assetClass !== "FOREX" || previewNetPnl == null) {
-      return null;
-    }
-
-    const exit = parseNumber(exitPrice);
-
-    if (exit == null) {
-      return null;
-    }
-
-    return convertForexPnl({
-      symbol,
-      accountCurrency: selectedAccountCurrency,
-      rawPnl: previewNetPnl,
-      exitPrice: exit,
-    });
-  }, [assetClass, previewNetPnl, exitPrice, selectedAccountCurrency, symbol]);
+  }, [assetClass, positionStatus, symbol, side, entryPrice, exitPrice, quantity, contractMultiplier]);
 
   const symbolSuggestions = useMemo(() => {
     return symbolSuggestionsByAssetClass[assetClass] ?? [];
@@ -637,6 +588,7 @@ export function TradeEntryModal({
         closedAt: closedAt ? new Date(closedAt).toISOString() : null,
         exitPrice: exitPrice ? parseNumber(exitPrice) : null,
         fees: fees ? parseNumber(fees) : 0,
+        netPnl: netPnl ? parseNumber(netPnl) : null,
         setupName: setupName.trim() || null,
         entryTimeframe: entryTimeframe || null,
         higherTimeframeBias: higherTimeframeBias || null,
@@ -992,7 +944,7 @@ export function TradeEntryModal({
                   />
                 </label>
 
-                <label className="flex flex-col gap-2 sm:col-span-2">
+                <label className="flex flex-col gap-2">
                   <span className="text-sm font-medium text-slate-700">Fees</span>
                   <input
                     value={fees}
@@ -1004,8 +956,20 @@ export function TradeEntryModal({
                   />
                 </label>
 
+                <label className="flex flex-col gap-2">
+                  <span className="text-sm font-medium text-slate-700">Net PnL</span>
+                  <input
+                    value={netPnl}
+                    onChange={(event) => setNetPnl(event.target.value)}
+                    type="number"
+                    step="0.000001"
+                    disabled={positionStatus !== "CLOSED"}
+                    className="h-11 rounded-xl border border-slate-300 px-3 text-sm outline-none ring-sky-500 transition disabled:bg-slate-100 focus:ring-2"
+                  />
+                </label>
+
                 <div className="sm:col-span-2 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Net PnL (auto)</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Net PnL</p>
                   <p
                     className={`mt-2 text-3xl font-black tabular-nums ${
                       previewNetPnl == null
@@ -1018,22 +982,17 @@ export function TradeEntryModal({
                     }`}
                   >
                     {previewNetPnl == null
-                      ? "En attente de donnees de cloture"
-                      : `${formatPreviewNetPnl(previewNetPnl)}${assetClass === "FOREX" ? ` ${quoteCurrency(symbol) || ""}` : ""}`}
+                      ? "Renseigne manuellement a la cloture"
+                      : formatPreviewNetPnl(previewNetPnl)}
                   </p>
-                  {assetClass === "FOREX" && previewNetPnl != null && convertedPreviewNetPnl ? (
-                    <p className="mt-1 text-sm text-slate-500">
-                      ~ {formatPreviewNetPnl(convertedPreviewNetPnl.converted)} {convertedPreviewNetPnl.currency}
-                    </p>
-                  ) : null}
                   <p className="mt-1 text-sm text-slate-600">
-                    Trade status: {previewOutcome ?? "N/A"} {previewOutcome ? "(auto)" : ""}
+                    Trade status: {previewOutcome ?? "N/A"} {previewOutcome ? "(from PnL)" : ""}
                   </p>
                   {previewPipInfo ? (
                     <p className="mt-1 text-xs text-slate-500 font-medium">
-                      Pip value: {formatPreviewNetPnl(previewPipInfo.pipValue)} | Move:{" "}
-                      {previewPipInfo.pipsMove > 0 ? "+" : ""}
-                      {previewPipInfo.pipsMove.toFixed(1)} pips
+                      {previewPipInfo.unit === "pips" ? "Pip value" : "Value/pt"}: {formatPreviewNetPnl(previewPipInfo.unitValue)} | Move:{" "}
+                      {previewPipInfo.unitsMove > 0 ? "+" : ""}
+                      {previewPipInfo.unitsMove.toFixed(1)} {previewPipInfo.unit}
                     </p>
                   ) : null}
                 </div>

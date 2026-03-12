@@ -538,6 +538,7 @@ export default function TradeDetailPage() {
             closedAt: trade.closedAt,
             exitPrice: trade.exitPrice,
             fees: trade.fees,
+            netPnl: trade.netPnl,
             setupName: trade.setupName,
             entryTimeframe: trade.entryTimeframe,
             higherTimeframeBias: trade.higherTimeframeBias,

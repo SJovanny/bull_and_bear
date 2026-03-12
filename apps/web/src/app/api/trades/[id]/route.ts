@@ -1,10 +1,10 @@
-import { TradeOutcome, TradeSide, TradeStatus } from "@prisma/client";
+import { TradeOutcome, TradeStatus } from "@prisma/client";
 
 import { safeErrorResponse, withAuth } from "@/lib/api";
 import { tradeUpdateSchema } from "@/lib/api-schemas";
 import { prisma } from "@/lib/prisma";
 import { normalizeStoredTradeSymbol } from "@/lib/symbol-normalization";
-import { computeNetPnl, computeTradeOutcome, defaultContractMultiplier } from "@/lib/trade-calc";
+import { computeTradeOutcome, defaultContractMultiplier } from "@/lib/trade-calc";
 
 export const GET = withAuth(async (_request, { user, params }) => {
   const { id } = params;
@@ -41,6 +41,7 @@ export const PATCH = withAuth(async (request, { user, params }) => {
       exitPrice: true,
       quantity: true,
       fees: true,
+      netPnl: true,
       contractMultiplier: true,
       symbol: true,
       assetClass: true,
@@ -89,6 +90,7 @@ export const PATCH = withAuth(async (request, { user, params }) => {
   }
   if (payload.planFollowed !== undefined) updateData.planFollowed = payload.planFollowed;
   if (payload.notes !== undefined) updateData.notes = payload.notes;
+  if (payload.netPnl !== undefined) updateData.netPnl = payload.netPnl;
 
   if (payload.contractMultiplier !== undefined) {
     const assetClass = nextAssetClass;
@@ -97,31 +99,22 @@ export const PATCH = withAuth(async (request, { user, params }) => {
       payload.contractMultiplier ?? defaultContractMultiplier(assetClass, symbol);
   }
 
-  const side = (updateData.side as TradeSide | undefined) ?? existing.side;
   const status = (updateData.status as TradeStatus | undefined) ?? existing.status;
   const openedAt = (updateData.openedAt as Date | undefined) ?? existing.openedAt;
   const closedAt =
     updateData.closedAt !== undefined ? (updateData.closedAt as Date | null) : existing.closedAt;
-  const entryPrice = Number((updateData.entryPrice as number | undefined) ?? existing.entryPrice);
-  const quantity = Number((updateData.quantity as number | undefined) ?? existing.quantity);
-  const fees = Number((updateData.fees as number | undefined) ?? existing.fees);
-  const contractMultiplier = Number(
-    (updateData.contractMultiplier as number | undefined) ?? existing.contractMultiplier,
-  );
   const exitPriceSource =
     updateData.exitPrice !== undefined
       ? (updateData.exitPrice as number | null)
       : existing.exitPrice != null
         ? Number(existing.exitPrice)
         : null;
-  const shouldRecomputePnl =
-    payload.side !== undefined ||
-    payload.status !== undefined ||
-    payload.entryPrice !== undefined ||
-    payload.exitPrice !== undefined ||
-    payload.quantity !== undefined ||
-    payload.fees !== undefined ||
-    payload.contractMultiplier !== undefined;
+  const nextNetPnl =
+    updateData.netPnl !== undefined
+      ? (updateData.netPnl as number | null)
+      : existing.netPnl != null
+        ? Number(existing.netPnl)
+        : null;
 
   if (status === "CLOSED" && exitPriceSource == null) {
     return safeErrorResponse("exitPrice is required when status is CLOSED", 400);
@@ -135,21 +128,7 @@ export const PATCH = withAuth(async (request, { user, params }) => {
     return safeErrorResponse("closedAt must be greater than or equal to openedAt", 400);
   }
 
-  if (shouldRecomputePnl && exitPriceSource != null && Number.isFinite(Number(exitPriceSource))) {
-    const netPnl = computeNetPnl({
-      side,
-      entryPrice,
-      exitPrice: Number(exitPriceSource),
-      quantity,
-      fees,
-      contractMultiplier,
-    });
-    updateData.netPnl = netPnl;
-    updateData.tradeOutcome = computeTradeOutcome(netPnl) as TradeOutcome;
-  } else if (shouldRecomputePnl) {
-    updateData.netPnl = null;
-    updateData.tradeOutcome = null;
-  }
+  updateData.tradeOutcome = nextNetPnl != null ? (computeTradeOutcome(nextNetPnl) as TradeOutcome) : null;
 
   const trade = await prisma.trade.update({
     where: { id, userId: user.id },

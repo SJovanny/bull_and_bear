@@ -134,6 +134,7 @@ describe("pipSize and computePipInfo", () => {
 
   it("calculates pip value and moves correctly for EURUSD", () => {
     const info = computePipInfo({
+      assetClass: "FOREX",
       symbol: "EURUSD",
       side: "LONG",
       entryPrice: 1.1581,
@@ -142,12 +143,14 @@ describe("pipSize and computePipInfo", () => {
       contractMultiplier: 100000,
     });
 
-    expect(info.pipValue).toBeCloseTo(10, 2);
-    expect(info.pipsMove).toBeCloseTo(-20, 2);
+    expect(info.unit).toBe("pips");
+    expect(info.unitValue).toBeCloseTo(10, 2);
+    expect(info.unitsMove).toBeCloseTo(-20, 2);
   });
 
   it("calculates pip value and moves correctly for USDJPY", () => {
     const info = computePipInfo({
+      assetClass: "FOREX",
       symbol: "USDJPY",
       side: "SHORT",
       entryPrice: 150.5,
@@ -156,8 +159,25 @@ describe("pipSize and computePipInfo", () => {
       contractMultiplier: 100000,
     });
 
-    expect(info.pipValue).toBeCloseTo(100, 2);
-    expect(info.pipsMove).toBeCloseTo(50, 2);
+    expect(info.unit).toBe("pips");
+    expect(info.unitValue).toBeCloseTo(100, 2);
+    expect(info.unitsMove).toBeCloseTo(50, 2);
+  });
+
+  it("uses points for non-forex assets", () => {
+    const info = computePipInfo({
+      assetClass: "STOCK",
+      symbol: "AAPL",
+      side: "LONG",
+      entryPrice: 150,
+      exitPrice: 152,
+      quantity: 2,
+      contractMultiplier: 1,
+    });
+
+    expect(info.unit).toBe("pts");
+    expect(info.unitValue).toBeCloseTo(2, 2);
+    expect(info.unitsMove).toBeCloseTo(2, 2);
   });
 });
 

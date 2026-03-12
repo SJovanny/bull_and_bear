@@ -4,7 +4,7 @@ import { safeErrorResponse, verifyAccountOwnership, withAuth } from "@/lib/api";
 import { tradeCreateSchema } from "@/lib/api-schemas";
 import { prisma } from "@/lib/prisma";
 import { normalizeStoredTradeSymbol } from "@/lib/symbol-normalization";
-import { computeNetPnl, computeTradeOutcome, defaultContractMultiplier } from "@/lib/trade-calc";
+import { computeTradeOutcome, defaultContractMultiplier } from "@/lib/trade-calc";
 
 export const GET = withAuth(async (request, { user }) => {
   const { searchParams } = new URL(request.url);
@@ -63,6 +63,7 @@ export const POST = withAuth(async (request, { user }) => {
     initialTakeProfit,
     exitPrice,
     fees,
+    netPnl,
     contractMultiplier,
     setupName,
     entryTimeframe,
@@ -85,20 +86,8 @@ export const POST = withAuth(async (request, { user }) => {
   const parsedContractMultiplier =
     contractMultiplier ?? defaultContractMultiplier(assetClass, normalizedSymbol);
 
-  const computedNetPnl =
-    exitPrice != null
-      ? computeNetPnl({
-          side: side,
-          entryPrice,
-          exitPrice,
-          quantity,
-          fees,
-          contractMultiplier: parsedContractMultiplier,
-        })
-      : null;
-
   const computedTradeOutcome =
-    computedNetPnl != null ? (computeTradeOutcome(computedNetPnl) as TradeOutcome) : null;
+    netPnl != null ? (computeTradeOutcome(netPnl) as TradeOutcome) : null;
 
   if (status === "CLOSED" && exitPrice == null) {
     return safeErrorResponse("exitPrice is required when status is CLOSED", 400);
@@ -148,7 +137,7 @@ export const POST = withAuth(async (request, { user }) => {
       confluences: confluences && confluences.length > 0 ? confluences : undefined,
       planFollowed,
       notes,
-      netPnl: computedNetPnl,
+      netPnl,
       riskAmount,
     },
   });

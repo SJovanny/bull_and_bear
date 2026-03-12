@@ -525,6 +525,7 @@ function CalendarPageContent() {
             closedAt: editingTrade.closedAt,
             exitPrice: editingTrade.exitPrice,
             fees: editingTrade.fees,
+            netPnl: editingTrade.netPnl,
             setupName: editingTrade.setupName,
             entryTimeframe: editingTrade.entryTimeframe,
             higherTimeframeBias: editingTrade.higherTimeframeBias,

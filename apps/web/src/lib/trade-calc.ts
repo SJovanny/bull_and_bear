@@ -60,7 +60,16 @@ export function pipSize(symbol: string): number {
   return normalizedSymbol(symbol).includes("JPY") ? 0.01 : 0.0001;
 }
 
+function movementUnitSize(assetClass: AssetClass, symbol: string): number {
+  if (assetClass === "FOREX") {
+    return pipSize(symbol);
+  }
+
+  return 1;
+}
+
 export function computePipInfo(params: {
+  assetClass: AssetClass;
   symbol: string;
   side: TradeSide;
   entryPrice: number;
@@ -68,14 +77,19 @@ export function computePipInfo(params: {
   quantity: number;
   contractMultiplier: number;
 }) {
-  const { symbol, side, entryPrice, exitPrice, quantity, contractMultiplier } = params;
-  const pip = pipSize(symbol);
-  const pipValuePerLot = pip * contractMultiplier;
-  const pipValue = pipValuePerLot * quantity;
-  const rawPips = (exitPrice - entryPrice) / pip;
-  const pipsMove = side === "LONG" ? rawPips : -rawPips;
+  const { assetClass, symbol, side, entryPrice, exitPrice, quantity, contractMultiplier } = params;
+  const unitSize = movementUnitSize(assetClass, symbol);
+  const unitValuePerLot = unitSize * contractMultiplier;
+  const unitValue = unitValuePerLot * quantity;
+  const rawUnits = (exitPrice - entryPrice) / unitSize;
+  const unitsMove = side === "LONG" ? rawUnits : -rawUnits;
 
-  return { pipValue, pipsMove };
+  return {
+    unit: assetClass === "FOREX" ? ("pips" as const) : ("pts" as const),
+    unitSize,
+    unitValue,
+    unitsMove,
+  };
 }
 
 export function convertForexPnl(params: {
