@@ -33,10 +33,12 @@
     "@upstash/redis": "^1.36.4",
     "lightweight-charts": "^5.1.0",
     "next": "^16.1.6",
+    "nodejs-xlsx": "^1.0.2",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "read-excel-file": "^7.0.2",
     "server-only": "^0.0.1",
-    "xlsx": "^0.18.5",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz",
     "zod": "^4.3.6"
   },
   "devDependencies": {

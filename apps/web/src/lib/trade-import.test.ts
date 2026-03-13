@@ -77,8 +77,8 @@ describe("parseImportedTrades", () => {
     ]);
     utils.book_append_sheet(workbook, sheet, "Sheet1");
 
-    const xlsx = write(workbook, { type: "base64", bookType: "xlsx" });
-    const preview = parseImportedTrades(xlsx, "METATRADER", "history.xlsx");
+    const xlsx_b64 = write(workbook, { type: "base64", bookType: "xlsx" });
+    const preview = parseImportedTrades(xlsx_b64, "METATRADER", "history.xlsx");
 
     expect(preview.detectedSource).toBe("METATRADER");
     expect(preview.errors).toEqual([]);
