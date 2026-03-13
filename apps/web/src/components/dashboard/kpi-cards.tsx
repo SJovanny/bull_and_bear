@@ -31,12 +31,15 @@ export function KpiCards({
   maxDrawdownPercent,
 }: KpiCardsProps) {
   const hasBalance = currentBalance !== null;
+  const featuredValueClassName = "mt-3 text-[clamp(1.15rem,1.45vw,1.55rem)] font-black tabular-nums leading-tight tracking-tight font-mono";
+  const valueClassName = "mt-3 text-[clamp(1.35rem,1.9vw,1.9rem)] font-black tabular-nums leading-tight tracking-tight font-mono";
+  const splitValueClassName = "text-[clamp(1.2rem,1.6vw,1.65rem)] font-black tabular-nums leading-none tracking-tight font-mono";
 
   return (
     <section className={`grid gap-3 sm:grid-cols-2 ${hasBalance ? "xl:grid-cols-6" : "xl:grid-cols-5"}`}>
       {/* Account Balance — only shown when initialBalance is set */}
       {hasBalance ? (
-        <article className="relative overflow-hidden rounded-2xl bg-surface-1 p-5 shadow-sm border border-border group transition-all hover:shadow-md">
+        <article className="relative rounded-2xl border border-border bg-surface-1 p-5 shadow-sm group transition-all hover:shadow-md">
           <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-brand-500 to-transparent opacity-50 transition-opacity group-hover:opacity-100" />
           <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-secondary font-sans">
             <MetricLabel
@@ -44,13 +47,16 @@ export function KpiCards({
               description="Current account value: initial balance plus total net PnL from all closed trades."
             />
           </div>
-          <p
-            className="mt-3 text-4xl font-black tabular-nums leading-none tracking-tight font-mono text-primary"
-          >
+          <p className={`${featuredValueClassName} break-words text-primary`}>
             {loading ? (
               <span className="text-secondary">—</span>
             ) : (
-              `${formatNumber(currentBalance)} ${currency}`
+              <>
+                <span>{formatNumber(currentBalance)}</span>
+                <span className="ml-1 text-sm font-bold uppercase tracking-[0.16em] text-secondary font-sans sm:text-base">
+                  {currency}
+                </span>
+              </>
             )}
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -76,7 +82,7 @@ export function KpiCards({
       ) : null}
 
       {/* Net PnL — featured card */}
-      <article className="relative overflow-hidden rounded-2xl bg-surface-1 p-5 shadow-sm border border-border group transition-all hover:shadow-md">
+      <article className="relative rounded-2xl border border-border bg-surface-1 p-5 shadow-sm group transition-all hover:shadow-md">
         <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-brand-500 to-transparent opacity-50 transition-opacity group-hover:opacity-100" />
         <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-secondary font-sans">
           <MetricLabel
@@ -84,13 +90,16 @@ export function KpiCards({
             description="Total net profit or loss on closed trades for the selected period."
           />
         </div>
-        <p
-          className={`mt-3 text-4xl font-black tabular-nums leading-none tracking-tight font-mono ${pnlColorClass(totalNetPnl)}`}
-        >
+        <p className={`${featuredValueClassName} break-words ${pnlColorClass(totalNetPnl)}`}>
           {loading ? (
             <span className="text-secondary">—</span>
           ) : (
-            `${totalNetPnl > 0 ? "+" : ""}${formatNumber(totalNetPnl)} ${currency}`
+            <>
+              <span>{totalNetPnl > 0 ? "+" : ""}{formatNumber(totalNetPnl)}</span>
+              <span className="ml-1 text-sm font-bold uppercase tracking-[0.16em] text-secondary font-sans sm:text-base">
+                {currency}
+              </span>
+            </>
           )}
         </p>
         <div
@@ -106,7 +115,7 @@ export function KpiCards({
       </article>
 
       {/* Win Rate — circular gauge */}
-      <article className="relative overflow-hidden rounded-2xl bg-surface-1 border border-border p-5 shadow-sm transition-all hover:shadow-md">
+      <article className="relative rounded-2xl border border-border bg-surface-1 p-5 shadow-sm transition-all hover:shadow-md">
         <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-secondary font-sans">
           <MetricLabel
             label="Win Rate"
@@ -140,18 +149,14 @@ export function KpiCards({
       </article>
 
       {/* Profit Factor */}
-      <article className="relative overflow-hidden rounded-2xl border border-border bg-surface-1 p-5 shadow-sm transition-all hover:shadow-md">
+      <article className="relative rounded-2xl border border-border bg-surface-1 p-5 shadow-sm transition-all hover:shadow-md">
         <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-secondary font-sans">
           <MetricLabel
             label="Profit Factor"
             description="Gross profits divided by gross losses. Above 1 means gains outweigh losses overall."
           />
         </div>
-        <p
-          className={`mt-3 text-4xl font-black tabular-nums leading-none tracking-tight font-mono ${
-            profitFactor >= 1 ? "text-pnl-positive" : "text-pnl-negative"
-          }`}
-        >
+        <p className={`${valueClassName} ${profitFactor >= 1 ? "text-pnl-positive" : "text-pnl-negative"}`}>
           {loading ? "—" : Number.isFinite(profitFactor) ? formatNumber(profitFactor) : "∞"}
         </p>
         <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-surface-2">
@@ -166,14 +171,14 @@ export function KpiCards({
       </article>
 
       {/* Total Trades */}
-      <article className="relative overflow-hidden rounded-2xl border border-border bg-surface-1 p-5 shadow-sm transition-all hover:shadow-md">
+      <article className="relative rounded-2xl border border-border bg-surface-1 p-5 shadow-sm transition-all hover:shadow-md">
         <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-secondary font-sans">
           <MetricLabel
             label="Total Trades"
             description="All trades opened in the selected range, including open and closed positions."
           />
         </div>
-        <p className="mt-3 text-4xl font-black tabular-nums leading-none tracking-tight text-primary font-mono">
+        <p className={`${valueClassName} text-primary`}>
           {loading ? "—" : totalTrades}
         </p>
         <div className="mt-4 flex items-center gap-3">
@@ -189,7 +194,7 @@ export function KpiCards({
       </article>
 
       {/* Open / Closed */}
-      <article className="relative overflow-hidden rounded-2xl border border-border bg-surface-1 p-5 shadow-sm transition-all hover:shadow-md">
+      <article className="relative rounded-2xl border border-border bg-surface-1 p-5 shadow-sm transition-all hover:shadow-md">
         <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-secondary font-sans">
           <MetricLabel
             label="Open / Closed"
@@ -198,14 +203,14 @@ export function KpiCards({
         </div>
         <div className="mt-3 flex items-end gap-3">
           <div>
-            <p className="text-4xl font-black tabular-nums leading-none tracking-tight text-amber-500 font-mono">
+            <p className={`${splitValueClassName} text-amber-500`}>
               {loading ? "—" : openTrades}
             </p>
             <p className="mt-1 text-[9px] font-bold uppercase tracking-widest text-secondary font-sans">Open</p>
           </div>
           <span className="mb-5 text-xl font-light text-border">/</span>
           <div>
-            <p className="text-4xl font-black tabular-nums leading-none tracking-tight text-primary font-mono">
+            <p className={`${splitValueClassName} text-primary`}>
               {loading ? "—" : closedTrades}
             </p>
             <p className="mt-1 text-[9px] font-bold uppercase tracking-widest text-secondary font-sans">Closed</p>

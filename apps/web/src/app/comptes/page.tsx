@@ -165,6 +165,7 @@ export default function ComptesPage() {
             ? current.map((account) => (account.id === editingAccountId ? nextAccount : account))
             : [...current, nextAccount],
         );
+        window.dispatchEvent(new CustomEvent("bb-accounts-changed"));
       }
 
       setMessage(editingAccountId ? "Trading account updated successfully." : "Trading account created successfully.");
@@ -179,7 +180,9 @@ export default function ComptesPage() {
   }
 
   async function handleDelete(account: TradingAccount) {
-    const confirmed = window.confirm(`Delete trading account "${account.name}"?`);
+    const confirmed = window.confirm(
+      `Delete trading account "${account.name}" permanently? This will also delete all related trades and journals.`,
+    );
     if (!confirmed) {
       return;
     }
@@ -197,10 +200,12 @@ export default function ComptesPage() {
       }
 
       setAccounts((current) => current.filter((item) => item.id !== account.id));
+      setBalances((current) => current.filter((item) => item.accountId !== account.id));
+      window.dispatchEvent(new CustomEvent("bb-accounts-changed"));
       if (editingAccountId === account.id) {
         closeForm();
       }
-      setMessage("Trading account deleted successfully.");
+      setMessage("Trading account and all related data deleted successfully.");
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : "Unexpected error");
     } finally {

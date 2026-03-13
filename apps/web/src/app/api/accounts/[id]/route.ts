@@ -67,9 +67,8 @@ export const DELETE = withAuth(async (_request, { user, params }) => {
     return safeErrorResponse("Account not found", 404);
   }
 
-  await prisma.account.update({
-    where: { id, userId: user.id },
-    data: { isArchived: true },
+  await prisma.account.delete({
+    where: { id },
   });
 
   return new Response(null, { status: 204 });
