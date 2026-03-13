@@ -3,6 +3,9 @@
 import type { ChangeEvent } from "react";
 import { useEffect, useMemo, useState } from "react";
 
+import { useTranslation } from "@/lib/i18n/context";
+import { TranslationKeys } from "@/lib/i18n/types";
+
 type TradeImportSource = "CTRADER" | "METATRADER";
 
 type PreviewRow = {
@@ -40,28 +43,28 @@ type TradeImportModalProps = {
   onImported?: () => void | Promise<void>;
 };
 
-const sourceConfig: Record<TradeImportSource, { label: string; helper: string; accept: string }> = {
+const sourceConfig = (t: (key: keyof TranslationKeys) => string): Record<TradeImportSource, { label: string; helper: string; accept: string }> => ({
   CTRADER: {
     label: "cTrader",
-    helper: "Importe un statement CSV exporte depuis l'historique cTrader.",
+    helper: t("importModal.cTraderHelper"),
     accept: ".csv,text/csv",
   },
   METATRADER: {
     label: "MetaTrader",
-    helper: "Importe un rapport XLSX d'historique de compte MT4 ou MT5.",
+    helper: t("importModal.mtHelper"),
     accept: ".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   },
-};
+});
 
 function formatNumber(value: number) {
   return value.toLocaleString(undefined, { maximumFractionDigits: 6 });
 }
 
-function duplicateLabel(reason: PreviewRow["duplicateReason"]) {
-  if (reason === "source_trade_id") return "Deja importe (id source)";
-  if (reason === "fingerprint") return "Deja importe (empreinte)";
-  if (reason === "same_file") return "Doublon dans le fichier";
-  return "Pret";
+function duplicateLabel(reason: PreviewRow["duplicateReason"], t: (key: keyof TranslationKeys) => string) {
+  if (reason === "source_trade_id") return t("importModal.dupSourceId");
+  if (reason === "fingerprint") return t("importModal.dupFingerprint");
+  if (reason === "same_file") return t("importModal.dupSameFile");
+  return t("importModal.dupReady");
 }
 
 function arrayBufferToBase64(buffer: ArrayBuffer) {
@@ -76,6 +79,8 @@ function arrayBufferToBase64(buffer: ArrayBuffer) {
 }
 
 export function TradeImportModal({ isOpen, accountId, onClose, onImported }: TradeImportModalProps) {
+  const { t } = useTranslation();
+
   const [source, setSource] = useState<TradeImportSource>("CTRADER");
   const [fileName, setFileName] = useState("");
   const [fileContent, setFileContent] = useState("");
@@ -103,8 +108,11 @@ export function TradeImportModal({ isOpen, accountId, onClose, onImported }: Tra
       return null;
     }
 
-    return `Le fichier ressemble a un export ${sourceConfig[preview.detectedSource].label}, pas ${sourceConfig[source].label}.`;
-  }, [preview?.detectedSource, source]);
+    const config = sourceConfig(t);
+    return t("importModal.mismatchFile")
+      .replace("{detected}", config[preview.detectedSource].label)
+      .replace("{selected}", config[source].label);
+  }, [preview?.detectedSource, source, t]);
 
   if (!isOpen) {
     return null;
@@ -131,7 +139,7 @@ export function TradeImportModal({ isOpen, accountId, onClose, onImported }: Tra
           : await file.text();
       setFileContent(nextContent);
     } catch {
-      setError("Impossible de lire le fichier.");
+      setError(t("importModal.readError"));
       setFileContent("");
     } finally {
       setIsReading(false);
@@ -140,12 +148,12 @@ export function TradeImportModal({ isOpen, accountId, onClose, onImported }: Tra
 
   async function previewImport() {
     if (!accountId) {
-      setError("Selectionne un compte avant d'importer.");
+      setError(t("importModal.selectAccount"));
       return;
     }
 
     if (!fileContent.trim()) {
-      setError("Ajoute un fichier avant de lancer la previsualisation.");
+      setError(t("importModal.addFileFirst"));
       return;
     }
 
@@ -211,8 +219,8 @@ export function TradeImportModal({ isOpen, accountId, onClose, onImported }: Tra
       >
         <div className="flex items-center justify-between border-b border-border px-4 py-3 sm:px-6">
           <div>
-            <h2 className="text-sm font-bold uppercase tracking-[0.18em] text-secondary font-sans">Import trades</h2>
-            <p className="mt-1 text-sm text-secondary font-sans">Choisis la source, charge un fichier, verifie les doublons puis confirme.</p>
+            <h2 className="text-sm font-bold uppercase tracking-[0.18em] text-secondary font-sans">{t("importModal.title")}</h2>
+            <p className="mt-1 text-sm text-secondary font-sans">{t("importModal.description")}</p>
           </div>
           <div className="flex items-center gap-3">
             <button
@@ -220,7 +228,7 @@ export function TradeImportModal({ isOpen, accountId, onClose, onImported }: Tra
               onClick={onClose}
               className="inline-flex h-9 items-center justify-center rounded-lg px-3 text-sm font-medium text-secondary transition hover:bg-surface-2 hover:text-primary font-sans"
             >
-              Fermer
+              {t("importModal.close")}
             </button>
             <button
               type="button"
@@ -228,7 +236,7 @@ export function TradeImportModal({ isOpen, accountId, onClose, onImported }: Tra
               disabled={!preview || preview.summary.readyToImport === 0 || isImporting || Boolean(mismatchMessage)}
               className="inline-flex h-9 items-center justify-center rounded-lg bg-brand-500 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-600 disabled:cursor-not-allowed disabled:bg-border disabled:text-secondary disabled:shadow-none font-sans"
             >
-              {isImporting ? "Import..." : `Importer ${preview?.summary.readyToImport ?? 0} trade${(preview?.summary.readyToImport ?? 0) > 1 ? "s" : ""}`}
+              {isImporting ? t("importModal.importing") : `${t("importModal.importBtn")} ${preview?.summary.readyToImport ?? 0} trade${(preview?.summary.readyToImport ?? 0) > 1 ? "s" : ""}`}
             </button>
           </div>
         </div>
@@ -237,7 +245,7 @@ export function TradeImportModal({ isOpen, accountId, onClose, onImported }: Tra
           <aside className="border-b border-border bg-surface-2/40 p-4 lg:border-b-0 lg:border-r lg:p-6">
             <div className="space-y-5">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-secondary font-sans">Source</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-secondary font-sans">{t("importModal.source")}</p>
                 <div className="mt-3 space-y-3">
                   {(Object.keys(sourceConfig) as TradeImportSource[]).map((item) => (
                     <button
@@ -254,21 +262,21 @@ export function TradeImportModal({ isOpen, accountId, onClose, onImported }: Tra
                           : "border-border bg-surface-1 hover:border-brand-500/40"
                       }`}
                     >
-                      <p className="text-sm font-semibold text-primary font-sans">{sourceConfig[item].label}</p>
-                      <p className="mt-1 text-xs leading-relaxed text-secondary font-sans">{sourceConfig[item].helper}</p>
+                      <p className="text-sm font-semibold text-primary font-sans">{sourceConfig(t)[item].label}</p>
+                      <p className="mt-1 text-xs leading-relaxed text-secondary font-sans">{sourceConfig(t)[item].helper}</p>
                     </button>
                   ))}
                 </div>
               </div>
 
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-secondary font-sans">Fichier</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-secondary font-sans">{t("importModal.file")}</p>
                 <label className="mt-3 flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-surface-1 px-4 py-8 text-center transition hover:border-brand-500/50 hover:bg-brand-500/5">
-                  <span className="text-sm font-semibold text-primary font-sans">{fileName || "Choisir un fichier"}</span>
+                  <span className="text-sm font-semibold text-primary font-sans">{fileName || t("importModal.chooseFile")}</span>
                   <span className="mt-2 text-xs text-secondary font-sans">
-                    {source === "CTRADER" ? "CSV exporte depuis Statement" : "Rapport XLSX exporte depuis Account History"}
+                    {source === "CTRADER" ? t("importModal.cTraderHelper") : t("importModal.mtHelper")}
                   </span>
-                  <input type="file" accept={sourceConfig[source].accept} onChange={handleFileChange} className="hidden" />
+                  <input type="file" accept={sourceConfig(t)[source].accept} onChange={handleFileChange} className="hidden" />
                 </label>
               </div>
 
@@ -278,17 +286,17 @@ export function TradeImportModal({ isOpen, accountId, onClose, onImported }: Tra
                 disabled={isReading || isPreviewing || !fileContent}
                 className="inline-flex h-10 w-full items-center justify-center rounded-xl bg-brand-500 px-4 text-sm font-semibold text-white transition hover:bg-brand-600 disabled:opacity-50 font-sans"
               >
-                {isReading ? "Lecture..." : isPreviewing ? "Analyse..." : "Previsualiser l'import"}
+                {isReading ? t("importModal.reading") : isPreviewing ? t("importModal.analyzing") : t("importModal.preview")}
               </button>
 
               {preview ? (
                 <div className="rounded-2xl border border-border bg-surface-1 p-4 text-sm font-sans">
-                  <p className="font-semibold text-primary">Resume</p>
+                  <p className="font-semibold text-primary">{t("importModal.summary")}</p>
                   <div className="mt-3 space-y-2 text-secondary">
-                    <p>{preview.summary.totalRows} ligne(s) detectee(s)</p>
-                    <p>{preview.summary.readyToImport} pret(es) a importer</p>
-                    <p>{preview.summary.duplicates} doublon(s)</p>
-                    <p>{preview.summary.errors} erreur(s)</p>
+                    <p>{preview.summary.totalRows} {t("importModal.linesDetected")}</p>
+                    <p>{preview.summary.readyToImport} {t("importModal.readyToImport")}</p>
+                    <p>{preview.summary.duplicates} {t("importModal.duplicates")}</p>
+                    <p>{preview.summary.errors} {t("importModal.errors")}</p>
                   </div>
                 </div>
               ) : null}
@@ -300,13 +308,13 @@ export function TradeImportModal({ isOpen, accountId, onClose, onImported }: Tra
 
           <section className="flex min-h-0 flex-col overflow-hidden">
             <div className="border-b border-border px-4 py-3 sm:px-6">
-              <p className="text-sm font-semibold text-primary font-sans">Previsualisation</p>
-              <p className="mt-1 text-xs text-secondary font-sans">Seuls les trades fermes sans doublon seront importes.</p>
+              <p className="text-sm font-semibold text-primary font-sans">{t("importModal.previewTitle")}</p>
+              <p className="mt-1 text-xs text-secondary font-sans">{t("importModal.previewDesc")}</p>
             </div>
 
             {!preview ? (
               <div className="flex flex-1 items-center justify-center px-6 text-center text-sm text-secondary font-sans">
-                Charge un export puis lance la previsualisation pour verifier les trades detectes.
+                {t("importModal.previewEmpty")}
               </div>
             ) : (
               <div className="grid min-h-0 flex-1 gap-0 lg:grid-cols-[1fr_280px]">
@@ -315,12 +323,12 @@ export function TradeImportModal({ isOpen, accountId, onClose, onImported }: Tra
                     <table className="min-w-full divide-y divide-border text-left text-sm font-sans">
                       <thead className="bg-surface-2/70 text-secondary">
                         <tr>
-                          <th className="px-3 py-2 font-semibold">Ligne</th>
-                          <th className="px-3 py-2 font-semibold">Trade</th>
-                          <th className="px-3 py-2 font-semibold">Prix</th>
-                          <th className="px-3 py-2 font-semibold">Horaires</th>
-                          <th className="px-3 py-2 font-semibold">Net</th>
-                          <th className="px-3 py-2 font-semibold">Statut</th>
+                          <th className="px-3 py-2 font-semibold">{t("importModal.tableRow")}</th>
+                          <th className="px-3 py-2 font-semibold">{t("importModal.tableTrade")}</th>
+                          <th className="px-3 py-2 font-semibold">{t("importModal.tablePrice")}</th>
+                          <th className="px-3 py-2 font-semibold">{t("importModal.tableDates")}</th>
+                          <th className="px-3 py-2 font-semibold">{t("importModal.tableNet")}</th>
+                          <th className="px-3 py-2 font-semibold">{t("importModal.tableStatus")}</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-border bg-surface-1">
@@ -329,11 +337,11 @@ export function TradeImportModal({ isOpen, accountId, onClose, onImported }: Tra
                             <td className="px-3 py-3 align-top text-secondary">{row.rowNumber}</td>
                             <td className="px-3 py-3 align-top">
                               <p className="font-semibold text-primary">{row.symbol} · {row.side}</p>
-                              <p className="mt-1 text-xs text-secondary">Qty {formatNumber(row.quantity)} · Fees {formatNumber(row.fees)}</p>
+                              <p className="mt-1 text-xs text-secondary">{t("importModal.qty")} {formatNumber(row.quantity)} · {t("importModal.fees")} {formatNumber(row.fees)}</p>
                             </td>
                             <td className="px-3 py-3 align-top text-secondary">
-                              <p>In {formatNumber(row.entryPrice)}</p>
-                              <p className="mt-1">Out {formatNumber(row.exitPrice)}</p>
+                              <p>{t("importModal.in")} {formatNumber(row.entryPrice)}</p>
+                              <p className="mt-1">{t("importModal.out")} {formatNumber(row.exitPrice)}</p>
                             </td>
                             <td className="px-3 py-3 align-top text-secondary">
                               <p>{new Date(row.openedAt).toLocaleString()}</p>
@@ -350,7 +358,7 @@ export function TradeImportModal({ isOpen, accountId, onClose, onImported }: Tra
                                     : "bg-pnl-positive/10 text-pnl-positive"
                                 }`}
                               >
-                                {duplicateLabel(row.duplicateReason)}
+                                {duplicateLabel(row.duplicateReason, t)}
                               </span>
                             </td>
                           </tr>
@@ -361,14 +369,14 @@ export function TradeImportModal({ isOpen, accountId, onClose, onImported }: Tra
                 </div>
 
                 <aside className="border-t border-border bg-surface-2/30 p-4 lg:border-l lg:border-t-0">
-                  <p className="text-sm font-semibold text-primary font-sans">Erreurs</p>
+                  <p className="text-sm font-semibold text-primary font-sans">{t("importModal.errorTitle")}</p>
                   {preview.errors.length === 0 ? (
-                    <p className="mt-3 text-sm text-secondary font-sans">Aucune erreur de parsing.</p>
+                    <p className="mt-3 text-sm text-secondary font-sans">{t("importModal.noErrors")}</p>
                   ) : (
                     <div className="mt-3 space-y-2">
                       {preview.errors.map((item) => (
                         <div key={`${item.rowNumber}-${item.message}`} className="rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-700 font-sans">
-                          Ligne {item.rowNumber}: {item.message}
+                          {t("importModal.tableRow")} {item.rowNumber}: {item.message}
                         </div>
                       ))}
                     </div>

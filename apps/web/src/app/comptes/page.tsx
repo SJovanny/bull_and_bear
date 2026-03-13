@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { DashboardShell } from "@/components/dashboard-shell";
+import { useSelectedAccountId } from "@/hooks/use-selected-account-id";
+import { useTranslation } from "@/lib/i18n/context";
 import { formatNumber, pnlColorClass } from "@/lib/format";
 
 type AccountType = "CASH" | "MARGIN" | "PROP" | "SIM";
@@ -46,6 +48,7 @@ export default function ComptesPage() {
   const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   const canSubmit = useMemo(
     () => form.name.trim().length > 1 && form.currency.trim().length === 3,
@@ -168,12 +171,12 @@ export default function ComptesPage() {
         window.dispatchEvent(new CustomEvent("bb-accounts-changed"));
       }
 
-      setMessage(editingAccountId ? "Trading account updated successfully." : "Trading account created successfully.");
+      setMessage(editingAccountId ? t("accounts.updateSuccess") : t("accounts.createSuccess"));
       closeForm();
       // Reload balances after account changes
       void loadBalances();
     } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : "Unexpected error");
+      setError(requestError instanceof Error ? requestError.message : t("common.error"));
     } finally {
       setIsSubmitting(false);
     }
@@ -181,7 +184,7 @@ export default function ComptesPage() {
 
   async function handleDelete(account: TradingAccount) {
     const confirmed = window.confirm(
-      `Delete trading account "${account.name}" permanently? This will also delete all related trades and journals.`,
+      t("accounts.deleteConfirm").replace("{name}", account.name)
     );
     if (!confirmed) {
       return;
@@ -205,16 +208,16 @@ export default function ComptesPage() {
       if (editingAccountId === account.id) {
         closeForm();
       }
-      setMessage("Trading account and all related data deleted successfully.");
+      setMessage(t("accounts.deleteSuccess"));
     } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : "Unexpected error");
+      setError(requestError instanceof Error ? requestError.message : t("common.error"));
     } finally {
       setIsDeletingId(null);
     }
   }
 
   return (
-    <DashboardShell title="Comptes" >
+    <DashboardShell title={t("accounts.title")} >
       <div className="mx-auto flex max-w-6xl flex-col gap-4">
         {error ? (
           <section className="rounded-xl border border-pnl-negative/20 bg-pnl-negative/5 px-4 py-3 text-sm text-pnl-negative font-sans">
@@ -231,8 +234,8 @@ export default function ComptesPage() {
         <section className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.08em] text-secondary font-sans">Trading Accounts</p>
-              <p className="mt-1 text-sm text-secondary font-sans">See every trading account already created under your user, then edit or delete them anytime.</p>
+              <p className="text-sm font-semibold uppercase tracking-[0.08em] text-secondary font-sans">{t("accounts.tradingAccounts")}</p>
+              <p className="mt-1 text-sm text-secondary font-sans">{t("accounts.description")}</p>
             </div>
 
             <button
@@ -240,7 +243,7 @@ export default function ComptesPage() {
               onClick={() => (showCreateForm && !editingAccountId ? closeForm() : openCreateForm())}
               className="inline-flex h-10 items-center justify-center rounded-xl bg-brand-500 px-4 text-sm font-semibold text-white transition hover:bg-brand-600"
             >
-              {showCreateForm && !editingAccountId ? "Close" : "Add account"}
+              {showCreateForm && !editingAccountId ? t("accounts.closeBtn") : t("accounts.addAccountBtn")}
             </button>
           </div>
         </section>
@@ -249,9 +252,9 @@ export default function ComptesPage() {
           <article className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm">
             {accounts.length === 0 ? (
               <div className="flex min-h-64 flex-col items-center justify-center rounded-xl border border-dashed border-border bg-surface-2 px-6 text-center">
-                <p className="text-lg font-semibold text-primary font-sans">No trading accounts yet</p>
+                <p className="text-lg font-semibold text-primary font-sans">{t("accounts.noAccounts")}</p>
                 <p className="mt-2 max-w-md text-sm text-secondary font-sans">
-                  Create your first trading account to start separating your stats, trades and journal by account.
+                  {t("accounts.createFirstAccount")}
                 </p>
                 {!showCreateForm ? (
                   <button
@@ -259,7 +262,7 @@ export default function ComptesPage() {
                     onClick={openCreateForm}
                     className="mt-4 inline-flex h-10 items-center justify-center rounded-xl bg-brand-500 px-4 text-sm font-semibold text-white transition hover:bg-brand-600"
                   >
-                    Add your first account
+                    {t("accounts.addFirstAccountBtn")}
                   </button>
                 ) : null}
               </div>
@@ -284,13 +287,13 @@ export default function ComptesPage() {
                       {hasBalance ? (
                         <div className="mt-3 rounded-lg bg-surface-1 p-3">
                           <div className="flex items-baseline justify-between gap-2">
-                            <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-secondary font-sans">Balance</span>
+                            <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-secondary font-sans">{t("accounts.balance")}</span>
                             <span className={`text-lg font-black tabular-nums font-mono ${pnlColorClass(bal.currentBalance ?? 0)}`}>
                               {formatNumber(bal.currentBalance ?? 0)} {account.currency}
                             </span>
                           </div>
                           <div className="mt-1.5 flex items-center justify-between gap-2 text-xs text-secondary font-sans">
-                            <span>PnL: <span className={`font-semibold font-mono ${pnlColorClass(bal.totalPnl)}`}>{bal.totalPnl > 0 ? "+" : ""}{formatNumber(bal.totalPnl)}</span></span>
+                            <span>{t("accounts.pnl")}: <span className={`font-semibold font-mono ${pnlColorClass(bal.totalPnl)}`}>{bal.totalPnl > 0 ? "+" : ""}{formatNumber(bal.totalPnl)}</span></span>
                             {bal.returnPercent != null ? (
                               <span className={`font-semibold font-mono ${pnlColorClass(bal.returnPercent)}`}>
                                 {bal.returnPercent > 0 ? "+" : ""}{formatNumber(bal.returnPercent, 1)}%
@@ -301,12 +304,12 @@ export default function ComptesPage() {
                       ) : null}
 
                       <div className="mt-3 space-y-2 text-sm text-secondary font-sans">
-                        <p>Broker: {account.broker || "Not set"}</p>
+                        <p>{t("accounts.broker")}: {account.broker || t("accounts.notSet")}</p>
                         {account.initialBalance ? (
-                          <p>Starting capital: {formatNumber(Number(account.initialBalance))} {account.currency}</p>
+                          <p>{t("accounts.startingCapital")}: {formatNumber(Number(account.initialBalance))} {account.currency}</p>
                         ) : null}
                         <p>
-                          Created: {account.createdAt ? new Date(account.createdAt).toLocaleDateString("en-US") : "-"}
+                          {t("accounts.created")}: {account.createdAt ? new Date(account.createdAt).toLocaleDateString("en-US") : "-"}
                         </p>
                       </div>
 
@@ -316,7 +319,7 @@ export default function ComptesPage() {
                           onClick={() => openEditForm(account)}
                           className="inline-flex h-9 items-center justify-center rounded-lg border border-border bg-surface-1 px-3 text-sm font-semibold text-primary transition hover:bg-white"
                         >
-                          Edit
+                          {t("accounts.editBtn")}
                         </button>
                         <button
                           type="button"
@@ -324,7 +327,7 @@ export default function ComptesPage() {
                           disabled={isDeletingId === account.id}
                           className="inline-flex h-9 items-center justify-center rounded-lg border border-pnl-negative/20 bg-pnl-negative/5 px-3 text-sm font-semibold text-pnl-negative transition hover:bg-pnl-negative/10 disabled:opacity-50"
                         >
-                          {isDeletingId === account.id ? "Deleting..." : "Delete"}
+                          {isDeletingId === account.id ? t("accounts.deletingBtn") : t("accounts.deleteBtn")}
                         </button>
                       </div>
                     </article>
@@ -337,53 +340,53 @@ export default function ComptesPage() {
           <article className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm">
             <div className="mb-4">
               <p className="text-sm font-semibold uppercase tracking-[0.08em] text-secondary font-sans">
-                {editingAccountId ? "Edit Account" : "Add Account"}
+                {editingAccountId ? t("accounts.editAccountTitle") : t("accounts.addAccountTitle")}
               </p>
               <p className="mt-1 text-sm text-secondary font-sans">
                 {editingAccountId
-                  ? "Update the selected trading account."
-                  : "Create a separate trading account with its own broker, currency and stats scope."}
+                  ? t("accounts.editAccountDesc")
+                  : t("accounts.addAccountDesc")}
               </p>
             </div>
 
             {showCreateForm ? (
               <form onSubmit={handleSubmit} className="space-y-4">
                 <label className="flex flex-col gap-2">
-                  <span className="text-sm font-medium text-primary font-sans">Account name</span>
+                  <span className="text-sm font-medium text-primary font-sans">{t("accounts.formName")}</span>
                   <input
                     value={form.name}
                     onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
-                    placeholder="Main Futures Account"
+                    placeholder={t("accounts.formNamePlaceholder")}
                     className="h-11 rounded-xl border border-border bg-surface-2 px-3 text-sm text-primary outline-none ring-brand-500 transition focus:ring-2"
                     required
                   />
                 </label>
 
                 <label className="flex flex-col gap-2">
-                  <span className="text-sm font-medium text-primary font-sans">Broker</span>
+                  <span className="text-sm font-medium text-primary font-sans">{t("accounts.formBroker")}</span>
                   <input
                     value={form.broker}
                     onChange={(event) => setForm((current) => ({ ...current, broker: event.target.value }))}
-                    placeholder="Tradovate"
+                    placeholder={t("accounts.formBrokerPlaceholder")}
                     className="h-11 rounded-xl border border-border bg-surface-2 px-3 text-sm text-primary outline-none ring-brand-500 transition focus:ring-2"
                   />
                 </label>
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <label className="flex flex-col gap-2">
-                    <span className="text-sm font-medium text-primary font-sans">Currency</span>
+                    <span className="text-sm font-medium text-primary font-sans">{t("accounts.formCurrency")}</span>
                     <input
                       value={form.currency}
                       onChange={(event) => setForm((current) => ({ ...current, currency: event.target.value.toUpperCase() }))}
                       maxLength={3}
-                      placeholder="USD"
+                      placeholder={t("accounts.formCurrencyPlaceholder")}
                       className="h-11 rounded-xl border border-border bg-surface-2 px-3 text-sm uppercase text-primary outline-none ring-brand-500 transition focus:ring-2"
                       required
                     />
                   </label>
 
                   <label className="flex flex-col gap-2">
-                    <span className="text-sm font-medium text-primary font-sans">Account type</span>
+                    <span className="text-sm font-medium text-primary font-sans">{t("accounts.formType")}</span>
                     <select
                       value={form.accountType}
                       onChange={(event) => setForm((current) => ({ ...current, accountType: event.target.value as AccountType }))}
@@ -399,17 +402,17 @@ export default function ComptesPage() {
                 </div>
 
                 <label className="flex flex-col gap-2">
-                  <span className="text-sm font-medium text-primary font-sans">Initial balance</span>
+                  <span className="text-sm font-medium text-primary font-sans">{t("accounts.formInitialBalance")}</span>
                   <input
                     type="number"
                     step="any"
                     min="0"
                     value={form.initialBalance}
                     onChange={(event) => setForm((current) => ({ ...current, initialBalance: event.target.value }))}
-                    placeholder="e.g. 50000"
+                    placeholder={t("accounts.formInitialBalancePlaceholder")}
                     className="h-11 rounded-xl border border-border bg-surface-2 px-3 text-sm text-primary outline-none ring-brand-500 transition focus:ring-2"
                   />
-                  <span className="text-xs text-secondary font-sans">Optional. Used to compute ROI %, current balance and drawdown %.</span>
+                  <span className="text-xs text-secondary font-sans">{t("accounts.formInitialBalanceHelp")}</span>
                 </label>
 
                 <div className="flex flex-wrap gap-3">
@@ -418,20 +421,20 @@ export default function ComptesPage() {
                     disabled={!canSubmit || isSubmitting}
                     className="inline-flex h-11 items-center justify-center rounded-xl bg-slate-900 px-5 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    {isSubmitting ? (editingAccountId ? "Saving..." : "Creating...") : editingAccountId ? "Save changes" : "Create account"}
+                    {isSubmitting ? (editingAccountId ? t("accounts.formSavingBtn") : t("accounts.formCreatingBtn")) : editingAccountId ? t("accounts.formSaveBtn") : t("accounts.formCreateBtn")}
                   </button>
                   <button
                     type="button"
                     onClick={closeForm}
                     className="inline-flex h-11 items-center justify-center rounded-xl border border-border bg-surface-1 px-5 text-sm font-semibold text-primary transition hover:bg-surface-2"
                   >
-                    Cancel
+                    {t("accounts.formCancelBtn")}
                   </button>
                 </div>
               </form>
             ) : (
               <div className="rounded-xl border border-dashed border-border bg-surface-2 px-4 py-5 text-sm text-secondary font-sans">
-                Click <span className="font-semibold text-primary">Add account</span> to open the creation form, or choose <span className="font-semibold text-primary">Edit</span> on an existing account.
+                {t("accounts.emptySelectionText")}<span className="font-semibold text-primary">{t("accounts.clickAdd")}</span>{t("accounts.toOpenForm")}<span className="font-semibold text-primary">{t("accounts.orChoose")}</span>{t("accounts.onExisting")}
               </div>
             )}
           </article>

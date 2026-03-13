@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { supabaseClient } from "@/lib/supabase/client";
+import { useTranslation } from "@/lib/i18n/context";
 
 type LogoutButtonProps = {
   isSidebarContext?: boolean;
@@ -11,9 +12,10 @@ type LogoutButtonProps = {
   label?: string;
 };
 
-export function LogoutButton({ isSidebarContext = false, isCollapsed = false, label = "Logout" }: LogoutButtonProps) {
+export function LogoutButton({ isSidebarContext = false, isCollapsed = false, label }: LogoutButtonProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const { t } = useTranslation();
 
   async function handleLogout() {
     setLoading(true);
@@ -41,16 +43,16 @@ export function LogoutButton({ isSidebarContext = false, isCollapsed = false, la
             <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
           </svg>
           
-          {!isCollapsed && <span>{loading ? "Déconnexion..." : "Déconnexion"}</span>}
+          {!isCollapsed && <span>{loading ? `${t("logout.button")}...` : t("logout.button")}</span>}
           
           {isCollapsed && (
             <div className="absolute left-full ml-4 hidden whitespace-nowrap rounded bg-slate-800 px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:block group-hover:opacity-100 z-50">
-               Déconnexion
+               {t("logout.tooltip")}
             </div>
           )}
         </>
       ) : (
-        loading ? "Logging out..." : label
+        loading ? `${t("logout.button")}...` : (label ?? t("logout.button"))
       )}
     </button>
   );

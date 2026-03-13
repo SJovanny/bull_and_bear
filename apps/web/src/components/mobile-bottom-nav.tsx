@@ -12,17 +12,20 @@ import {
   IconProfile,
 } from "./icons";
 import { ThemeToggle } from "./theme-toggle";
-
-const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: IconDashboard },
-  { href: "/journal", label: "Journal", icon: IconJournal },
-  { href: "/calendar", label: "Calendar", icon: IconCalendar },
-  { href: "/stats", label: "Stats", icon: IconStats },
-];
+import { LanguageSwitcher } from "./language-switcher";
+import { useTranslation } from "@/lib/i18n/context";
 
 export function MobileBottomNav() {
   const pathname = usePathname();
   const [showMore, setShowMore] = useState(false);
+  const { t } = useTranslation();
+
+  const navItems = [
+    { href: "/dashboard", label: t("nav.dashboard"), icon: IconDashboard },
+    { href: "/journal", label: t("nav.journal"), icon: IconJournal },
+    { href: "/calendar", label: t("nav.calendar"), icon: IconCalendar },
+    { href: "/stats", label: t("nav.stats"), icon: IconStats },
+  ];
 
   return (
     <>
@@ -39,7 +42,7 @@ export function MobileBottomNav() {
                 className="flex w-full items-center rounded-lg px-4 py-3 text-sm font-medium text-primary hover:bg-surface-2"
               >
                 <IconProfile className="mr-3 h-5 w-5 text-secondary" />
-                Profil
+                {t("nav.profile")}
               </Link>
               <Link
                 href="/comptes"
@@ -47,13 +50,14 @@ export function MobileBottomNav() {
                 className="flex w-full items-center rounded-lg px-4 py-3 text-sm font-medium text-primary hover:bg-surface-2"
               >
                 <IconAccounts className="mr-3 h-5 w-5 text-secondary" />
-                Comptes
+                {t("nav.accounts")}
               </Link>
             </div>
             
             <div className="border-t border-border"></div>
             
             <div className="p-2">
+               <LanguageSwitcher />
                <ThemeToggle />
             </div>
 
@@ -89,9 +93,10 @@ export function MobileBottomNav() {
           <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="mb-1 h-6 w-6">
             <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
           </svg>
-          Plus
+          {t("nav.more")}
         </button>
       </nav>
     </>
   );
 }
+

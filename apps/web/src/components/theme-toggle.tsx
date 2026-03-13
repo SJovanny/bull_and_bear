@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { IconThemeDark, IconThemeLight } from "./icons";
+import { useTranslation } from "@/lib/i18n/context";
 
 export function ThemeToggle({ isCollapsed = false }: { isCollapsed?: boolean }) {
   const [theme, setTheme] = useState<"light" | "dark">(() => {
@@ -22,7 +23,8 @@ export function ThemeToggle({ isCollapsed = false }: { isCollapsed?: boolean }) 
     localStorage.setItem("bb_theme", nextTheme);
   }
 
-  const label = theme === "light" ? "Mode sombre" : "Mode clair";
+  const { t } = useTranslation();
+  const label = theme === "light" ? t("theme.dark") : t("theme.light");
   const Icon = theme === "light" ? IconThemeDark : IconThemeLight;
 
   return (

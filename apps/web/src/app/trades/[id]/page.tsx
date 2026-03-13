@@ -8,6 +8,8 @@ import { DashboardShell } from "@/components/dashboard-shell";
 import { ImageLightbox } from "@/components/image-lightbox";
 import { TradeChart } from "@/components/trade-chart";
 import { TradeEntryModal } from "@/components/trade-entry-modal";
+import { useTranslation } from "@/lib/i18n/context";
+import { TranslationKeys } from "@/lib/i18n/types";
 
 type Trade = {
   id: string;
@@ -172,7 +174,7 @@ function ExecutionRatingBar({ rating }: { rating: number | null }) {
   );
 }
 
-function PlanFollowedIndicator({ followed }: { followed: boolean | null }) {
+function PlanFollowedIndicator({ followed, t }: { followed: boolean | null; t: (key: keyof TranslationKeys) => string }) {
   if (followed == null) return <InfoValue>-</InfoValue>;
   return (
     <div className="flex items-center gap-2">
@@ -183,7 +185,7 @@ function PlanFollowedIndicator({ followed }: { followed: boolean | null }) {
               <path d="M3.5 8.5l3 3 6-7" />
             </svg>
           </span>
-          <span className="text-base font-semibold text-emerald-600">Oui</span>
+          <span className="text-base font-semibold text-emerald-600">{t("tradeDetail.yes")}</span>
         </>
       ) : (
         <>
@@ -192,7 +194,7 @@ function PlanFollowedIndicator({ followed }: { followed: boolean | null }) {
               <path d="M4 4l8 8M12 4l-8 8" />
             </svg>
           </span>
-          <span className="text-base font-semibold text-rose-600">Non</span>
+          <span className="text-base font-semibold text-rose-600">{t("tradeDetail.no")}</span>
         </>
       )}
     </div>
@@ -203,9 +205,9 @@ function PlanFollowedIndicator({ followed }: { followed: boolean | null }) {
 /*  Screenshot thumbnail grid                                         */
 /* ------------------------------------------------------------------ */
 
-function ScreenshotGrid({ screenshots, onClickImage }: { screenshots: string[]; onClickImage: (index: number) => void }) {
+function ScreenshotGrid({ screenshots, onClickImage, t }: { screenshots: string[]; onClickImage: (index: number) => void; t: (key: keyof TranslationKeys) => string }) {
   if (screenshots.length === 0) {
-    return <p className="text-sm text-secondary">Aucun screenshot</p>;
+    return <p className="text-sm text-secondary">{t("tradeDetail.noScreenshots")}</p>;
   }
 
   return (
@@ -249,6 +251,8 @@ function ScreenshotGrid({ screenshots, onClickImage }: { screenshots: string[]; 
 /* ------------------------------------------------------------------ */
 
 export default function TradeDetailPage() {
+  const { t } = useTranslation();
+
   const params = useParams<{ id: string }>();
   const tradeId = params.id;
 
@@ -295,22 +299,22 @@ export default function TradeDetailPage() {
 
   return (
     <DashboardShell
-      title="Detail du trade"
-      subtitle="Execution, contexte et post-analyse du trade"
+      title={t("tradeDetail.title")}
+      subtitle={t("tradeDetail.subtitle")}
       actions={
         <>
           <Link
             href="/journal"
             className="inline-flex h-10 items-center justify-center rounded-lg border border-border px-3 text-sm font-medium text-secondary hover:bg-surface-2 transition-colors"
           >
-            Retour journal
+            {t("tradeDetail.backJournal")}
           </Link>
           <button
             type="button"
             onClick={() => setIsEditOpen(true)}
             className="inline-flex h-10 items-center justify-center rounded-lg border border-brand-500/30 bg-brand-500/5 px-3 text-sm font-medium text-brand-600 hover:bg-brand-500/10 transition-colors"
           >
-            Modifier le trade
+            {t("tradeDetail.editTrade")}
           </button>
         </>
       }
@@ -323,7 +327,7 @@ export default function TradeDetailPage() {
           </div>
         )}
         {error && <p className="rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-700">{error}</p>}
-        {!loading && !error && !trade && <p className="text-sm text-secondary">Trade introuvable.</p>}
+        {!loading && !error && !trade && <p className="text-sm text-secondary">{t("tradeDetail.notFound")}</p>}
 
         {trade && (
           <>
@@ -343,11 +347,11 @@ export default function TradeDetailPage() {
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-secondary">
                     <span>{trade.assetClass}</span>
                     <span className="text-border">|</span>
-                    <span>Ouvert le {new Date(trade.openedAt).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
+                    <span>{t("tradeDetail.openedOn")} {new Date(trade.openedAt).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
                     {trade.closedAt && (
                       <>
                         <span className="text-border">|</span>
-                        <span>Clos le {new Date(trade.closedAt).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
+                        <span>{t("tradeDetail.closedOn")} {new Date(trade.closedAt).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
                       </>
                     )}
                   </div>
@@ -369,32 +373,32 @@ export default function TradeDetailPage() {
             <section className="space-y-3">
               <SectionTitle>
                 <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 14l4-4m0 0l2-6 2 6m-4 0h4m2 4V4" /></svg>
-                Execution
+                {t("tradeDetail.execution")}
               </SectionTitle>
               <div className="space-y-4">
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                  <InfoCard label="Prix d'entree">
+                  <InfoCard label={t("tradeDetail.entryPrice")}>
                     <InfoValue>{formatNumber(trade.entryPrice)}</InfoValue>
                   </InfoCard>
-                  <InfoCard label="Prix de sortie">
+                  <InfoCard label={t("tradeDetail.exitPrice")}>
                     <InfoValue>{formatNumber(trade.exitPrice)}</InfoValue>
                   </InfoCard>
-                  <InfoCard label="Quantite">
+                  <InfoCard label={t("tradeDetail.quantity")}>
                     <InfoValue>{formatNumber(trade.quantity)}</InfoValue>
                   </InfoCard>
-                  <InfoCard label="Frais">
+                  <InfoCard label={t("tradeDetail.fees")}>
                     <InfoValue>{formatNumber(trade.fees)}</InfoValue>
                   </InfoCard>
-                  <InfoCard label="Stop loss initial">
+                  <InfoCard label={t("tradeDetail.stopLoss")}>
                     <InfoValue>{formatNumber(trade.initialStopLoss)}</InfoValue>
                   </InfoCard>
-                  <InfoCard label="Take profit initial">
+                  <InfoCard label={t("tradeDetail.takeProfit")}>
                     <InfoValue>{formatNumber(trade.initialTakeProfit)}</InfoValue>
                   </InfoCard>
-                  <InfoCard label="Risk amount">
+                  <InfoCard label={t("tradeDetail.riskAmount")}>
                     <InfoValue>{formatNumber(trade.riskAmount)}</InfoValue>
                   </InfoCard>
-                  <InfoCard label="Multiplicateur contrat">
+                  <InfoCard label={t("tradeDetail.contractMultiplier")}>
                     <InfoValue>{formatNumber(trade.contractMultiplier)}</InfoValue>
                   </InfoCard>
                 </div>
@@ -420,7 +424,7 @@ export default function TradeDetailPage() {
             <section className="space-y-3">
               <SectionTitle>
                 <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="8" r="6" /><path d="M8 5v3l2 2" /></svg>
-                Contexte & Strategie
+                {t("tradeDetail.contextStrategy")}
               </SectionTitle>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 <InfoCard label="Setup">
@@ -439,7 +443,7 @@ export default function TradeDetailPage() {
 
               {/* Confluences */}
               <div className="rounded-xl border border-border bg-surface-1 p-4">
-                <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-secondary">Confluences</p>
+                <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-secondary">{t("tradeDetail.confluences")}</p>
                 {trade.confluences && trade.confluences.length > 0 ? (
                   <div className="mt-2 flex flex-wrap gap-2">
                     {trade.confluences.map((c, i) => (
@@ -458,8 +462,8 @@ export default function TradeDetailPage() {
 
               {/* Entry / Exit reason */}
               <div className="grid gap-3 sm:grid-cols-2">
-                <TextBlock label="Raison d'entree" value={trade.entryReason} />
-                <TextBlock label="Raison de sortie" value={trade.exitReason} />
+                <TextBlock label={t("tradeDetail.entryReason")} value={trade.entryReason} />
+                <TextBlock label={t("tradeDetail.exitReason")} value={trade.exitReason} />
               </div>
             </section>
 
@@ -469,21 +473,21 @@ export default function TradeDetailPage() {
             <section className="space-y-3">
               <SectionTitle>
                 <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M8 2a6 6 0 100 12A6 6 0 008 2z" /><path d="M5.5 9.5s1 1.5 2.5 1.5 2.5-1.5 2.5-1.5" /><circle cx="6" cy="6.5" r="0.5" fill="currentColor" /><circle cx="10" cy="6.5" r="0.5" fill="currentColor" /></svg>
-                Analyse & Psychologie
+                {t("tradeDetail.analysisPsychology")}
               </SectionTitle>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                <InfoCard label="Execution rating">
+                <InfoCard label={t("tradeDetail.executionRating")}>
                   <ExecutionRatingBar rating={trade.executionRating} />
                 </InfoCard>
-                <InfoCard label="Plan suivi">
-                  <PlanFollowedIndicator followed={trade.planFollowed} />
+                <InfoCard label={t("tradeDetail.planFollowed")}>
+                  <PlanFollowedIndicator followed={trade.planFollowed} t={t} />
                 </InfoCard>
-                <InfoCard label="Etat emotionnel">
+                <InfoCard label={t("tradeDetail.emotionalState")}>
                   <p className="text-base font-semibold text-primary">{plainText(trade.emotionalState)}</p>
                 </InfoCard>
               </div>
-              <TextBlock label="Lecon apprise" value={trade.lessonLearned} />
-              <TextBlock label="Notes" value={trade.notes} />
+              <TextBlock label={t("tradeDetail.lessonLearned")} value={trade.lessonLearned} />
+              <TextBlock label={t("tradeDetail.notes")} value={trade.notes} />
             </section>
 
             {/* ====================================================== */}
@@ -492,10 +496,11 @@ export default function TradeDetailPage() {
             <section className="space-y-3">
               <SectionTitle>
                 <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="12" height="10" rx="2" /><path d="M2 10l3-3 2 2 4-4 3 3" /></svg>
-                Chart screenshots
+                {t("tradeDetail.screenshots")}
               </SectionTitle>
               <ScreenshotGrid
                 screenshots={screenshots}
+                t={t}
                 onClickImage={(index) => {
                   setLightboxIndex(index);
                   setLightboxOpen(true);

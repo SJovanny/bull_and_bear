@@ -4,6 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import { useSelectedAccountId } from "@/hooks/use-selected-account-id";
+import { useTranslation } from "@/lib/i18n/context";
 
 type Account = {
   id: string;
@@ -32,6 +33,7 @@ export function AccountSwitcher() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [balances, setBalances] = useState<Map<string, number>>(new Map());
   const selectedAccountId = useSelectedAccountId();
+  const { t } = useTranslation();
 
   const syncAccountSelection = useCallback((accountList: Account[]) => {
     const params = new URLSearchParams(window.location.search);
@@ -126,7 +128,7 @@ export function AccountSwitcher() {
       value={selectedAccountId}
       onChange={(event) => handleAccountChange(event.target.value)}
       className="h-10 rounded-lg border border-border bg-surface-1 px-3 py-2 text-sm text-primary outline-none ring-brand-500 transition focus:ring-2 max-w-[260px]"
-      aria-label="Choisir un compte"
+      aria-label={t("accountSwitcher.label")}
     >
       {accounts.map((account) => {
         const bal = balances.get(account.id);

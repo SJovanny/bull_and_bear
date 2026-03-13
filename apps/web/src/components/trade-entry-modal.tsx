@@ -7,6 +7,8 @@ import {
   defaultContractMultiplier,
 } from "@/lib/trade-calc";
 import { SYMBOL_SUGGESTIONS } from "@/lib/symbol-database";
+import { useTranslation } from "@/lib/i18n/context";
+import { TranslationKeys } from "@/lib/i18n/types";
 import { useSelectedAccountId } from "@/hooks/use-selected-account-id";
 
 type Account = {
@@ -44,12 +46,12 @@ const assetClasses: AssetClass[] = [
   "OTHER",
 ];
 
-const stepConfig: Array<{ step: Step; label: string; helper: string }> = [
-  { step: 1, label: "Essentiel", helper: "Champs requis" },
-  { step: 2, label: "Risque", helper: "Gestion" },
-  { step: 3, label: "Cloture", helper: "Resultat" },
-  { step: 4, label: "Strategie", helper: "Contexte" },
-  { step: 5, label: "Psychologie", helper: "Analyse" },
+const getStepConfig = (t: (key: keyof TranslationKeys) => string): Array<{ step: Step; label: string; helper: string }> => [
+  { step: 1, label: t("tradeModal.step1"), helper: t("tradeModal.step1Helper") },
+  { step: 2, label: t("tradeModal.step2"), helper: t("tradeModal.step2Helper") },
+  { step: 3, label: t("tradeModal.step3"), helper: t("tradeModal.step3Helper") },
+  { step: 4, label: t("tradeModal.step4"), helper: t("tradeModal.step4Helper") },
+  { step: 5, label: t("tradeModal.step5"), helper: t("tradeModal.step5Helper") },
 ];
 
 const timeframeOptions = ["1m", "3m", "5m", "15m", "30m", "1h", "4h", "1D", "1W"];
@@ -229,6 +231,9 @@ export function TradeEntryModal({
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [accountsLoading, setAccountsLoading] = useState(false);
   const selectedAccountFromQuery = useSelectedAccountId();
+
+  const { t } = useTranslation();
+  const stepConfig = useMemo(() => getStepConfig(t), [t]);
 
   const [currentStep, setCurrentStep] = useState<Step>(1);
 
@@ -656,10 +661,10 @@ export function TradeEntryModal({
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-700">
-                {mode === "edit" ? "Edition trade" : "Nouveau trade"}
+                {mode === "create" ? t("tradeModal.newTrade") : t("tradeModal.editTradeTitle")}
               </p>
               <h3 className="text-lg font-semibold text-slate-900">
-                {mode === "edit" ? "Modifier le trade" : "Journal trade wizard"}
+                {mode === "edit" ? t("tradeModal.editTrade") : t("tradeModal.wizardTitle")}
               </h3>
             </div>
             <button
@@ -667,7 +672,7 @@ export function TradeEntryModal({
               onClick={onClose}
               className="inline-flex h-9 items-center justify-center rounded-lg border border-slate-300 px-3 text-sm font-medium text-slate-700 hover:bg-slate-100"
             >
-              Fermer
+              {t("tradeModal.close")}
             </button>
           </div>
           <div className="mt-4 grid grid-cols-5 gap-2">
@@ -689,7 +694,7 @@ export function TradeEntryModal({
                   }`}
                 >
                   <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">
-                    Etape {item.step}
+                    {t("tradeModal.step")} {item.step}
                   </p>
                   <p className="mt-1 text-xs font-semibold text-slate-900">{item.label}</p>
                   <p className="text-[10px] text-slate-500">{item.helper}</p>
@@ -701,18 +706,18 @@ export function TradeEntryModal({
 
         <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
           <div className="min-h-0 flex-1 overflow-y-auto p-5 sm:p-6">
-            {accountsLoading ? <p className="text-sm text-slate-500">Loading accounts...</p> : null}
+            {accountsLoading ? <p className="text-sm text-slate-500">{t("common.loading")}</p> : null}
 
             {!accountsLoading && accounts.length === 0 ? (
               <p className="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-700">
-                No account found. Create one first in onboarding.
+                {t("accounts.noAccounts")}
               </p>
             ) : null}
 
             {currentStep === 1 ? (
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="flex flex-col gap-2 sm:col-span-2">
-                  <span className="text-sm font-medium text-slate-700">Account *</span>
+                  <span className="text-sm font-medium text-slate-700">{t("profile.tradingAccounts")} *</span>
                   <select
                     value={accountId}
                     onChange={(event) => setAccountId(event.target.value)}
@@ -744,7 +749,7 @@ export function TradeEntryModal({
                 </label>
 
                 <label className="flex flex-col gap-2">
-                  <span className="text-sm font-medium text-slate-700">Symbol / Ticker *</span>
+                  <span className="text-sm font-medium text-slate-700">{t("recentTrades.symbol")} *</span>
                   <input
                     value={symbol}
                     onChange={(event) => setSymbol(normalizeSymbolInput(event.target.value))}
@@ -765,7 +770,7 @@ export function TradeEntryModal({
                 </label>
 
                 <div className="flex flex-col gap-2">
-                  <span className="text-sm font-medium text-slate-700">Side *</span>
+                  <span className="text-sm font-medium text-slate-700">{t("recentTrades.side")} *</span>
                   <div className="grid h-11 grid-cols-2 rounded-xl border border-slate-300 p-1">
                     <button
                       type="button"
@@ -790,7 +795,7 @@ export function TradeEntryModal({
 
                 <label className="flex flex-col gap-2">
                   <span className="text-sm font-medium text-slate-700">
-                    {assetClass === "FOREX" ? "Lots *" : "Quantity *"}
+                    {assetClass === "FOREX" ? t("tradeDetail.quantity") + " (Lots) *" : t("tradeDetail.quantity") + " *"}
                   </span>
                   <input
                     value={quantity}
@@ -809,7 +814,7 @@ export function TradeEntryModal({
                 </label>
 
                 <label className="flex flex-col gap-2">
-                  <span className="text-sm font-medium text-slate-700">Opened at *</span>
+                  <span className="text-sm font-medium text-slate-700">{t("tradeDetail.openedOn")} *</span>
                   <input
                     value={openedAt}
                     onChange={(event) => setOpenedAt(event.target.value)}
@@ -820,7 +825,7 @@ export function TradeEntryModal({
                 </label>
 
                 <label className="flex flex-col gap-2 sm:col-span-2">
-                  <span className="text-sm font-medium text-slate-700">Entry price *</span>
+                  <span className="text-sm font-medium text-slate-700">{t("tradeDetail.entryPrice")} *</span>
                   <input
                     value={entryPrice}
                     onChange={(event) => setEntryPrice(event.target.value)}
@@ -837,7 +842,7 @@ export function TradeEntryModal({
             {currentStep === 2 ? (
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="flex flex-col gap-2">
-                  <span className="text-sm font-medium text-slate-700">Initial Stop Loss</span>
+                  <span className="text-sm font-medium text-slate-700">{t("tradeDetail.stopLoss")}</span>
                   <input
                     value={initialStopLoss}
                     onChange={(event) => setInitialStopLoss(event.target.value)}
@@ -849,7 +854,7 @@ export function TradeEntryModal({
                 </label>
 
                 <label className="flex flex-col gap-2">
-                  <span className="text-sm font-medium text-slate-700">Initial Take Profit</span>
+                  <span className="text-sm font-medium text-slate-700">{t("tradeDetail.takeProfit")}</span>
                   <input
                     value={initialTakeProfit}
                     onChange={(event) => setInitialTakeProfit(event.target.value)}
@@ -861,7 +866,7 @@ export function TradeEntryModal({
                 </label>
 
                 <label className="flex flex-col gap-2">
-                  <span className="text-sm font-medium text-slate-700">Risk amount</span>
+                  <span className="text-sm font-medium text-slate-700">{t("tradeDetail.riskAmount")}</span>
                   <input
                     value={riskAmount}
                     onChange={(event) => setRiskAmount(event.target.value)}
@@ -874,7 +879,7 @@ export function TradeEntryModal({
 
                 {assetClass !== "FOREX" ? (
                   <label className="flex flex-col gap-2">
-                    <span className="text-sm font-medium text-slate-700">Contract multiplier</span>
+                    <span className="text-sm font-medium text-slate-700">{t("tradeDetail.contractMultiplier")}</span>
                     <input
                       value={contractMultiplier}
                       onChange={(event) => {
@@ -897,7 +902,7 @@ export function TradeEntryModal({
             {currentStep === 3 ? (
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="flex flex-col gap-2 sm:col-span-2">
-                  <span className="text-sm font-medium text-slate-700">Position status</span>
+                  <span className="text-sm font-medium text-slate-700">Position status *</span>
                   <div className="grid h-11 grid-cols-2 rounded-xl border border-slate-300 p-1">
                     <button
                       type="button"
@@ -921,7 +926,7 @@ export function TradeEntryModal({
                 </div>
 
                 <label className="flex flex-col gap-2">
-                  <span className="text-sm font-medium text-slate-700">Closed at</span>
+                  <span className="text-sm font-medium text-slate-700">{t("tradeDetail.closedOn")} {positionStatus === "CLOSED" ? "*" : ""}</span>
                   <input
                     value={closedAt}
                     onChange={(event) => setClosedAt(event.target.value)}
@@ -932,7 +937,7 @@ export function TradeEntryModal({
                 </label>
 
                 <label className="flex flex-col gap-2">
-                  <span className="text-sm font-medium text-slate-700">Exit price</span>
+                  <span className="text-sm font-medium text-slate-700">{t("tradeDetail.exitPrice")} {positionStatus === "CLOSED" ? "*" : ""}</span>
                   <input
                     value={exitPrice}
                     onChange={(event) => setExitPrice(event.target.value)}
@@ -945,7 +950,7 @@ export function TradeEntryModal({
                 </label>
 
                 <label className="flex flex-col gap-2">
-                  <span className="text-sm font-medium text-slate-700">Fees</span>
+                  <span className="text-sm font-medium text-slate-700">{t("tradeDetail.fees")}</span>
                   <input
                     value={fees}
                     onChange={(event) => setFees(event.target.value)}
@@ -957,7 +962,7 @@ export function TradeEntryModal({
                 </label>
 
                 <label className="flex flex-col gap-2">
-                  <span className="text-sm font-medium text-slate-700">Net PnL</span>
+                  <span className="text-sm font-medium text-slate-700">{t("journalModal.netPnl")}</span>
                   <input
                     value={netPnl}
                     onChange={(event) => setNetPnl(event.target.value)}
@@ -1054,7 +1059,7 @@ export function TradeEntryModal({
                 </label>
 
                 <div className="sm:col-span-2">
-                  <p className="text-sm font-medium text-slate-700">Confluences</p>
+                  <p className="text-sm font-medium text-slate-700">{t("tradeDetail.confluences")}</p>
                   <div className="mt-2 flex flex-wrap gap-2">
                     {confluenceOptions.map((item) => {
                       const selected = confluences.includes(item);
@@ -1081,7 +1086,7 @@ export function TradeEntryModal({
             {currentStep === 5 ? (
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="flex flex-col gap-2">
-                  <span className="text-sm font-medium text-slate-700">Entry emotion</span>
+                  <span className="text-sm font-medium text-slate-700">{t("tradeDetail.emotionalState")}</span>
                   <select
                     value={emotionalState}
                     onChange={(event) => setEmotionalState(event.target.value)}
@@ -1097,7 +1102,7 @@ export function TradeEntryModal({
                 </label>
 
                 <label className="flex flex-col gap-2">
-                  <span className="text-sm font-medium text-slate-700">Execution rating (1-10)</span>
+                  <span className="text-sm font-medium text-slate-700">{t("tradeDetail.executionRating")} (1-10)</span>
                   <input
                     value={executionRating}
                     onChange={(event) => setExecutionRating(event.target.value)}
@@ -1111,7 +1116,7 @@ export function TradeEntryModal({
                 </label>
 
                 <div className="flex flex-col gap-2 sm:col-span-2">
-                  <span className="text-sm font-medium text-slate-700">Plan followed?</span>
+                  <span className="text-sm font-medium text-slate-700">{t("tradeDetail.planFollowed")}</span>
                   <div className="grid h-11 grid-cols-2 rounded-xl border border-slate-300 p-1">
                     <button
                       type="button"
@@ -1120,7 +1125,7 @@ export function TradeEntryModal({
                         planFollowed === true ? "bg-emerald-600 text-white" : "text-slate-700"
                       }`}
                     >
-                      OUI
+                      {t("tradeDetail.yes")}
                     </button>
                     <button
                       type="button"
@@ -1129,13 +1134,13 @@ export function TradeEntryModal({
                         planFollowed === false ? "bg-rose-600 text-white" : "text-slate-700"
                       }`}
                     >
-                      NON
+                      {t("tradeDetail.no")}
                     </button>
                   </div>
                 </div>
 
                 <div className="sm:col-span-2">
-                  <span className="text-sm font-medium text-slate-700">Screenshots (avant / pendant / apres)</span>
+                  <span className="text-sm font-medium text-slate-700">{t("tradeDetail.screenshots")} (avant / pendant / apres)</span>
                   <div className="mt-2 grid gap-3 sm:grid-cols-3">
                     {[
                       {
@@ -1216,45 +1221,45 @@ export function TradeEntryModal({
                 </div>
 
                 <label className="flex flex-col gap-2 sm:col-span-2">
-                  <span className="text-sm font-medium text-slate-700">Entry rationale</span>
+                  <span className="text-sm font-medium text-slate-700">{t("tradeDetail.entryReason")}</span>
                   <textarea
                     value={entryReason}
                     onChange={(event) => setEntryReason(event.target.value)}
                     rows={3}
-                    placeholder="Pourquoi cette entree ?"
+                    placeholder=""
                     className="rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none ring-sky-500 transition focus:ring-2"
                   />
                 </label>
 
                 <label className="flex flex-col gap-2 sm:col-span-2">
-                  <span className="text-sm font-medium text-slate-700">Exit rationale</span>
+                  <span className="text-sm font-medium text-slate-700">{t("tradeDetail.exitReason")}</span>
                   <textarea
                     value={exitReason}
                     onChange={(event) => setExitReason(event.target.value)}
                     rows={3}
-                    placeholder="Pourquoi cette sortie ?"
+                    placeholder=""
                     className="rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none ring-sky-500 transition focus:ring-2"
                   />
                 </label>
 
                 <label className="flex flex-col gap-2 sm:col-span-2">
-                  <span className="text-sm font-medium text-slate-700">Lessons learned</span>
+                  <span className="text-sm font-medium text-slate-700">{t("tradeDetail.lessonLearned")}</span>
                   <textarea
                     value={lessonLearned}
                     onChange={(event) => setLessonLearned(event.target.value)}
                     rows={3}
-                    placeholder="Ce que tu repetes / evites"
+                    placeholder=""
                     className="rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none ring-sky-500 transition focus:ring-2"
                   />
                 </label>
 
                 <label className="flex flex-col gap-2 sm:col-span-2">
-                  <span className="text-sm font-medium text-slate-700">Notes / Lessons learned</span>
+                  <span className="text-sm font-medium text-slate-700">{t("tradeDetail.notes")}</span>
                   <textarea
                     value={notes}
                     onChange={(event) => setNotes(event.target.value)}
                     rows={4}
-                    placeholder="Notes generales"
+                    placeholder=""
                     className="rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none ring-sky-500 transition focus:ring-2"
                   />
                 </label>
@@ -1266,7 +1271,7 @@ export function TradeEntryModal({
 
           <div className="flex flex-col gap-3 border-t border-slate-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="text-xs text-slate-500">
-              Etape {currentStep}/5 · {currentStep <= 3 ? "Essentiel d'abord" : "Contexte optionnel"}
+              {t("tradeModal.step")} {currentStep}/5 · {currentStep <= 3 ? "Essentiel d'abord" : "Contexte optionnel"}
             </div>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
               <button
@@ -1274,7 +1279,7 @@ export function TradeEntryModal({
                 onClick={onClose}
                 className="inline-flex h-11 items-center justify-center rounded-xl border border-slate-300 px-5 text-sm font-medium text-slate-700 hover:bg-slate-100"
               >
-                Annuler
+                {t("accounts.formCancelBtn")}
               </button>
               <button
                 type="button"
@@ -1282,7 +1287,7 @@ export function TradeEntryModal({
                 disabled={currentStep === 1}
                 className="inline-flex h-11 items-center justify-center rounded-xl border border-slate-300 px-5 text-sm font-medium text-slate-700 disabled:opacity-50"
               >
-                Precedent
+                {t("tradeDetail.previous")}
               </button>
               {currentStep < 5 ? (
                 <button
@@ -1290,7 +1295,7 @@ export function TradeEntryModal({
                   onClick={() => moveStep("next")}
                   className="inline-flex h-11 items-center justify-center rounded-xl bg-slate-900 px-5 text-sm font-semibold text-white hover:bg-slate-700"
                 >
-                  Suivant
+                  {t("tradeDetail.next")}
                 </button>
               ) : (
                 <button
@@ -1298,7 +1303,7 @@ export function TradeEntryModal({
                   disabled={!canSubmit || isSubmitting}
                   className="inline-flex h-11 items-center justify-center rounded-xl bg-cyan-600 px-5 text-sm font-semibold text-white transition hover:bg-cyan-700 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {isSubmitting ? "Saving..." : mode === "edit" ? "Mettre a jour le trade" : "Creer le trade"}
+                  {isSubmitting ? t("accounts.formSavingBtn") : mode === "edit" ? t("accounts.formSaveBtn") : t("tradeModal.newTrade")}
                 </button>
               )}
             </div>

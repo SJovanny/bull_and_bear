@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { formatNumber, pnlColorClass } from "@/lib/format";
 import { DailyPnlHistogram } from "./daily-pnl-histogram";
+import { useTranslation } from "@/lib/i18n/context";
 import type { DashboardPeriod, EquityPoint } from "@/types";
 
 type ChartsProps = {
@@ -81,6 +82,7 @@ export function DashboardCharts({
   const hasBalance = initialBalance !== null && initialBalance > 0;
   const [equityMode, setEquityMode] = useState<"dollar" | "percent">("dollar");
   const activeMode = hasBalance ? equityMode : "dollar";
+  const { t } = useTranslation();
 
   const chart = useMemo(() => buildLineChart(cumulativeSeries, activeMode), [cumulativeSeries, activeMode]);
   const hoveredPoint = chart.pointPositions.find(({ point }) => point.key === hoveredDate) ?? null;
@@ -99,7 +101,7 @@ export function DashboardCharts({
         <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
           <div>
             <h2 className="text-sm font-semibold uppercase tracking-[0.08em] text-secondary font-sans">
-              Cumulative PnL
+              {t("charts.cumulativePnl")}
             </h2>
             <p className="mt-1 text-xs text-secondary font-sans">
               {totalTrades} trades · {period}
@@ -125,8 +127,8 @@ export function DashboardCharts({
                 </button>
               </span>
             ) : null}
-            <span className="rounded-full bg-surface-2 px-2.5 py-1">Open/Closed {openTrades}/{closedTrades}</span>
-            <span className="rounded-full bg-surface-2 px-2.5 py-1">Accounts {accountsCount}</span>
+            <span className="rounded-full bg-surface-2 px-2.5 py-1">{t("charts.openClosed")} {openTrades}/{closedTrades}</span>
+            <span className="rounded-full bg-surface-2 px-2.5 py-1">{t("charts.accounts")} {accountsCount}</span>
           </div>
         </div>
 
@@ -138,7 +140,7 @@ export function DashboardCharts({
                 style={{ backgroundColor: lineColor, boxShadow: `0 0 0 4px ${lineGlow}` }}
               />
               <div className="flex items-baseline gap-2">
-                <span className="text-sm text-secondary font-sans">Cumulative</span>
+                <span className="text-sm text-secondary font-sans">{t("charts.cumulative")}</span>
                 <span className={`text-2xl font-black font-mono ${pnlColorClass(displayValue)}`}>
                   {activeMode === "percent"
                     ? `${formatCurrency(displayValue, 1)}%`
@@ -151,7 +153,7 @@ export function DashboardCharts({
               <div className="flex items-center gap-2.5">
                 <span className="h-2.5 w-2.5 rounded-full bg-brand-500" />
                 <div className="flex items-baseline gap-2">
-                  <span className="text-sm text-secondary font-sans">Latest session</span>
+                  <span className="text-sm text-secondary font-sans">{t("charts.latestSession")}</span>
                   <span className={`text-xl font-black font-mono ${pnlColorClass(latestPoint.pnl)}`}>
                     {formatCurrency(latestPoint.pnl)}
                   </span>
@@ -163,7 +165,7 @@ export function DashboardCharts({
 
           {cumulativeSeries.length === 0 ? (
             <div className="flex h-64 items-center justify-center rounded-xl border border-dashed border-border bg-surface-1 px-4 text-sm text-secondary font-sans">
-              No closed trades yet
+              {t("charts.noClosedTrades")}
             </div>
           ) : (
             <div className="grid grid-cols-[auto_1fr] gap-3 sm:gap-4">
@@ -184,17 +186,17 @@ export function DashboardCharts({
                   >
                       <p className="font-semibold text-primary font-sans">{hoveredPoint.point.label}</p>
                      <p className="mt-1 text-secondary font-sans">
-                       Daily: <span className={pnlColorClass(hoveredPoint.point.pnl)}>{formatCurrency(hoveredPoint.point.pnl)}</span>
+                       {t("charts.daily")}: <span className={pnlColorClass(hoveredPoint.point.pnl)}>{formatCurrency(hoveredPoint.point.pnl)}</span>
                      </p>
                      <p className="text-secondary font-sans">
-                       Cumulative: <span className={pnlColorClass(hoveredPoint.point.cumulativePnl)}>{formatCurrency(hoveredPoint.point.cumulativePnl)}</span>
+                       {t("charts.cumulative")}: <span className={pnlColorClass(hoveredPoint.point.cumulativePnl)}>{formatCurrency(hoveredPoint.point.cumulativePnl)}</span>
                      </p>
                      {hoveredPoint.point.cumulativePercent !== null ? (
                        <p className="text-secondary font-sans">
-                         Return: <span className={pnlColorClass(hoveredPoint.point.cumulativePercent)}>{hoveredPoint.point.cumulativePercent > 0 ? "+" : ""}{formatNumber(hoveredPoint.point.cumulativePercent, 1)}%</span>
+                         {t("charts.return")}: <span className={pnlColorClass(hoveredPoint.point.cumulativePercent)}>{hoveredPoint.point.cumulativePercent > 0 ? "+" : ""}{formatNumber(hoveredPoint.point.cumulativePercent, 1)}%</span>
                        </p>
                      ) : null}
-                     <p className="text-secondary font-mono">Trades: {hoveredPoint.point.tradeCount}</p>
+                     <p className="text-secondary font-mono">{t("charts.trades")}: {hoveredPoint.point.tradeCount}</p>
                    </div>
                  ) : null}
 
@@ -297,17 +299,17 @@ export function DashboardCharts({
 
       <article className="rounded-xl border border-border bg-surface-1 p-4 shadow-sm transition-all hover:shadow-md">
         <div className="mb-2 flex items-center justify-between">
-          <h2 className="text-sm font-semibold uppercase tracking-[0.08em] text-secondary font-sans">Daily Net PnL (14d)</h2>
+          <h2 className="text-sm font-semibold uppercase tracking-[0.08em] text-secondary font-sans">{t("charts.dailyPnl14d")}</h2>
         </div>
         <div className="rounded-lg bg-surface-2 px-3 py-3">
           {last14Days.length === 0 ? (
-            <div className="flex h-64 items-center justify-center text-xs text-secondary font-sans">No data yet</div>
+            <div className="flex h-64 items-center justify-center text-xs text-secondary font-sans">{t("charts.noData")}</div>
           ) : (
             <DailyPnlHistogram series={last14Days} />
           )}
         </div>
         <p className={`mt-2 text-xs font-medium font-sans ${pnlColorClass(totalNetPnl)}`}>
-          Running net: {totalNetPnl > 0 ? "+" : ""}{formatNumber(totalNetPnl)}
+          {t("charts.runningNet")}: {totalNetPnl > 0 ? "+" : ""}{formatNumber(totalNetPnl)}
         </p>
       </article>
     </section>

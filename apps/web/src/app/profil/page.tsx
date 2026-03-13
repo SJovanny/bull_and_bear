@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { DashboardShell } from "@/components/dashboard-shell";
+import { useTranslation } from "@/lib/i18n/context";
 
 type MePayload = {
   user?: {
@@ -20,6 +21,7 @@ export default function ProfilPage() {
   const [payload, setPayload] = useState<MePayload | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { t, locale } = useTranslation();
 
   useEffect(() => {
     async function loadProfile() {
@@ -49,7 +51,7 @@ export default function ProfilPage() {
   const accountsCount = payload?.accounts?.length ?? 0;
 
   return (
-    <DashboardShell title="Profil">
+    <DashboardShell title={t("profile.title")}>
       <div className="mx-auto flex max-w-5xl flex-col gap-4">
         {error ? (
           <section className="rounded-xl border border-pnl-negative/20 bg-pnl-negative/5 px-4 py-3 text-sm text-pnl-negative font-sans">
@@ -59,22 +61,22 @@ export default function ProfilPage() {
 
         <section className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
           <article className="rounded-2xl border border-border bg-surface-1 p-6 shadow-sm">
-            <p className="text-xs font-semibold uppercase tracking-[0.1em] text-secondary font-sans">Identity</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.1em] text-secondary font-sans">{t("profile.identity")}</p>
             <div className="mt-4 space-y-4">
               <div>
-                <p className="text-xs text-secondary font-sans">Display name</p>
+                <p className="text-xs text-secondary font-sans">{t("profile.displayName")}</p>
                 <p className="mt-1 text-lg font-semibold text-primary font-sans">
-                  {loading ? "..." : user?.displayName || "Not set"}
+                  {loading ? "..." : user?.displayName || t("profile.notSet")}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-secondary font-sans">Email</p>
+                <p className="text-xs text-secondary font-sans">{t("profile.email")}</p>
                 <p className="mt-1 text-lg font-semibold text-primary font-sans">
                   {loading ? "..." : user?.email || "-"}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-secondary font-sans">Timezone</p>
+                <p className="text-xs text-secondary font-sans">{t("profile.timezone")}</p>
                 <p className="mt-1 text-lg font-semibold text-primary font-sans">
                   {loading ? "..." : user?.timezone || "UTC"}
                 </p>
@@ -83,19 +85,19 @@ export default function ProfilPage() {
           </article>
 
           <article className="rounded-2xl border border-border bg-surface-1 p-6 shadow-sm">
-            <p className="text-xs font-semibold uppercase tracking-[0.1em] text-secondary font-sans">Account Overview</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.1em] text-secondary font-sans">{t("profile.accountOverview")}</p>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <div className="rounded-xl bg-surface-2 px-4 py-4">
-                <p className="text-xs text-secondary font-sans">Trading accounts</p>
+                <p className="text-xs text-secondary font-sans">{t("profile.tradingAccounts")}</p>
                 <p className="mt-2 text-3xl font-semibold text-primary font-mono">{loading ? "..." : accountsCount}</p>
               </div>
               <div className="rounded-xl bg-surface-2 px-4 py-4">
-                <p className="text-xs text-secondary font-sans">Member since</p>
+                <p className="text-xs text-secondary font-sans">{t("profile.memberSince")}</p>
                 <p className="mt-2 text-lg font-semibold text-primary font-sans">
                   {loading
                     ? "..."
                     : user?.createdAt
-                      ? new Date(user.createdAt).toLocaleDateString("en-US")
+                      ? new Date(user.createdAt).toLocaleDateString(locale === "fr" ? "fr-FR" : "en-US")
                       : "-"}
                 </p>
               </div>

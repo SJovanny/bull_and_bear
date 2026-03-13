@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 import { IconDashboard, IconJournal, IconStats } from "@/components/icons";
+import { useTranslation } from "@/lib/i18n/context";
 
 type Feature = {
   id: string;
@@ -16,46 +17,8 @@ type Feature = {
   accent: string;
   Icon: (props: React.SVGProps<SVGSVGElement>) => React.JSX.Element;
 };
-
-const features: Feature[] = [
-  {
-    id: "dashboard",
-    eyebrow: "Performance desk",
-    title: "See the entire book before emotion rewrites the day.",
-    description:
-      "Track PnL, streaks, expectancy, and account momentum in one command-center view built for quick review before the next session.",
-    bullets: ["Daily edge snapshot", "Account-level trendlines", "Session review at a glance"],
-    imageSrc: "/dashboard_example.png",
-    fallbackSrc: "/dashboard_example.png",
-    accent: "from-cyan-300/20 via-sky-300/10 to-transparent",
-    Icon: IconDashboard,
-  },
-  {
-    id: "journal",
-    eyebrow: "Execution journal",
-    title: "Capture context while the trade is still honest.",
-    description:
-      "Log screenshots, thesis, mistakes, and discipline notes so every setup turns into a repeatable lesson instead of a vague memory.",
-    bullets: ["Screenshot-backed notes", "Trade-by-trade reflection", "Clean review workflow"],
-    imageSrc: "/journal_example.png",
-    fallbackSrc: "/journal_example.png",
-    accent: "from-teal-300/20 via-emerald-300/10 to-transparent",
-    Icon: IconJournal,
-  },
-  {
-    id: "stats",
-    eyebrow: "Pattern review",
-    title: "Find the behaviors that actually move your equity curve.",
-    description:
-      "Break performance into patterns over time, spot recurring strengths, and turn your review process into a concrete improvement loop.",
-    bullets: ["Calendar-driven review", "Pattern and habit analysis", "Faster weekly debriefs"],
-    imageSrc: "/calendar%20example.png",
-    fallbackSrc: "/calendar%20example.png",
-    accent: "from-amber-300/20 via-orange-300/10 to-transparent",
-    Icon: IconStats,
-  },
-];
-
+// The features array now requires translations, so we'll build it dynamically inside the component or pass t downwards.
+// It's cleaner to build it inside the component to access `t`.
 function FeatureImage({
   src,
   fallbackSrc,
@@ -170,20 +133,69 @@ function FeatureRow({ feature, index }: { feature: Feature; index: number }) {
 }
 
 export function LandingFeatureShowcase() {
+  const { t } = useTranslation();
+
+  const features: Feature[] = [
+    {
+      id: "dashboard",
+      eyebrow: t("landing.showcase.feat1.eyebrow"),
+      title: t("landing.showcase.feat1.title"),
+      description: t("landing.showcase.feat1.desc"),
+      bullets: [
+        t("landing.showcase.feat1.bullet1"),
+        t("landing.showcase.feat1.bullet2"),
+        t("landing.showcase.feat1.bullet3"),
+      ],
+      imageSrc: "/dashboard_example.png",
+      fallbackSrc: "/dashboard_example.png",
+      accent: "from-cyan-300/20 via-sky-300/10 to-transparent",
+      Icon: IconDashboard,
+    },
+    {
+      id: "journal",
+      eyebrow: t("landing.showcase.feat2.eyebrow"),
+      title: t("landing.showcase.feat2.title"),
+      description: t("landing.showcase.feat2.desc"),
+      bullets: [
+        t("landing.showcase.feat2.bullet1"),
+        t("landing.showcase.feat2.bullet2"),
+        t("landing.showcase.feat2.bullet3"),
+      ],
+      imageSrc: "/journal_example.png",
+      fallbackSrc: "/journal_example.png",
+      accent: "from-teal-300/20 via-emerald-300/10 to-transparent",
+      Icon: IconJournal,
+    },
+    {
+      id: "stats",
+      eyebrow: t("landing.showcase.feat3.eyebrow"),
+      title: t("landing.showcase.feat3.title"),
+      description: t("landing.showcase.feat3.desc"),
+      bullets: [
+        t("landing.showcase.feat3.bullet1"),
+        t("landing.showcase.feat3.bullet2"),
+        t("landing.showcase.feat3.bullet3"),
+      ],
+      imageSrc: "/calendar%20example.png",
+      fallbackSrc: "/calendar%20example.png",
+      accent: "from-amber-300/20 via-orange-300/10 to-transparent",
+      Icon: IconStats,
+    },
+  ];
+
   return (
-    <section className="relative border-t border-white/10 px-4 py-20 sm:px-6 lg:px-10 lg:py-28">
+    <section id="fonctionnalites" className="relative border-t border-white/10 px-4 py-20 sm:px-6 lg:px-10 lg:py-28">
       <div className="mx-auto max-w-[1380px]">
         {/* Section heading */}
         <div className="mx-auto max-w-[760px] text-center">
           <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-100/80">
-            Built for the full review loop
+            {t("landing.showcase.eyebrow")}
           </span>
           <h2 className="mt-6 text-balance text-4xl font-semibold tracking-[-0.06em] text-white sm:text-5xl lg:text-6xl">
-            A trading workspace that gets sharper the more honestly you use it.
+            {t("landing.showcase.title")}
           </h2>
           <p className="mt-5 text-pretty text-base leading-8 text-slate-300 sm:text-lg">
-            Move from recap to insight with a guided flow: review the numbers, inspect the trades, then lock in the
-            pattern.
+            {t("landing.showcase.description")}
           </p>
         </div>
 

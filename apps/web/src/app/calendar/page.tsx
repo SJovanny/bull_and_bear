@@ -7,6 +7,7 @@ import { DashboardShell } from "@/components/dashboard-shell";
 import { TradeEntryModal } from "@/components/trade-entry-modal";
 import { TradeImportModal } from "@/components/trade-import-modal";
 import { useSelectedAccountId } from "@/hooks/use-selected-account-id";
+import { useTranslation } from "@/lib/i18n/context";
 import { toDateKey } from "@/lib/format";
 
 type Trade = {
@@ -51,8 +52,8 @@ function monthBounds(anchor: Date) {
   return { firstDay, gridStart };
 }
 
-function formatMonthYearUpper(date: Date) {
-  const parts = new Intl.DateTimeFormat("fr-FR", {
+function formatMonthYearUpper(date: Date, locale: string) {
+  const parts = new Intl.DateTimeFormat(locale === "fr" ? "fr-FR" : "en-US", {
     month: "long",
     year: "numeric",
   }).formatToParts(date);
@@ -62,8 +63,8 @@ function formatMonthYearUpper(date: Date) {
     .join("");
 }
 
-function formatLongDateWithUpperMonth(date: Date) {
-  const parts = new Intl.DateTimeFormat("fr-FR", {
+function formatLongDateWithUpperMonth(date: Date, locale: string) {
+  const parts = new Intl.DateTimeFormat(locale === "fr" ? "fr-FR" : "en-US", {
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -101,6 +102,7 @@ function CalendarPageContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const selectedAccountId = useSelectedAccountId();
+  const { t, locale } = useTranslation();
 
   const tradesEndpoint = useMemo(() => {
     if (!selectedAccountId) {
@@ -208,7 +210,7 @@ function CalendarPageContent() {
   }
 
   async function deleteTrade(trade: Trade) {
-    const confirmed = window.confirm(`Supprimer le trade ${trade.symbol} (${trade.side}) ?`);
+    const confirmed = window.confirm(`${t("calendar.deleteConfirm")} ${trade.symbol} (${trade.side}) ?`);
     if (!confirmed) {
       return;
     }
@@ -253,7 +255,7 @@ function CalendarPageContent() {
 
   return (
     <DashboardShell
-      title="Calendrier"
+      title={t("calendar.title")}
       actions={
         <>
           <button
@@ -261,7 +263,7 @@ function CalendarPageContent() {
             onClick={() => setIsImportModalOpen(true)}
             className="inline-flex h-10 items-center justify-center rounded-lg border border-brand-500/30 bg-brand-500/5 px-3 text-sm font-medium text-brand-600 hover:bg-brand-500/10 transition-colors font-sans"
           >
-            Import trades
+            {t("calendar.importTrades")}
           </button>
           <button
             type="button"
@@ -270,7 +272,7 @@ function CalendarPageContent() {
             }
             className="inline-flex h-10 items-center justify-center rounded-lg border border-border px-3 text-sm font-medium text-secondary hover:bg-surface-2 transition-colors font-sans"
           >
-            Mois précédent
+            {t("calendar.prevMonth")}
           </button>
           <button
             type="button"
@@ -279,7 +281,7 @@ function CalendarPageContent() {
             }
             className="inline-flex h-10 items-center justify-center rounded-lg border border-border px-3 text-sm font-medium text-secondary hover:bg-surface-2 transition-colors font-sans"
           >
-            Mois suivant
+            {t("calendar.nextMonth")}
           </button>
         </>
       }
@@ -289,16 +291,16 @@ function CalendarPageContent() {
           <div className="mb-5">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-brand-500 font-sans">Calendrier</p>
-                <h2 className="mt-2 text-2xl font-semibold text-primary font-sans">{formatMonthYearUpper(firstDay)}</h2>
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-brand-500 font-sans">{t("calendar.title")}</p>
+                <h2 className="mt-2 text-2xl font-semibold text-primary font-sans">{formatMonthYearUpper(firstDay, locale)}</h2>
                 <p className="mt-1 text-sm text-secondary font-sans">
-                  Chaque case affiche le nombre de trades. Clique un jour pour voir les trades en détail.
+                  {t("calendar.description")}
                 </p>
               </div>
 
               <div className="flex items-center gap-2">
                 <label htmlFor="journal-date-selector" className="text-xs font-semibold uppercase tracking-[0.1em] text-secondary font-sans">
-                  Date
+                  {t("calendar.date")}
                 </label>
                 <input
                   id="journal-date-selector"
@@ -312,10 +314,10 @@ function CalendarPageContent() {
           </div>
 
           {error ? <p className="mb-3 rounded-lg bg-pnl-negative/10 px-3 py-2 text-sm text-pnl-negative font-sans">{error}</p> : null}
-          {loading ? <p className="mb-3 text-sm text-secondary font-sans">Chargement du calendrier...</p> : null}
+          {loading ? <p className="mb-3 text-sm text-secondary font-sans">{t("calendar.loading")}</p> : null}
 
           <div className="grid grid-cols-7 gap-2 text-center text-xs font-semibold uppercase tracking-[0.08em] text-secondary font-sans">
-            {["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"].map((label) => (
+            {[t("calendar.days.mon"), t("calendar.days.tue"), t("calendar.days.wed"), t("calendar.days.thu"), t("calendar.days.fri"), t("calendar.days.sat"), t("calendar.days.sun")].map((label) => (
               <div key={label} className="py-2">
                 {label}
               </div>
@@ -360,7 +362,7 @@ function CalendarPageContent() {
                     {tradeCount > 0 && (
                       <div className="mt-auto flex flex-col items-start gap-1">
                         <p className="inline-flex rounded-full bg-black/5 px-2 py-0.5 text-[11px] font-medium">
-                          {tradeCount} trade{tradeCount > 1 ? "s" : ""}
+                          {tradeCount} {tradeCount > 1 ? t("common.trades") : t("common.trade")}
                         </p>
                         <p className="inline-flex rounded-full bg-black/5 px-2 py-0.5 text-[11px] font-medium">
                           {pnl > 0 ? "+" : ""}
@@ -394,9 +396,9 @@ function CalendarPageContent() {
         >
           <div className="mb-4 flex items-center justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-secondary font-sans">Jour sélectionné</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-secondary font-sans">{t("calendar.selectedDay")}</p>
               <h3 className="mt-1 text-lg font-semibold text-primary font-sans">
-                {formatLongDateWithUpperMonth(new Date(`${selectedDate}T00:00:00`))}
+                {formatLongDateWithUpperMonth(new Date(`${selectedDate}T00:00:00`), locale)}
               </h3>
             </div>
             <button
@@ -404,12 +406,12 @@ function CalendarPageContent() {
               onClick={() => openTradeModal(selectedDate)}
               className="inline-flex h-9 items-center justify-center rounded-lg border border-border px-3 text-sm font-medium text-secondary hover:bg-surface-2 hover:text-primary transition-colors font-sans"
             >
-              + Ajouter
+              {t("calendar.addTrade")}
             </button>
           </div>
 
           {selectedDayTrades.length === 0 ? (
-            <p className="text-sm text-secondary font-sans">Aucun trade sur ce jour.</p>
+            <p className="text-sm text-secondary font-sans">{t("calendar.noTrades")}</p>
           ) : (
             <div className="space-y-2">
               {selectedDayTrades.map((trade) => {
@@ -454,7 +456,7 @@ function CalendarPageContent() {
                         href={`/trades/${trade.id}`}
                         className="inline-flex h-8 items-center justify-center rounded-lg border border-border px-3 text-xs font-medium text-secondary hover:bg-surface-1 hover:text-primary transition-colors font-sans"
                       >
-                        Voir
+                        {t("calendar.view")}
                       </Link>
 
                       <button
@@ -462,7 +464,7 @@ function CalendarPageContent() {
                         onClick={() => openEditTradeModal(trade)}
                         className="inline-flex h-8 items-center justify-center rounded-lg border border-brand-500/30 px-3 text-xs font-medium text-brand-500 hover:bg-brand-500/10 transition-colors font-sans"
                       >
-                        Éditer
+                        {t("calendar.edit")}
                       </button>
 
                       <button

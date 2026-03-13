@@ -5,6 +5,7 @@ import { DashboardShell } from "@/components/dashboard-shell";
 import { JournalEntryModal } from "@/components/journal-entry-modal";
 import { formatNumber, compactPnl, pnlColorClass, pnlBgClass } from "@/lib/format";
 import { useSelectedAccountId } from "@/hooks/use-selected-account-id";
+import { useTranslation } from "@/lib/i18n/context";
 import type { Trade } from "@/types";
 
 type JournalEntry = {
@@ -33,8 +34,8 @@ function toDateKey(date: Date) {
   return date.toISOString().slice(0, 10);
 }
 
-function formatMonthYearUpper(date: Date) {
-  const parts = new Intl.DateTimeFormat("fr-FR", { month: "long", year: "numeric" }).formatToParts(date);
+function formatMonthYearUpper(date: Date, locale: string) {
+  const parts = new Intl.DateTimeFormat(locale === "fr" ? "fr-FR" : "en-US", { month: "long", year: "numeric" }).formatToParts(date);
   return parts.map((part) => (part.type === "month" ? part.value.toUpperCase() : part.value)).join("");
 }
 
@@ -55,6 +56,7 @@ function JournalPageContent() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string>(() => toDateKey(new Date()));
+  const { t, locale } = useTranslation();
 
   const loadData = useCallback(async () => {
     if (!selectedAccountId) return;
@@ -118,7 +120,7 @@ function JournalPageContent() {
     // Group by month string (e.g. "MARS 2026")
     const grouped = new Map<string, DaySummary[]>();
     sortedDays.forEach(day => {
-       const monthStr = formatMonthYearUpper(day.dateObj);
+       const monthStr = formatMonthYearUpper(day.dateObj, locale);
        const bucket = grouped.get(monthStr) || [];
        bucket.push(day);
        grouped.set(monthStr, bucket);
@@ -138,14 +140,14 @@ function JournalPageContent() {
 
   return (
     <DashboardShell 
-      title="Carnet de bord" 
+      title={t("journal.title")} 
       actions={
         <button
           type="button"
           onClick={() => handleOpenModal()}
           className="inline-flex h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-semibold text-surface-1 shadow-sm transition hover:opacity-90 font-sans"
         >
-          + Nouvelle entrée
+          {t("journal.newEntry")}
         </button>
       }
     >
@@ -155,19 +157,19 @@ function JournalPageContent() {
         
         {loading && summariesByMonth.size === 0 ? (
           <div className="flex items-center justify-center py-20 text-secondary font-sans animate-pulse">
-            Chargement du carnet...
+            {t("journal.loading")}
           </div>
         ) : null}
 
         {!loading && summariesByMonth.size === 0 ? (
           <div className="rounded-2xl border border-dashed border-border bg-surface-1 p-12 text-center shadow-sm">
-            <h3 className="text-lg font-bold text-primary font-sans">Votre carnet est vide</h3>
-            <p className="mt-2 text-sm text-secondary font-sans max-w-sm mx-auto">Commencez à documenter votre parcours en cliquant sur &quot;Nouvelle entrée&quot; pour remplir la journée d&apos;aujourd&apos;hui.</p>
+            <h3 className="text-lg font-bold text-primary font-sans">{t("journal.emptyTitle")}</h3>
+            <p className="mt-2 text-sm text-secondary font-sans max-w-sm mx-auto">{t("journal.emptyDesc")}</p>
             <button
               onClick={() => handleOpenModal()}
               className="mt-6 inline-flex h-10 items-center justify-center rounded-lg bg-brand-500 px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-600 font-sans"
             >
-              Écrire la première note
+              {t("journal.emptyAction")}
             </button>
           </div>
         ) : null}
@@ -188,7 +190,7 @@ function JournalPageContent() {
                 // Truncate notes
                 const previewNote = day.journal?.notes 
                   ? (day.journal.notes.length > 80 ? day.journal.notes.substring(0, 80) + "..." : day.journal.notes)
-                  : "Aucune note écrite pour cette journée.";
+                  : t("journal.noNote");
 
                 return (
                   <button
@@ -200,7 +202,7 @@ function JournalPageContent() {
                     <div className="flex items-start justify-between w-full mb-4">
                       <div className="space-y-1">
                         <span className="text-[10px] font-bold uppercase tracking-widest text-secondary font-sans">
-                          {day.dateObj.toLocaleDateString("fr-FR", { weekday: "short" })}
+                          {day.dateObj.toLocaleDateString(locale === "fr" ? "fr-FR" : "en-US", { weekday: "short" })}
                         </span>
                         <p className="text-xl font-black text-primary font-sans leading-none">{day.dateObj.getDate()}</p>
                       </div>
@@ -211,7 +213,7 @@ function JournalPageContent() {
                             {day.pnl > 0 ? "+" : ""}{compactPnl(day.pnl)}
                           </span>
                           <span className="text-[10px] font-semibold text-secondary uppercase font-sans">
-                            {day.tradeCount} trade{day.tradeCount > 1 ? "s" : ""}
+                            {day.tradeCount} {day.tradeCount > 1 ? t("common.trades") : t("common.trade")}
                           </span>
                         </div>
                       )}

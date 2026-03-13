@@ -5,6 +5,7 @@ import { Suspense, useEffect, useMemo, useState } from "react";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { MetricLabel } from "@/components/metric-label";
 import { useSelectedAccountId } from "@/hooks/use-selected-account-id";
+import { useTranslation } from "@/lib/i18n/context";
 import { formatNumber, pnlColorClass } from "@/lib/format";
 import type {
   Account,
@@ -16,22 +17,9 @@ import type {
   StatsTimeAnalysis,
 } from "@/types";
 
-const BREAKDOWN_OPTIONS: { value: BreakdownKey; label: string }[] = [
-  { value: "symbol", label: "Symbol" },
-  { value: "setupName", label: "Setup" },
-  { value: "strategyTag", label: "Strategy" },
-  { value: "assetClass", label: "Asset class" },
-  { value: "side", label: "Direction" },
-  { value: "entryTimeframe", label: "Entry TF" },
-  { value: "planFollowed", label: "Plan followed" },
-  { value: "executionRating", label: "Execution" },
-];
-
-const DISTRIBUTION_OPTIONS: { value: DistributionMetric; label: string }[] = [
-  { value: "pnl", label: "PnL" },
-  { value: "rMultiple", label: "R multiple" },
-  { value: "holdingTime", label: "Holding time" },
-];
+// We will pass the translation function (t) into these or translate them inline.
+const BREAKDOWN_KEYS = ["symbol", "setupName", "strategyTag", "assetClass", "side", "entryTimeframe", "planFollowed", "executionRating"] as const;
+const DISTRIBUTION_KEYS = ["pnl", "rMultiple", "holdingTime"] as const;
 
 export default function StatsPage() {
   return (
@@ -43,6 +31,7 @@ export default function StatsPage() {
 
 function StatsPageContent() {
   const selectedAccountId = useSelectedAccountId();
+  const { t } = useTranslation();
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [summary, setSummary] = useState<StatsSummary | null>(null);
   const [breakdown, setBreakdown] = useState<StatsBreakdown | null>(null);
@@ -122,18 +111,18 @@ function StatsPageContent() {
 
   function distributionEmptyMessage() {
     if (distributionMetric === "rMultiple") {
-      return "No trades with risk amount available for this account yet.";
+      return t("stats.distribution.emptyRMultiple");
     }
 
     if (distributionMetric === "holdingTime") {
-      return "No closed trades with valid open and close timestamps for this range.";
+      return t("stats.distribution.emptyHolding");
     }
 
-    return "No closed trades available in this range yet.";
+    return t("stats.distribution.emptyDefault");
   }
 
   return (
-    <DashboardShell title="Statistiques">
+    <DashboardShell title={t("stats.title")}>
       <div className="mx-auto flex max-w-[1440px] flex-col gap-4">
         {error ? (
           <section className="rounded-xl border border-pnl-negative/20 bg-pnl-negative/5 px-4 py-3 text-sm text-pnl-negative font-sans">
@@ -144,70 +133,70 @@ function StatsPageContent() {
         <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-[1.25fr_1.25fr_1fr_1fr]">
           <article className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm">
             <div className="text-xs uppercase tracking-[0.1em] text-secondary font-sans">
-              <MetricLabel label="Net PnL" description="Total net profit or loss on closed trades for the selected period." />
+              <MetricLabel label={t("stats.metrics.netPnl")} description={t("stats.metrics.netPnlDesc")} />
             </div>
             <p className={`mt-2 text-3xl font-semibold font-mono ${pnlColorClass(summary?.realized.netPnl ?? 0)}`}>
               {loading ? "..." : formatMoney(summary?.realized.netPnl ?? 0)}
             </p>
-            <p className="mt-2 text-xs text-secondary font-sans">Closed-trade performance in your account currency.</p>
+            <p className="mt-2 text-xs text-secondary font-sans">{t("stats.metrics.netPnlNote")}</p>
           </article>
 
           <article className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm">
             <div className="text-xs uppercase tracking-[0.1em] text-secondary font-sans">
               <MetricLabel
-                label="Expectancy"
-                description="Average amount won or lost per closed trade. Positive means the strategy is profitable on average."
+                label={t("stats.metrics.expectancy")}
+                description={t("stats.metrics.expectancyDesc")}
               />
             </div>
             <p className={`mt-2 text-3xl font-semibold font-mono ${pnlColorClass(summary?.realized.expectancy ?? 0)}`}>
               {loading ? "..." : formatMoney(summary?.realized.expectancy ?? 0)}
             </p>
-            <p className="mt-2 text-xs text-secondary font-sans">Average expected result per closed trade.</p>
+            <p className="mt-2 text-xs text-secondary font-sans">{t("stats.metrics.expectancyNote")}</p>
           </article>
 
           <article className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm">
             <div className="text-xs uppercase tracking-[0.1em] text-secondary font-sans">
               <MetricLabel
-                label="Max Drawdown"
-                description="Largest drop from your equity peak to a following low. It measures how much pain your account can go through."
+                label={t("stats.metrics.maxDrawdown")}
+                description={t("stats.metrics.maxDrawdownDesc")}
               />
             </div>
             <p className={`mt-2 text-3xl font-semibold font-mono ${pnlColorClass(-(summary?.realized.maxDrawdown ?? 0))}`}>
               {loading ? "..." : drawdownDisplay}
             </p>
-            <p className="mt-2 text-xs text-secondary font-sans">Largest peak-to-trough drop on realized equity.</p>
+            <p className="mt-2 text-xs text-secondary font-sans">{t("stats.metrics.maxDrawdownNote")}</p>
           </article>
 
           <article className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm">
             <div className="text-xs uppercase tracking-[0.1em] text-secondary font-sans">
-              <MetricLabel label="Avg holding" description="Average time a closed trade stays open." />
+              <MetricLabel label={t("stats.metrics.avgHolding")} description={t("stats.metrics.avgHoldingDesc")} />
             </div>
             <p className="mt-2 text-3xl font-semibold text-primary font-mono">
               {loading ? "..." : `${formatNumber(summary?.realized.averageHoldingHours ?? 0)}h`}
             </p>
-            <p className="mt-2 text-xs text-secondary font-sans">Average duration between entry and exit.</p>
+            <p className="mt-2 text-xs text-secondary font-sans">{t("stats.metrics.avgHoldingNote")}</p>
           </article>
         </section>
 
         <section className="grid gap-3 xl:grid-cols-[1.15fr_0.85fr]">
           <article className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm">
             <div className="text-xs uppercase tracking-[0.1em] text-secondary font-sans">
-              <MetricLabel label="Best / Worst" description="Best and worst single closed trade in the selected range." />
+              <MetricLabel label={t("stats.metrics.bestWorst")} description={t("stats.metrics.bestWorstDesc")} />
             </div>
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
               <div className="rounded-xl bg-surface-2 px-4 py-3">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-secondary font-sans">Best Trade</p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-secondary font-sans">{t("stats.metrics.bestTrade")}</p>
                 <p className={`mt-2 text-2xl font-semibold font-mono ${pnlColorClass(summary?.realized.bestTrade ?? 0)}`}>
                   {loading ? "..." : formatMoney(summary?.realized.bestTrade ?? 0)}
                 </p>
-                <p className="mt-2 text-xs text-secondary font-sans">Single strongest closed trade in the selected range.</p>
+                <p className="mt-2 text-xs text-secondary font-sans">{t("stats.metrics.bestTradeNote")}</p>
               </div>
               <div className="rounded-xl bg-surface-2 px-4 py-3">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-secondary font-sans">Worst Trade</p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-secondary font-sans">{t("stats.metrics.worstTrade")}</p>
                 <p className={`mt-2 text-2xl font-semibold font-mono ${pnlColorClass(summary?.realized.worstTrade ?? 0)}`}>
                   {loading ? "..." : formatMoney(summary?.realized.worstTrade ?? 0)}
                 </p>
-                <p className="mt-2 text-xs text-secondary font-sans">Single weakest closed trade, useful but not equal to drawdown.</p>
+                <p className="mt-2 text-xs text-secondary font-sans">{t("stats.metrics.worstTradeNote")}</p>
               </div>
             </div>
           </article>
@@ -215,22 +204,22 @@ function StatsPageContent() {
           <article className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm">
             <div className="text-xs uppercase tracking-[0.1em] text-secondary font-sans">
               <MetricLabel
-                label="Streak Snapshot"
-                description="Longest sequences of wins and losses. Losing streaks help you calibrate safer position sizing."
+                label={t("stats.metrics.streakSnapshot")}
+                description={t("stats.metrics.streakSnapshotDesc")}
               />
             </div>
             <div className="mt-3 grid grid-cols-2 gap-3">
               <div className="rounded-xl bg-surface-2 px-4 py-3">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-secondary font-sans">Win Streak</p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-secondary font-sans">{t("stats.metrics.winStreak")}</p>
                 <p className="mt-2 text-2xl font-semibold text-primary font-mono">{loading ? "..." : summary?.realized.maxWinStreak ?? 0}</p>
               </div>
               <div className="rounded-xl bg-surface-2 px-4 py-3">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-secondary font-sans">Loss Streak</p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-secondary font-sans">{t("stats.metrics.lossStreak")}</p>
                 <p className="mt-2 text-2xl font-semibold text-primary font-mono">{loading ? "..." : summary?.realized.maxLossStreak ?? 0}</p>
               </div>
             </div>
             <p className="mt-3 text-xs text-secondary font-sans">
-              Worst run: {loading ? "..." : `${summary?.realized.maxLossStreak ?? 0} losing trades in a row`}
+              {loading ? "..." : `${t("stats.metrics.worstRun")} ${summary?.realized.maxLossStreak ?? 0}`}
             </p>
           </article>
         </section>
@@ -241,20 +230,20 @@ function StatsPageContent() {
               <div>
                 <div className="text-sm font-semibold uppercase tracking-[0.08em] text-secondary font-sans">
                   <MetricLabel
-                    label="Breakdown"
-                    description="Grouped performance stats by symbol, setup, strategy, direction, or execution attributes."
+                    label={t("stats.breakdown.title")}
+                    description={t("stats.breakdown.desc")}
                   />
                 </div>
-                <p className="mt-1 text-xs text-secondary font-sans">Server-side grouped performance analytics</p>
+                <p className="mt-1 text-xs text-secondary font-sans">{t("stats.breakdown.subtitle")}</p>
               </div>
               <select
                 value={breakdownBy}
                 onChange={(event) => setBreakdownBy(event.target.value as BreakdownKey)}
                 className="rounded-lg border border-border bg-surface-2 px-3 py-2 text-xs font-semibold text-primary font-sans"
               >
-                {BREAKDOWN_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
+                {BREAKDOWN_KEYS.map((key) => (
+                  <option key={key} value={key}>
+                    {t(`stats.breakdown.options.${key}` as any)}
                   </option>
                 ))}
               </select>
@@ -264,12 +253,12 @@ function StatsPageContent() {
               <table className="min-w-full text-xs">
                 <thead className="text-left uppercase tracking-[0.08em] text-secondary font-sans">
                   <tr>
-                    <th className="px-2 py-2">Group</th>
-                    <th className="px-2 py-2">Trades</th>
-                    <th className="px-2 py-2">Win Rate</th>
-                    <th className="px-2 py-2">Net</th>
-                    <th className="px-2 py-2">PF</th>
-                    <th className="px-2 py-2">Avg R</th>
+                    <th className="px-2 py-2">{t("stats.breakdown.cols.group")}</th>
+                    <th className="px-2 py-2">{t("stats.breakdown.cols.trades")}</th>
+                    <th className="px-2 py-2">{t("stats.breakdown.cols.winRate")}</th>
+                    <th className="px-2 py-2">{t("stats.breakdown.cols.net")}</th>
+                    <th className="px-2 py-2">{t("stats.breakdown.cols.pf")}</th>
+                    <th className="px-2 py-2">{t("stats.breakdown.cols.avgR")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -292,18 +281,18 @@ function StatsPageContent() {
             <div className="mb-4 flex items-center justify-between gap-3">
               <div>
                 <div className="text-sm font-semibold uppercase tracking-[0.08em] text-secondary font-sans">
-                  <MetricLabel label="Distribution" description="Shows how your results are spread across ranges, not just the average." />
+                  <MetricLabel label={t("stats.distribution.title")} description={t("stats.distribution.desc")} />
                 </div>
-                <p className="mt-1 text-xs text-secondary font-sans">Histogram built from backend bins</p>
+                <p className="mt-1 text-xs text-secondary font-sans">{t("stats.distribution.subtitle")}</p>
               </div>
               <select
                 value={distributionMetric}
                 onChange={(event) => setDistributionMetric(event.target.value as DistributionMetric)}
                 className="rounded-lg border border-border bg-surface-2 px-3 py-2 text-xs font-semibold text-primary font-sans"
               >
-                {DISTRIBUTION_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
+                {DISTRIBUTION_KEYS.map((key) => (
+                  <option key={key} value={key}>
+                    {t(`stats.distribution.options.${key}` as any)}
                   </option>
                 ))}
               </select>
@@ -328,12 +317,12 @@ function StatsPageContent() {
             </div>
 
             <div className="mt-3 grid grid-cols-2 gap-3 text-xs text-secondary font-mono">
-              <p>Avg: {loading ? "..." : isMonetaryDistribution ? formatMoney(distribution?.average ?? 0) : formatNumber(distribution?.average ?? 0)}</p>
-              <p>Median: {loading ? "..." : isMonetaryDistribution ? formatMoney(distribution?.median ?? 0) : formatNumber(distribution?.median ?? 0)}</p>
-              <p>Min: {loading ? "..." : isMonetaryDistribution ? formatMoney(distribution?.min ?? 0) : formatNumber(distribution?.min ?? 0)}</p>
-              <p>Max: {loading ? "..." : isMonetaryDistribution ? formatMoney(distribution?.max ?? 0) : formatNumber(distribution?.max ?? 0)}</p>
-              <p>Samples: {loading ? "..." : distribution?.sampleCount ?? 0}</p>
-              <p>Unit: {loading ? "..." : distribution?.unit ?? "-"}</p>
+              <p>{t("stats.distribution.avg")}: {loading ? "..." : isMonetaryDistribution ? formatMoney(distribution?.average ?? 0) : formatNumber(distribution?.average ?? 0)}</p>
+              <p>{t("stats.distribution.median")}: {loading ? "..." : isMonetaryDistribution ? formatMoney(distribution?.median ?? 0) : formatNumber(distribution?.median ?? 0)}</p>
+              <p>{t("stats.distribution.min")}: {loading ? "..." : isMonetaryDistribution ? formatMoney(distribution?.min ?? 0) : formatNumber(distribution?.min ?? 0)}</p>
+              <p>{t("stats.distribution.max")}: {loading ? "..." : isMonetaryDistribution ? formatMoney(distribution?.max ?? 0) : formatNumber(distribution?.max ?? 0)}</p>
+              <p>{t("stats.distribution.samples")}: {loading ? "..." : distribution?.sampleCount ?? 0}</p>
+              <p>{t("stats.distribution.unit")}: {loading ? "..." : distribution?.unit ?? "-"}</p>
             </div>
           </article>
         </section>
@@ -342,8 +331,8 @@ function StatsPageContent() {
           <article className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm">
             <div className="text-sm font-semibold uppercase tracking-[0.08em] text-secondary font-sans">
               <MetricLabel
-                label="Weekday Edge"
-                description="Performance grouped by day of week to reveal stronger or weaker sessions."
+                label={t("stats.timeAnalysis.weekdayEdge")}
+                description={t("stats.timeAnalysis.weekdayEdgeDesc")}
               />
             </div>
             <div className="mt-4 space-y-2">
@@ -367,26 +356,26 @@ function StatsPageContent() {
           <article className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm">
             <div className="text-sm font-semibold uppercase tracking-[0.08em] text-secondary font-sans">
               <MetricLabel
-                label="Best Windows"
-                description="Your strongest weekday and trading hour based on closed-trade performance."
+                label={t("stats.timeAnalysis.bestWindows")}
+                description={t("stats.timeAnalysis.bestWindowsDesc")}
               />
             </div>
             <div className="mt-4 space-y-4 text-sm font-sans">
               <div>
-                <p className="text-secondary">Best weekday</p>
+                <p className="text-secondary">{t("stats.timeAnalysis.bestWeekday")}</p>
                 <p className="mt-1 font-semibold text-primary">{strongestWeekday?.label ?? "-"}</p>
                 <p className={`text-xs font-mono ${pnlColorClass(strongestWeekday?.netPnl ?? 0)}`}>{formatMoney(strongestWeekday?.netPnl ?? 0)}</p>
               </div>
               <div>
-                <p className="text-secondary">Best hour</p>
+                <p className="text-secondary">{t("stats.timeAnalysis.bestHour")}</p>
                 <p className="mt-1 font-semibold text-primary">{strongestHour?.label ?? "-"}</p>
                 <p className={`text-xs font-mono ${pnlColorClass(strongestHour?.netPnl ?? 0)}`}>{formatMoney(strongestHour?.netPnl ?? 0)}</p>
               </div>
               <div>
                 <div className="text-secondary">
                   <MetricLabel
-                    label="Streaks"
-                    description="Longest sequence of consecutive winning and losing trades. Use losing streaks to size positions more safely."
+                    label={t("stats.timeAnalysis.streaks")}
+                    description={t("stats.timeAnalysis.streaksDesc")}
                   />
                 </div>
                 <p className="mt-1 font-semibold text-primary font-mono">
@@ -399,8 +388,8 @@ function StatsPageContent() {
           <article className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm">
             <div className="text-sm font-semibold uppercase tracking-[0.08em] text-secondary font-sans">
               <MetricLabel
-                label="Monthly Seasonality"
-                description="Performance grouped by month to spot recurring strength or weakness over time."
+                label={t("stats.timeAnalysis.seasonality")}
+                description={t("stats.timeAnalysis.seasonalityDesc")}
               />
             </div>
             <div className="mt-4 space-y-2">

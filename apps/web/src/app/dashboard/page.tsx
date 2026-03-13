@@ -8,6 +8,7 @@ import { DashboardCharts } from "@/components/dashboard/charts";
 import { RecentTrades } from "@/components/dashboard/recent-trades";
 import { MiniCalendar } from "@/components/dashboard/mini-calendar";
 import { useSelectedAccountId } from "@/hooks/use-selected-account-id";
+import { useTranslation } from "@/lib/i18n/context";
 import type { Account, DashboardPeriod, StatsCalendar, StatsEquity, StatsSummary, Trade } from "@/types";
 
 export default function DashboardPage() {
@@ -29,6 +30,7 @@ function DashboardContent() {
   const [error, setError] = useState<string | null>(null);
   const [period, setPeriod] = useState<DashboardPeriod>("30D");
   const selectedAccountId = useSelectedAccountId();
+  const { t } = useTranslation();
   const selectedAccount = useMemo(
     () => accounts.find((account) => account.id === selectedAccountId) ?? null,
     [accounts, selectedAccountId],
@@ -116,7 +118,7 @@ function DashboardContent() {
   }, [accountScopedBase, period, router, selectedAccountId]);
 
   return (
-    <DashboardShell title="Dashboard" >
+    <DashboardShell title={t("dashboard.title")} >
       <div className="mx-auto flex max-w-[1440px] flex-col gap-4">
         <section className="rounded-xl border border-border bg-surface-1 p-2 shadow-sm transition-shadow hover:shadow-md">
           <div className="flex flex-wrap items-center gap-2">

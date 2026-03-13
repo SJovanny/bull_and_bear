@@ -4,7 +4,9 @@ import Image from "next/image";
 import { useState } from "react";
 import { SidebarNavItem } from "./sidebar-nav-item";
 import { ThemeToggle } from "./theme-toggle";
+import { LanguageSwitcher } from "./language-switcher";
 import { LogoutButton } from "@/app/auth/logout-button";
+import { useTranslation } from "@/lib/i18n/context";
 import {
   IconDashboard,
   IconJournal,
@@ -14,18 +16,19 @@ import {
   IconProfile,
 } from "./icons";
 
-const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: IconDashboard },
-  { href: "/journal", label: "Journal", icon: IconJournal },
-  { href: "/calendar", label: "Calendrier", icon: IconCalendar },
-  { href: "/stats", label: "Stats", icon: IconStats },
-  { href: "/profil", label: "Profil", icon: IconProfile },
-  { href: "/comptes", label: "Comptes", icon: IconAccounts },
-];
-
 export function Sidebar() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const sidebarLogoSrc = "/BB_logo.png";
+  const { t } = useTranslation();
+
+  const navItems = [
+    { href: "/dashboard", label: t("nav.dashboard"), icon: IconDashboard },
+    { href: "/journal", label: t("nav.journal"), icon: IconJournal },
+    { href: "/calendar", label: t("nav.calendar"), icon: IconCalendar },
+    { href: "/stats", label: t("nav.stats"), icon: IconStats },
+    { href: "/profil", label: t("nav.profile"), icon: IconProfile },
+    { href: "/comptes", label: t("nav.accounts"), icon: IconAccounts },
+  ];
 
   return (
     <aside
@@ -89,6 +92,7 @@ export function Sidebar() {
       </nav>
 
       <div className="flex flex-col gap-2 border-t border-slate-800 p-3">
+        <LanguageSwitcher isCollapsed={isSidebarCollapsed} />
         <ThemeToggle isCollapsed={isSidebarCollapsed} />
         <div className={`${isSidebarCollapsed ? "mx-auto" : "w-full"}`}>
           <LogoutButton isSidebarContext isCollapsed={isSidebarCollapsed} />
@@ -97,3 +101,4 @@ export function Sidebar() {
     </aside>
   );
 }
+
