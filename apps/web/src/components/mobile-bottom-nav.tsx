@@ -14,7 +14,7 @@ import {
 import { ThemeToggle } from "./theme-toggle";
 
 const navItems = [
-  { href: "/", label: "Dashboard", icon: IconDashboard },
+  { href: "/dashboard", label: "Dashboard", icon: IconDashboard },
   { href: "/journal", label: "Journal", icon: IconJournal },
   { href: "/calendar", label: "Calendar", icon: IconCalendar },
   { href: "/stats", label: "Stats", icon: IconStats },
@@ -63,7 +63,7 @@ export function MobileBottomNav() {
 
       <nav className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-around border-t border-border bg-surface-1/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-lg lg:hidden">
         {navItems.map((item) => {
-          const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+          const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
           
           return (
             <Link

@@ -47,24 +47,24 @@ export function parseNullableBoolean(value: unknown): boolean | null {
  * Validates that a `next` redirect path is safe (relative, same-origin).
  * Prevents open-redirect attacks via crafted `?next=https://evil.com`.
  */
-export function sanitizeRedirectPath(raw: string | null | undefined): string {
-  if (!raw) return "/";
+export function sanitizeRedirectPath(raw: string | null | undefined, fallback = "/dashboard"): string {
+  if (!raw) return fallback;
 
   const trimmed = raw.trim();
 
   // Must start with "/" and must NOT start with "//" (protocol-relative URL)
   if (!trimmed.startsWith("/") || trimmed.startsWith("//")) {
-    return "/";
+    return fallback;
   }
 
   // Block any embedded protocol (e.g. "/\evil.com" or any scheme)
   try {
     const url = new URL(trimmed, "http://localhost");
     if (url.hostname !== "localhost") {
-      return "/";
+      return fallback;
     }
   } catch {
-    return "/";
+    return fallback;
   }
 
   return trimmed;

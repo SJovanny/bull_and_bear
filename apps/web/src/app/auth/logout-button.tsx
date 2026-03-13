@@ -18,7 +18,7 @@ export function LogoutButton({ isSidebarContext = false, isCollapsed = false, la
   async function handleLogout() {
     setLoading(true);
     await supabaseClient.auth.signOut();
-    router.push("/auth/login");
+    router.push("/");
     router.refresh();
   }
 

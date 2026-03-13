@@ -15,6 +15,11 @@ const jetBrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "Bull & Bear",
   description: "Trading Journal & Analytics",
+  icons: {
+    icon: "/BB_logo.png",
+    shortcut: "/BB_logo.png",
+    apple: "/BB_logo.png",
+  },
 };
 
 export default function RootLayout({

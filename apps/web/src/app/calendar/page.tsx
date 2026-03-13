@@ -375,7 +375,7 @@ function CalendarPageContent() {
                       type="button"
                       onClick={() => openTradeModal(key)}
                       aria-label={`Ajouter un trade le ${key}`}
-                      className="absolute right-1 top-1 inline-flex h-5 w-5 items-center justify-center rounded-full border border-border bg-surface-1/90 text-xs font-semibold text-secondary hover:bg-surface-2 hover:text-primary"
+                      className="absolute right-1 top-1 inline-flex items-center justify-center text-sm leading-none font-semibold text-secondary hover:text-primary"
                     >
                       +
                     </button>

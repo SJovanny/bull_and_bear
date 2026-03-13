@@ -139,7 +139,6 @@ function JournalPageContent() {
   return (
     <DashboardShell 
       title="Carnet de bord" 
-      subtitle="Réflexions et notes d'exécution"
       actions={
         <button
           type="button"

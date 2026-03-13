@@ -95,3 +95,78 @@ body {
   background: var(--color-bg);
   color: var(--color-text-primary);
 }
+
+html {
+  scroll-behavior: smooth;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(26px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes title-rise {
+  from {
+    opacity: 0;
+    transform: translateY(36px) scale(0.98);
+    letter-spacing: -0.12em;
+    filter: blur(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    letter-spacing: -0.08em;
+    filter: blur(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 700ms var(--ease-standard) both;
+}
+
+.animate-fade-up-delayed {
+  animation: fade-up 700ms var(--ease-standard) 120ms both;
+}
+
+.animate-fade-up-delayed-2 {
+  animation: fade-up 700ms var(--ease-standard) 220ms both;
+}
+
+.animate-fade-up-delayed-3 {
+  animation: fade-up 700ms var(--ease-standard) 320ms both;
+}
+
+.animate-title-rise {
+  animation: title-rise 900ms var(--ease-standard) 100ms both;
+}
+
+.animate-title-rise-delayed {
+  animation: title-rise 900ms var(--ease-standard) 260ms both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up,
+  .animate-fade-up-delayed,
+  .animate-fade-up-delayed-2,
+  .animate-fade-up-delayed-3,
+  .animate-title-rise,
+  .animate-title-rise-delayed {
+    animation: none;
+  }
+}
+
+button:not(:disabled) {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}

@@ -32,7 +32,7 @@ export default function LoginPage() {
     }
 
     const rawNext = new URLSearchParams(window.location.search).get("next");
-    const nextPath = sanitizeRedirectPath(rawNext);
+    const nextPath = sanitizeRedirectPath(rawNext, "/dashboard");
     router.push(nextPath);
     router.refresh();
   }

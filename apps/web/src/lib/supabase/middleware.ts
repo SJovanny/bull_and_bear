@@ -44,19 +44,22 @@ export async function updateSession(request: NextRequest, response?: NextRespons
   } = await supabase.auth.getUser();
 
   const pathname = request.nextUrl.pathname;
+  const isPublicPage = pathname === "/";
   const isAuthPage = pathname.startsWith("/auth/login") || pathname.startsWith("/auth/signup");
   const isAuthCallback = pathname.startsWith("/auth/callback");
 
-  if (!user && !isAuthPage && !isAuthCallback) {
+  if (!user && !isPublicPage && !isAuthPage && !isAuthCallback) {
     const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = "/auth/login";
-    redirectUrl.searchParams.set("next", pathname);
+    redirectUrl.pathname = "/";
+    redirectUrl.search = "";
+    redirectUrl.searchParams.set("authError", "unauthorized");
+    redirectUrl.searchParams.set("next", `${pathname}${request.nextUrl.search}`);
     return NextResponse.redirect(redirectUrl);
   }
 
   if (user && isAuthPage) {
     const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = "/";
+    redirectUrl.pathname = "/dashboard";
     redirectUrl.search = "";
     return NextResponse.redirect(redirectUrl);
   }

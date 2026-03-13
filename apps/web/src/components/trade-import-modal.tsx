@@ -226,7 +226,7 @@ export function TradeImportModal({ isOpen, accountId, onClose, onImported }: Tra
               type="button"
               onClick={confirmImport}
               disabled={!preview || preview.summary.readyToImport === 0 || isImporting || Boolean(mismatchMessage)}
-              className="inline-flex h-9 items-center justify-center rounded-lg bg-primary px-4 text-sm font-semibold text-surface-1 transition hover:opacity-90 disabled:opacity-50 font-sans"
+              className="inline-flex h-9 items-center justify-center rounded-lg bg-brand-500 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-600 disabled:cursor-not-allowed disabled:bg-border disabled:text-secondary disabled:shadow-none font-sans"
             >
               {isImporting ? "Import..." : `Importer ${preview?.summary.readyToImport ?? 0} trade${(preview?.summary.readyToImport ?? 0) > 1 ? "s" : ""}`}
             </button>

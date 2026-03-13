@@ -49,7 +49,7 @@ export default function ProfilPage() {
   const accountsCount = payload?.accounts?.length ?? 0;
 
   return (
-    <DashboardShell title="Profil" subtitle="User account, session and preferences">
+    <DashboardShell title="Profil">
       <div className="mx-auto flex max-w-5xl flex-col gap-4">
         {error ? (
           <section className="rounded-xl border border-pnl-negative/20 bg-pnl-negative/5 px-4 py-3 text-sm text-pnl-negative font-sans">

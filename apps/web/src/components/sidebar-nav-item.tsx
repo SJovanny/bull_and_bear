@@ -12,7 +12,7 @@ type SidebarNavItemProps = {
 
 export function SidebarNavItem({ href, label, icon: Icon, isCollapsed }: SidebarNavItemProps) {
   const pathname = usePathname();
-  const isActive = href === "/" ? pathname === "/" : pathname.startsWith(href);
+  const isActive = pathname === href || pathname.startsWith(`${href}/`);
 
   return (
     <Link

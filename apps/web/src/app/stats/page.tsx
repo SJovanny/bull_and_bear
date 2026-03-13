@@ -133,7 +133,7 @@ function StatsPageContent() {
   }
 
   return (
-    <DashboardShell title="Statistiques" subtitle="Analytics backend-first, aucune logique de calcul dans le front">
+    <DashboardShell title="Statistiques">
       <div className="mx-auto flex max-w-[1440px] flex-col gap-4">
         {error ? (
           <section className="rounded-xl border border-pnl-negative/20 bg-pnl-negative/5 px-4 py-3 text-sm text-pnl-negative font-sans">

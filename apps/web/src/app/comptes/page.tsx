@@ -214,7 +214,7 @@ export default function ComptesPage() {
   }
 
   return (
-    <DashboardShell title="Comptes" subtitle="Manage your trading accounts and add new ones">
+    <DashboardShell title="Comptes" >
       <div className="mx-auto flex max-w-6xl flex-col gap-4">
         {error ? (
           <section className="rounded-xl border border-pnl-negative/20 bg-pnl-negative/5 px-4 py-3 text-sm text-pnl-negative font-sans">

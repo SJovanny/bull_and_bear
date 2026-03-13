@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { SidebarNavItem } from "./sidebar-nav-item";
 import { ThemeToggle } from "./theme-toggle";
@@ -14,7 +15,7 @@ import {
 } from "./icons";
 
 const navItems = [
-  { href: "/", label: "Dashboard", icon: IconDashboard },
+  { href: "/dashboard", label: "Dashboard", icon: IconDashboard },
   { href: "/journal", label: "Journal", icon: IconJournal },
   { href: "/calendar", label: "Calendrier", icon: IconCalendar },
   { href: "/stats", label: "Stats", icon: IconStats },
@@ -24,29 +25,40 @@ const navItems = [
 
 export function Sidebar() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const sidebarLogoSrc = "/BB_logo.png";
 
   return (
     <aside
       className={`hidden shrink-0 flex-col border-r border-slate-800 bg-slate-950 transition-all duration-200 ease-standard lg:flex ${
         isSidebarCollapsed ? "w-20" : "w-64"
       }`}
-    >
+      >
       <div className="flex flex-col border-b border-slate-800 p-4 min-h-[73px] justify-center relative">
         <div className={`flex flex-col ${isSidebarCollapsed ? "hidden" : "block"}`}>
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded bg-brand-500 text-white">
-              <span className="font-bold text-lg">B</span>
+          <div className="flex justify-center">
+            <div className="flex h-24 w-full max-w-[220px] items-center justify-center">
+              <Image
+                src={sidebarLogoSrc}
+                alt="Bull & Bear logo"
+                width={200}
+                height={88}
+                className="h-full w-full object-contain"
+                priority
+              />
             </div>
-            <span className="text-xl font-bold text-white tracking-tight">Bull & Bear</span>
           </div>
-          <span className="mt-2 text-[10px] font-semibold tracking-[0.2em] text-brand-500 ml-10">
-            TRADING JOURNAL
-          </span>
         </div>
         
         {isSidebarCollapsed && (
-           <div className="mx-auto flex h-8 w-8 items-center justify-center rounded bg-brand-500 text-white">
-             <span className="font-bold text-lg">B</span>
+           <div className="mx-auto flex h-14 w-14 items-center justify-center">
+             <Image
+               src={sidebarLogoSrc}
+               alt="Bull & Bear logo"
+               width={52}
+               height={52}
+               className="h-full w-full object-contain"
+               priority
+             />
            </div>
         )}
         
