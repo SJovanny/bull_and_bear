@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import type { ChangeEvent } from "react";
 import { useEffect, useMemo, useState } from "react";
 
@@ -43,16 +44,20 @@ type TradeImportModalProps = {
   onImported?: () => void | Promise<void>;
 };
 
-const sourceConfig = (t: (key: keyof TranslationKeys) => string): Record<TradeImportSource, { label: string; helper: string; accept: string }> => ({
+const sourceConfig = (t: (key: keyof TranslationKeys) => string): Record<TradeImportSource, { label: string; helper: string; accept: string; image: string; alt: string }> => ({
   CTRADER: {
     label: "cTrader",
     helper: t("importModal.cTraderHelper"),
     accept: ".csv,text/csv",
+    image: "https://res.cloudinary.com/ddvabefhf/image/upload/v1773440476/ctrader_logo_full_pwcbdz.png",
+    alt: "cTrader logo",
   },
   METATRADER: {
     label: "MetaTrader",
     helper: t("importModal.mtHelper"),
     accept: ".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    image: "https://res.cloudinary.com/ddvabefhf/image/upload/v1773439524/mt5_i8o5cc.jpg",
+    alt: "MetaTrader logo",
   },
 });
 
@@ -256,14 +261,25 @@ export function TradeImportModal({ isOpen, accountId, onClose, onImported }: Tra
                         setPreview(null);
                         setError(null);
                       }}
-                      className={`w-full rounded-2xl border p-4 text-left transition ${
+                      className={`w-full rounded-2xl border p-4 text-left transition flex items-start gap-4 ${
                         source === item
                           ? "border-brand-500 bg-brand-500/5 shadow-sm"
                           : "border-border bg-surface-1 hover:border-brand-500/40"
                       }`}
                     >
-                      <p className="text-sm font-semibold text-primary font-sans">{sourceConfig(t)[item].label}</p>
-                      <p className="mt-1 text-xs leading-relaxed text-secondary font-sans">{sourceConfig(t)[item].helper}</p>
+                      <div className={`shrink-0 flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl border ${source === item ? 'border-brand-500/30' : 'border-border/50'} bg-white`}>
+                        <Image
+                          src={sourceConfig(t)[item].image}
+                          alt={sourceConfig(t)[item].alt}
+                          width={64}
+                          height={64}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-primary font-sans">{sourceConfig(t)[item].label}</p>
+                        <p className="mt-1 text-xs leading-relaxed text-secondary font-sans">{sourceConfig(t)[item].helper}</p>
+                      </div>
                     </button>
                   ))}
                 </div>
