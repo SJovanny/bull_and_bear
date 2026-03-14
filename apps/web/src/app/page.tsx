@@ -13,6 +13,7 @@ export default function LandingPage() {
   const { t } = useTranslation();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [checked, setChecked] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     async function checkAuth() {
@@ -42,19 +43,42 @@ export default function LandingPage() {
 
         <section className="relative flex min-h-screen flex-col px-4 pb-8 pt-0 sm:px-6 lg:px-10">
           <div className="mx-auto flex w-full max-w-[1380px] flex-1 flex-col">
-            <header className="animate-fade-up flex flex-col items-center justify-between gap-4 py-2 sm:flex-row sm:items-start">
-              <Link href="/" className="shrink-0 -mt-6 sm:-mt-16 sm:-ml-8">
+            <header className="animate-fade-up relative z-50 flex w-full flex-row items-center justify-between py-4 sm:items-start sm:py-2">
+              <Link href="/" className="shrink-0 sm:-mt-16 sm:-ml-8">
                 <Image
                   src="/BB_logo.png"
                   alt="Bull & Bear"
                   width={800}
                   height={800}
-                  className="h-40 w-40 object-contain sm:h-64 sm:w-64 md:h-[18rem] md:w-[18rem]"
+                  className="h-24 w-24 object-contain sm:h-64 sm:w-64 md:h-[18rem] md:w-[18rem]"
                   priority
                 />
               </Link>
 
-              <div className="flex flex-wrap items-center justify-center gap-3 rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 shadow-[0_18px_50px_rgba(0,0,0,0.24)] backdrop-blur sm:justify-end sm:px-4">
+              {/* Mobile Header Controls */}
+              <div className="flex items-center gap-3 sm:hidden">
+                <LanguageSwitcher />
+                <button
+                  type="button"
+                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                  className="inline-flex items-center justify-center rounded-md p-2 text-white/70 hover:bg-white/10 hover:text-white focus:outline-none"
+                  aria-expanded={isMobileMenuOpen}
+                >
+                  <span className="sr-only">{isMobileMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}</span>
+                  {isMobileMenuOpen ? (
+                    <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  ) : (
+                    <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                  )}
+                </button>
+              </div>
+
+              {/* Desktop Navigation */}
+              <div className="hidden items-center gap-3 rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 shadow-[0_18px_50px_rgba(0,0,0,0.24)] backdrop-blur sm:flex sm:justify-end sm:px-4">
                 <a
                   href="#a-propos"
                   className="hidden items-center justify-center px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-white/70 transition hover:text-white sm:inline-flex"
@@ -91,6 +115,47 @@ export default function LandingPage() {
                 </div>
               </div>
             </header>
+
+            {/* Mobile Menu Dropdown */}
+            {isMobileMenuOpen && (
+              <div className="animate-fade-up absolute left-4 right-4 top-24 z-40 rounded-2xl border border-white/10 bg-[#0b1728]/95 p-6 shadow-2xl backdrop-blur-xl sm:hidden">
+                <nav className="flex flex-col gap-6">
+                  <a
+                    href="#a-propos"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="text-base font-medium text-slate-200 hover:text-white"
+                  >
+                    {t("landing.nav.about")}
+                  </a>
+                  <a
+                    href="#fonctionnalites"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="text-base font-medium text-slate-200 hover:text-white"
+                  >
+                    {t("landing.nav.features")}
+                  </a>
+
+                  <div className={`flex flex-col gap-3 border-t border-white/10 pt-6 transition-opacity duration-300 ${checked ? "opacity-100" : "opacity-0"}`}>
+                    {!isAuthenticated && (
+                      <Link
+                        href="/auth/login"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="inline-flex w-full items-center justify-center rounded-xl border border-white/14 bg-white/[0.03] px-5 py-3.5 text-sm font-semibold uppercase tracking-[0.16em] text-white transition active:bg-white/[0.08]"
+                      >
+                        {t("landing.nav.login")}
+                      </Link>
+                    )}
+                    <Link
+                      href={primaryHref}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="inline-flex w-full items-center justify-center rounded-xl bg-white px-5 py-3.5 text-sm font-semibold uppercase tracking-[0.16em] text-slate-950 transition active:bg-cyan-50"
+                    >
+                      {primaryLabel}
+                    </Link>
+                  </div>
+                </nav>
+              </div>
+            )}
 
             <div className="flex flex-1 flex-col justify-center pb-14 pt-4 sm:pt-8 lg:pb-20 lg:pt-12">
               <div className="mx-auto flex max-w-[980px] flex-col items-center text-center -mt-8 sm:-mt-32">
