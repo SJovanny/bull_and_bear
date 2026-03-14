@@ -54,34 +54,10 @@ function FeatureImage({
 }
 
 function FeatureRow({ feature, index }: { feature: Feature; index: number }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
   const isReversed = index % 2 === 1;
 
-  useEffect(() => {
-    const element = ref.current;
-    if (!element) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry?.isIntersecting) {
-          setIsVisible(true);
-          observer.unobserve(element);
-        }
-      },
-      { threshold: 0.15 },
-    );
-
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, []);
-
   return (
-    <div
-      ref={ref}
-      className={`grid items-center gap-10 lg:grid-cols-2 lg:gap-16 xl:gap-20 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-        }`}
-    >
+    <div className={`grid items-center gap-10 lg:grid-cols-2 lg:gap-16 xl:gap-20 transition-all duration-700`}>
       {/* Text block */}
       <div className={isReversed ? "lg:order-2" : ""}>
         <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-100/62">
