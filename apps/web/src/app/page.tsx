@@ -73,20 +73,22 @@ export default function LandingPage() {
                   <LanguageSwitcher />
                 </div>
 
-                {checked && !isAuthenticated && (
+                <div className={`flex items-center gap-3 transition-opacity duration-300 ${checked ? "opacity-100" : "opacity-0"}`}>
+                  {!isAuthenticated && (
+                    <Link
+                      href="/auth/login"
+                      className="inline-flex items-center justify-center rounded-full border border-white/14 bg-white/[0.03] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-white transition hover:-translate-y-0.5 hover:bg-white/[0.08] sm:px-5 sm:py-3"
+                    >
+                      {t("landing.nav.login")}
+                    </Link>
+                  )}
                   <Link
-                    href="/auth/login"
-                    className="inline-flex items-center justify-center rounded-full border border-white/14 bg-white/[0.03] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-white transition hover:-translate-y-0.5 hover:bg-white/[0.08] sm:px-5 sm:py-3"
+                    href={primaryHref}
+                    className="inline-flex items-center justify-center rounded-full bg-white px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-slate-950 transition hover:-translate-y-0.5 hover:bg-cyan-50 sm:px-5 sm:py-3"
                   >
-                    {t("landing.nav.login")}
+                    {primaryLabel}
                   </Link>
-                )}
-                <Link
-                  href={primaryHref}
-                  className="inline-flex items-center justify-center rounded-full bg-white px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-slate-950 transition hover:-translate-y-0.5 hover:bg-cyan-50 sm:px-5 sm:py-3"
-                >
-                  {primaryLabel}
-                </Link>
+                </div>
               </div>
             </header>
 

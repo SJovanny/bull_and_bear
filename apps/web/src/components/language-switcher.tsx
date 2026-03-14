@@ -1,12 +1,26 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 import { useTranslation } from "@/lib/i18n/context";
 
 export function LanguageSwitcher({ isCollapsed = false }: { isCollapsed?: boolean }) {
   const { locale, setLocale } = useTranslation();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   function toggle() {
     setLocale(locale === "fr" ? "en" : "fr");
+  }
+
+  // Prevent hydration mismatch by not rendering until mounted
+  if (!mounted) {
+    return (
+      <div className="w-[100px] h-[40px] opacity-0" aria-hidden="true" />
+    );
   }
 
   const flag = locale === "fr" ? "🇫🇷" : "🇬🇧";

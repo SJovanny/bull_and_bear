@@ -20,15 +20,26 @@ const LanguageContext = createContext<LanguageContextValue>({
   t: (key) => key,
 });
 
-function getInitialLocale(): Locale {
-  if (typeof window === "undefined") return "fr";
+// getInitialLocale will now only be called inside useEffect on the client
+function getInitialLocaleFromStorage(): Locale | null {
+  if (typeof window === "undefined") return null;
   const saved = localStorage.getItem("bb_lang");
   if (saved === "en" || saved === "fr") return saved;
-  return "fr";
+  return null;
 }
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>(getInitialLocale);
+  // Always initialize with 'fr' to match server rendering. This prevents hydration mismatch.
+  const [locale, setLocaleState] = useState<Locale>("fr");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const savedLocale = getInitialLocaleFromStorage();
+    if (savedLocale && savedLocale !== "fr") {
+      setLocaleState(savedLocale);
+    }
+  }, []);
 
   const setLocale = useCallback((next: Locale) => {
     setLocaleState(next);
@@ -36,8 +47,10 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    document.documentElement.lang = locale;
-  }, [locale]);
+    if (mounted) {
+      document.documentElement.lang = locale;
+    }
+  }, [locale, mounted]);
 
   const t = useCallback(
     (key: keyof TranslationKeys): string => {
