@@ -56,6 +56,20 @@ export const fr: TranslationKeys = {
   "landing.features.darkMode.desc": "Interface adaptée pour le trading de nuit avec un thème sombre élégant qui réduit la fatigue oculaire.",
   "landing.footer.tagline": "Votre compagnon de trading intelligent",
   "landing.footer.rights": "Tous droits réservés.",
+  "landing.stats.tradesAnalyzed": "Trades Analysés",
+  "landing.stats.tradersOnboard": "Traders Inscrits",
+  "landing.stats.brokersIntegrated": "Brokers Intégrés",
+  "landing.stats.dataPoints": "Points de Données",
+  "landing.cta.headline": "Prêt à transformer votre trading ?",
+  "landing.cta.subtitle": "Rejoignez les traders qui utilisent Bull & Bear pour analyser, apprendre et progresser chaque jour.",
+  "landing.cta.button": "Commencer gratuitement",
+  "landing.hero.socialProof": "Gratuit • Aucune carte requise",
+  "landing.chartReview.eyebrow": "Revue graphique",
+  "landing.chartReview.title": "Revoyez le graphique exactement comme il était au moment du trade.",
+  "landing.chartReview.description": "Capturez automatiquement le chart au moment de chaque trade. Revoyez vos entrées, sorties et niveaux clés directement depuis votre journal — plus besoin de chercher dans l'historique de votre plateforme.",
+  "landing.chartReview.bullet1": "Capture au moment du trade",
+  "landing.chartReview.bullet2": "Niveaux d'entrée et sortie visibles",
+  "landing.chartReview.bullet3": "Revue visuelle rapide",
 
   // ─── Auth ────────────────────────────────────────────────────
   "auth.login.title": "Connexion",
@@ -399,7 +413,7 @@ export const fr: TranslationKeys = {
 
   // ─── Trade Detail ───────────────────────────────────────────
   "tradeDetail.title": "Détail du trade",
-  "tradeDetail.subtitle": "Exécution, contexte et post-analyse du trade",
+  "tradeDetail.subtitle": "",
   "tradeDetail.backJournal": "Retour journal",
   "tradeDetail.editTrade": "Modifier le trade",
   "tradeDetail.notFound": "Trade introuvable.",

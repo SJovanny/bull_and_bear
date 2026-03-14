@@ -159,9 +159,38 @@ html {
   .animate-fade-up-delayed-2,
   .animate-fade-up-delayed-3,
   .animate-title-rise,
-  .animate-title-rise-delayed {
+  .animate-title-rise-delayed,
+  .animate-hero-float {
     animation: none;
   }
+}
+
+@keyframes hero-float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-hero-float {
+  animation: hero-float 6s ease-in-out infinite;
+}
+
+@keyframes scroll-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-scroll-reveal {
+  animation: scroll-reveal 800ms var(--ease-standard) both;
 }
 
 button:not(:disabled) {

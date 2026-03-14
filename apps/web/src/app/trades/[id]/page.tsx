@@ -319,7 +319,7 @@ export default function TradeDetailPage() {
         </>
       }
     >
-      <div className="mx-auto max-w-5xl space-y-6">
+      <div className="mx-auto max-w-7xl space-y-6">
         {/* Loading / Error states */}
         {loading && (
           <div className="flex items-center justify-center py-20">
@@ -375,8 +375,11 @@ export default function TradeDetailPage() {
                 <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 14l4-4m0 0l2-6 2 6m-4 0h4m2 4V4" /></svg>
                 {t("tradeDetail.execution")}
               </SectionTitle>
-              <div className="space-y-4">
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+
+              {/* Two‑column: info cards LEFT, chart RIGHT */}
+              <div className="grid gap-4 lg:grid-cols-[320px_1fr] xl:grid-cols-[360px_1fr]">
+                {/* Left column — compact info cards */}
+                <div className="grid grid-cols-2 gap-2 self-start">
                   <InfoCard label={t("tradeDetail.entryPrice")}>
                     <InfoValue>{formatNumber(trade.entryPrice)}</InfoValue>
                   </InfoCard>
@@ -403,18 +406,21 @@ export default function TradeDetailPage() {
                   </InfoCard>
                 </div>
 
-                <TradeChart
-                  symbol={trade.symbol}
-                  assetClass={trade.assetClass}
-                  interval={trade.entryTimeframe}
-                  side={trade.side}
-                  openedAt={trade.openedAt}
-                  closedAt={trade.closedAt}
-                  entryPrice={trade.entryPrice}
-                  initialStopLoss={trade.initialStopLoss}
-                  initialTakeProfit={trade.initialTakeProfit}
-                  exitPrice={trade.exitPrice}
-                />
+                {/* Right column — TradingView chart */}
+                <div className="min-w-0">
+                  <TradeChart
+                    symbol={trade.symbol}
+                    assetClass={trade.assetClass}
+                    interval={trade.entryTimeframe}
+                    side={trade.side}
+                    openedAt={trade.openedAt}
+                    closedAt={trade.closedAt}
+                    entryPrice={trade.entryPrice}
+                    initialStopLoss={trade.initialStopLoss}
+                    initialTakeProfit={trade.initialTakeProfit}
+                    exitPrice={trade.exitPrice}
+                  />
+                </div>
               </div>
             </section>
 

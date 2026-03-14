@@ -57,9 +57,9 @@ function FeatureRow({ feature, index }: { feature: Feature; index: number }) {
   const isReversed = index % 2 === 1;
 
   return (
-    <div className={`grid items-center gap-16 lg:grid-cols-2 lg:gap-24 xl:gap-32 transition-all duration-700`}>
+    <div className={`grid items-center gap-16 lg:grid-cols-12 lg:gap-20 xl:gap-24 transition-all duration-700`}>
       {/* Text block */}
-      <div className={isReversed ? "lg:order-2" : ""}>
+      <div className={`lg:col-span-4 ${isReversed ? "lg:order-2" : "lg:order-1"}`}>
         <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-100/62">
           0{index + 1} {feature.eyebrow}
         </p>
@@ -85,7 +85,7 @@ function FeatureRow({ feature, index }: { feature: Feature; index: number }) {
       </div>
 
       {/* Image block */}
-      <div className={isReversed ? "lg:order-1" : ""}>
+      <div className={`lg:col-span-8 ${isReversed ? "lg:order-1" : "lg:order-2"}`}>
         <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03))] p-3 shadow-[0_24px_90px_rgba(0,0,0,0.34)] backdrop-blur">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_36%)]" />
           <div className="pointer-events-none absolute -right-12 top-12 h-44 w-44 rounded-full bg-cyan-300/12 blur-3xl" />

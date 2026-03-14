@@ -4,7 +4,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { LandingCtaSection } from "@/components/landing-cta-section";
 import { LandingFeatureShowcase } from "@/components/landing-feature-showcase";
+import { LandingStatsBar } from "@/components/landing-stats-bar";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { SiteFooter } from "@/components/site-footer";
 import { useTranslation } from "@/lib/i18n/context";
@@ -47,7 +49,7 @@ export default function LandingPage() {
               <Link href="/" className="shrink-0 sm:-mt-16 sm:-ml-8">
                 <Image
                   src="/BB_logo.png"
-                  alt="Bull & Bear"
+                  alt="Bull &amp; Bear"
                   width={800}
                   height={800}
                   className="h-36 w-36 object-contain sm:h-64 sm:w-64 md:h-[18rem] md:w-[18rem]"
@@ -157,7 +159,7 @@ export default function LandingPage() {
               </div>
             )}
 
-            <div className="flex flex-1 flex-col justify-center pb-24 pt-8 sm:pt-16 lg:pb-32 lg:pt-24">
+            <div className="flex flex-1 flex-col justify-center pb-12 pt-8 sm:pt-16 lg:pb-16 lg:pt-24">
               <div className="mx-auto flex max-w-[980px] flex-col items-center text-center -mt-8 sm:-mt-32">
                 <span className="animate-fade-up-delayed inline-flex items-center rounded-full border border-cyan-300/16 bg-cyan-300/8 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-100/86">
                   {t("landing.hero.title")}
@@ -172,24 +174,52 @@ export default function LandingPage() {
                   {t("landing.hero.subtitle")}
                 </p>
 
-                <div className="animate-fade-up-delayed-3 mt-16 flex flex-col items-center">
-                  <span className="mb-3 text-[10px] font-semibold uppercase tracking-[0.24em] text-white/40">
-                    ↓
-                  </span>
-                  <svg
-                    className="h-8 w-8 animate-bounce text-white/50"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
+                {/* Hero CTA Button + Social Proof */}
+                <div className="animate-fade-up-delayed-3 mt-12 flex flex-col items-center gap-5">
+                  <Link
+                    href={primaryHref}
+                    className="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-white px-8 py-4 text-sm font-semibold uppercase tracking-[0.16em] text-slate-950 shadow-[0_12px_40px_rgba(56,189,248,0.2)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_60px_rgba(56,189,248,0.35)] sm:px-10 sm:py-5 sm:text-base"
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                  </svg>
+                    <span className="absolute inset-0 bg-gradient-to-r from-cyan-200 via-white to-teal-200 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                    <span className="relative">{primaryLabel}</span>
+                  </Link>
+                  <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-white/40">
+                    {t("landing.hero.socialProof")}
+                  </span>
                 </div>
               </div>
             </div>
           </div>
         </section>
+
+        {/* Hero Product Screenshot */}
+        <section className="relative -mt-8 px-4 pb-28 sm:px-6 lg:-mt-16 lg:px-10 lg:pb-40">
+          <div className="mx-auto max-w-[1536px]">
+            <div className="animate-hero-float relative overflow-hidden rounded-[20px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.02))] p-2 shadow-[0_40px_120px_rgba(0,0,0,0.5)] backdrop-blur sm:rounded-[28px] sm:p-3">
+              {/* Inner glow effects */}
+              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06),transparent_40%)]" />
+              <div className="pointer-events-none absolute -right-16 top-16 h-56 w-56 rounded-full bg-cyan-300/10 blur-3xl" />
+              <div className="pointer-events-none absolute -left-12 bottom-20 h-44 w-44 rounded-full bg-emerald-300/8 blur-3xl" />
+
+              <div className="relative overflow-hidden rounded-[16px] border border-white/10 bg-[#091321] sm:rounded-[22px]">
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-cyan-300/10 via-sky-300/5 to-transparent" />
+                <div className="relative aspect-[16/9]">
+                  <Image
+                    src="/dashboard_example.png"
+                    alt="Bull &amp; Bear Dashboard"
+                    fill
+                    sizes="(min-width: 1024px) 1200px, 92vw"
+                    className="object-cover object-top"
+                    priority
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Stats Counter Bar */}
+        <LandingStatsBar />
 
         {/* À propos section */}
         <section id="a-propos" className="relative border-t border-white/10 px-4 py-28 sm:px-6 lg:px-10 lg:py-40">
@@ -209,6 +239,66 @@ export default function LandingPage() {
         </section>
 
         <LandingFeatureShowcase />
+
+        {/* Chart Screenshot Review Section */}
+        <section className="relative border-t border-white/10 px-4 py-28 sm:px-6 lg:px-10 lg:py-40">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_30%_50%,rgba(56,189,248,0.06),transparent_50%)]" />
+          <div className="mx-auto max-w-[1380px]">
+            <div className="grid items-center gap-16 lg:grid-cols-12 lg:gap-20 xl:gap-24">
+              {/* Image block — left side */}
+              <div className="lg:col-span-8">
+                <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03))] p-3 shadow-[0_24px_90px_rgba(0,0,0,0.34)] backdrop-blur">
+                  <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_36%)]" />
+                  <div className="pointer-events-none absolute -right-12 top-12 h-44 w-44 rounded-full bg-violet-300/12 blur-3xl" />
+                  <div className="pointer-events-none absolute -left-8 bottom-16 h-36 w-36 rounded-full bg-cyan-300/10 blur-3xl" />
+
+                  <div className="relative overflow-hidden rounded-[22px] border border-white/10 bg-[#091321]">
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-violet-300/15 via-cyan-300/8 to-transparent" />
+                    <div className="relative aspect-[16/10]">
+                      <Image
+                        src="/chart_example.png"
+                        alt="Chart screenshot review"
+                        fill
+                        sizes="(min-width: 1024px) 50vw, 92vw"
+                        className="object-cover object-top"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Text block — right side */}
+              <div className="lg:col-span-4">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-violet-300/70">
+                  {t("landing.chartReview.eyebrow")}
+                </p>
+
+                <h3 className="mt-8 text-3xl font-semibold tracking-[-0.05em] text-white sm:text-[2.5rem] sm:leading-[1.15] lg:text-[3rem] lg:leading-[1.1]">
+                  {t("landing.chartReview.title")}
+                </h3>
+
+                <p className="mt-8 max-w-[560px] text-pretty text-base leading-8 text-slate-300 sm:text-lg">
+                  {t("landing.chartReview.description")}
+                </p>
+
+                <div className="mt-10 flex flex-wrap gap-4">
+                  {[
+                    t("landing.chartReview.bullet1"),
+                    t("landing.chartReview.bullet2"),
+                    t("landing.chartReview.bullet3"),
+                  ].map((bullet) => (
+                    <span
+                      key={bullet}
+                      className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/72"
+                    >
+                      {bullet}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
 
         {/* Integrations Section */}
         <section className="relative border-t border-white/10 px-4 py-28 sm:px-6 lg:px-10 lg:py-40">
@@ -260,6 +350,9 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
+
+        {/* Bottom CTA Section */}
+        <LandingCtaSection href={primaryHref} />
 
         <SiteFooter />
       </div>

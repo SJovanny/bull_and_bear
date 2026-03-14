@@ -56,6 +56,20 @@ export type TranslationKeys = {
   "landing.features.darkMode.desc": string;
   "landing.footer.tagline": string;
   "landing.footer.rights": string;
+  "landing.stats.tradesAnalyzed": string;
+  "landing.stats.tradersOnboard": string;
+  "landing.stats.brokersIntegrated": string;
+  "landing.stats.dataPoints": string;
+  "landing.cta.headline": string;
+  "landing.cta.subtitle": string;
+  "landing.cta.button": string;
+  "landing.hero.socialProof": string;
+  "landing.chartReview.eyebrow": string;
+  "landing.chartReview.title": string;
+  "landing.chartReview.description": string;
+  "landing.chartReview.bullet1": string;
+  "landing.chartReview.bullet2": string;
+  "landing.chartReview.bullet3": string;
 
   // ─── Auth ────────────────────────────────────────────────────
   "auth.login.title": string;
