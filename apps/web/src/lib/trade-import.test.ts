@@ -38,10 +38,20 @@ describe("parseImportedTrades", () => {
   });
 
   it("parses MetaTrader XLSX history exported from account history", () => {
-    const fileName = "ReportHistory-5977138.xlsx";
-    const xlsx = readFileSync(join(process.cwd(), fileName)).toString("base64");
+    const workbook = utils.book_new();
+    const sheet = utils.aoa_to_sheet([
+      ["Rapport d'historique de trading"],
+      ["Positions"],
+      ["Heure", "Position", "Symbole", "Type", "Volume", "Prix", "S / L", "T / P", "Heure", "Prix", "Commission", "Echange", "Profit", "Commentaire"],
+      ["2026.03.10 09:00:00", "5574605112", "BTCUSD", "buy", "0.01", "63335.841", "", "", "2026.03.10 09:30:00", "70149.037", "-5.26", "0.00", "59.11", ""],
+      ["2026.03.10 09:00:00", "1111111111", "EURUSD", "buy", "1.00", "1.1000", "", "", "2026.03.10 09:30:00", "1.1010", "-2.00", "0.00", "98.00", ""],
+      ["2026.03.10 09:00:00", "2222222222", "EURUSD", "sell", "1.00", "1.1000", "", "", "2026.03.10 09:30:00", "1.1010", "-2.00", "0.00", "98.00", ""],
+      ["2026.03.10 10:00:00", "5578195765", "EURUSD", "sell", "1.00", "1.1000", "", "", "2026.03.10 10:30:00", "1.0900", "0.00", "0.00", "-95.57", ""],
+    ]);
+    utils.book_append_sheet(workbook, sheet, "Sheet1");
+    const xlsx = write(workbook, { type: "base64", bookType: "xlsx" });
 
-    const preview = parseImportedTrades(xlsx, "METATRADER", fileName);
+    const preview = parseImportedTrades(xlsx, "METATRADER", "ReportHistory.xlsx");
 
     expect(preview.detectedSource).toBe("METATRADER");
     expect(preview.errors).toEqual([]);
