@@ -194,26 +194,20 @@ export default function LandingPage() {
 
         {/* Hero Product Screenshot */}
         <section className="relative -mt-8 px-4 pb-28 sm:px-6 lg:-mt-16 lg:px-10 lg:pb-40">
-          <div className="mx-auto max-w-[1536px]">
-            <div className="animate-hero-float relative overflow-hidden rounded-[20px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.02))] p-2 shadow-[0_40px_120px_rgba(0,0,0,0.5)] backdrop-blur sm:rounded-[28px] sm:p-3">
-              {/* Inner glow effects */}
-              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06),transparent_40%)]" />
+          <div className="mx-auto max-w-[1000px]">
+            <div className="animate-hero-float relative flex justify-center">
+              {/* Removed border and background wrappers to allow the 3D laptop image to float naturally on the page */}
               <div className="pointer-events-none absolute -right-16 top-16 h-56 w-56 rounded-full bg-cyan-300/10 blur-3xl" />
               <div className="pointer-events-none absolute -left-12 bottom-20 h-44 w-44 rounded-full bg-emerald-300/8 blur-3xl" />
-
-              <div className="relative overflow-hidden rounded-[16px] border border-white/10 bg-[#091321] sm:rounded-[22px]">
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-cyan-300/10 via-sky-300/5 to-transparent" />
-                <div className="relative aspect-[16/9]">
-                  <Image
-                    src="/dashboard_example.png"
-                    alt="Bull &amp; Bear Dashboard"
-                    fill
-                    sizes="(min-width: 1024px) 1200px, 92vw"
-                    className="object-cover object-top"
-                    priority
-                  />
-                </div>
-              </div>
+              
+              <Image
+                src="/screen-view.png"
+                alt="Bull &amp; Bear Dashboard"
+                width={1200}
+                height={800}
+                className="relative z-10 h-auto w-full object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
+                priority
+              />
             </div>
           </div>
         </section>
