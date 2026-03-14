@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confirm Change of Email</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      color: #e0e0e0;
+      background-color: #09090b;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 32px;
+      background-color: #121214;
+      border-radius: 8px;
+      border: 1px solid #27272a;
+    }
+    h2 {
+      color: #ffffff;
+      font-size: 24px;
+      font-weight: 600;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    p {
+      margin-top: 0;
+      margin-bottom: 24px;
+      font-size: 16px;
+    }
+    .button {
+      display: inline-block;
+      padding: 12px 24px;
+      background-color: #ffffff;
+      color: #000000 !important;
+      text-decoration: none;
+      font-weight: 500;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    .footer {
+      margin-top: 32px;
+      font-size: 14px;
+      color: #a1a1aa;
+      border-top: 1px solid #27272a;
+      padding-top: 24px;
+    }
+    .link-fallback {
+      color: #a1a1aa;
+      word-break: break-all;
+    }
+    .email-highlight {
+      color: #ffffff;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Confirm Change of Email</h2>
+    <p>Follow this link to confirm the update of your email from <span class="email-highlight">{{ .Email }}</span> to <span class="email-highlight">{{ .NewEmail }}</span>:</p>
+    <p>
+      <a href="{{ .ConfirmationURL }}" class="button">Change Email</a>
+    </p>
+    <div class="footer">
+      <p style="margin-bottom: 8px;">If the button doesn't work, copy and paste this link into your browser:</p>
+      <a href="{{ .ConfirmationURL }}" class="link-fallback">{{ .ConfirmationURL }}</a>
+    </div>
+  </div>
+</body>
+</html>
