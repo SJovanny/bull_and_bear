@@ -64,8 +64,10 @@ export const fr: TranslationKeys = {
   "auth.login.password": "Mot de passe",
   "auth.login.submit": "Se connecter",
   "auth.login.submitting": "Connexion...",
+  "auth.login.or": "Ou",
   "auth.login.noAccount": "Pas encore de compte ?",
   "auth.login.signupLink": "Créer un compte",
+  "auth.login.google": "Continuer avec Google",
   "auth.signup.title": "Inscription",
   "auth.signup.subtitle": "Créez votre compte Bull & Bear",
   "auth.signup.email": "Email",
@@ -75,6 +77,7 @@ export const fr: TranslationKeys = {
   "auth.signup.hasAccount": "Déjà un compte ?",
   "auth.signup.loginLink": "Se connecter",
   "auth.signup.success": "Inscription réussie ! Vérifiez votre email pour confirmer votre compte.",
+  "auth.signup.google": "S'inscrire avec Google",
 
   // ─── Sidebar / Nav ──────────────────────────────────────────
   "nav.dashboard": "Dashboard",

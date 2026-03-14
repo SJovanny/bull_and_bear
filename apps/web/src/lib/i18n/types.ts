@@ -64,8 +64,10 @@ export type TranslationKeys = {
   "auth.login.password": string;
   "auth.login.submit": string;
   "auth.login.submitting": string;
+  "auth.login.or": string;
   "auth.login.noAccount": string;
   "auth.login.signupLink": string;
+  "auth.login.google": string;
   "auth.signup.title": string;
   "auth.signup.subtitle": string;
   "auth.signup.email": string;
@@ -75,6 +77,7 @@ export type TranslationKeys = {
   "auth.signup.hasAccount": string;
   "auth.signup.loginLink": string;
   "auth.signup.success": string;
+  "auth.signup.google": string;
 
   // ─── Sidebar / Nav ──────────────────────────────────────────
   "nav.dashboard": string;
