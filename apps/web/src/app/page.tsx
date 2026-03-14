@@ -50,7 +50,7 @@ export default function LandingPage() {
                   alt="Bull & Bear"
                   width={800}
                   height={800}
-                  className="h-24 w-24 object-contain sm:h-64 sm:w-64 md:h-[18rem] md:w-[18rem]"
+                  className="h-36 w-36 object-contain sm:h-64 sm:w-64 md:h-[18rem] md:w-[18rem]"
                   priority
                 />
               </Link>
@@ -157,22 +157,22 @@ export default function LandingPage() {
               </div>
             )}
 
-            <div className="flex flex-1 flex-col justify-center pb-14 pt-4 sm:pt-8 lg:pb-20 lg:pt-12">
+            <div className="flex flex-1 flex-col justify-center pb-24 pt-8 sm:pt-16 lg:pb-32 lg:pt-24">
               <div className="mx-auto flex max-w-[980px] flex-col items-center text-center -mt-8 sm:-mt-32">
                 <span className="animate-fade-up-delayed inline-flex items-center rounded-full border border-cyan-300/16 bg-cyan-300/8 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-100/86">
                   {t("landing.hero.title")}
                 </span>
 
-                <h1 className="mt-8 text-balance text-[3.2rem] font-semibold leading-[0.92] tracking-[-0.08em] text-white sm:text-[4.8rem] lg:text-[7rem] xl:text-[8rem]">
+                <h1 className="mt-12 text-balance text-[3.2rem] font-semibold leading-[0.92] tracking-[-0.08em] text-white sm:text-[4.8rem] lg:text-[7rem] xl:text-[8rem]">
                   <span className="animate-title-rise block">{t("landing.hero.punchline1")}</span>
                   <span className="animate-title-rise-delayed block text-cyan-100">{t("landing.hero.punchline2")}</span>
                 </h1>
 
-                <p className="animate-fade-up-delayed-2 mt-6 max-w-[760px] text-pretty text-base leading-8 text-slate-300 sm:text-lg">
+                <p className="animate-fade-up-delayed-2 mt-10 max-w-[760px] text-pretty text-base leading-8 text-slate-300 sm:text-lg">
                   {t("landing.hero.subtitle")}
                 </p>
 
-                <div className="animate-fade-up-delayed-3 mt-10 flex flex-col items-center">
+                <div className="animate-fade-up-delayed-3 mt-16 flex flex-col items-center">
                   <span className="mb-3 text-[10px] font-semibold uppercase tracking-[0.24em] text-white/40">
                     ↓
                   </span>
@@ -192,16 +192,16 @@ export default function LandingPage() {
         </section>
 
         {/* À propos section */}
-        <section id="a-propos" className="relative border-t border-white/10 px-4 py-20 sm:px-6 lg:px-10 lg:py-28">
+        <section id="a-propos" className="relative border-t border-white/10 px-4 py-28 sm:px-6 lg:px-10 lg:py-40">
           <div className="mx-auto max-w-[1380px]">
             <div className="mx-auto max-w-[760px] text-center">
               <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-100/80">
                 {t("landing.about.title")}
               </span>
-              <h2 className="mt-6 text-balance text-4xl font-semibold tracking-[-0.06em] text-white sm:text-5xl lg:text-6xl">
+              <h2 className="mt-10 text-balance text-4xl font-semibold tracking-[-0.06em] text-white sm:text-5xl lg:text-6xl">
                 {t("landing.about.title")}
               </h2>
-              <p className="mt-5 text-pretty text-base leading-8 text-slate-300 sm:text-lg">
+              <p className="mt-8 text-pretty text-base leading-8 text-slate-300 sm:text-lg">
                 {t("landing.about.description")}
               </p>
             </div>
@@ -211,21 +211,21 @@ export default function LandingPage() {
         <LandingFeatureShowcase />
 
         {/* Integrations Section */}
-        <section className="relative border-t border-white/10 px-4 py-20 sm:px-6 lg:px-10 lg:py-28">
+        <section className="relative border-t border-white/10 px-4 py-28 sm:px-6 lg:px-10 lg:py-40">
           <div className="mx-auto max-w-[1380px]">
             <div className="mx-auto max-w-[760px] text-center">
               <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-emerald-300/80">
                 {t("landing.integrations.eyebrow")}
               </span>
-              <h2 className="mt-6 text-balance text-4xl font-semibold tracking-[-0.06em] text-white sm:text-5xl lg:text-6xl">
+              <h2 className="mt-10 text-balance text-4xl font-semibold tracking-[-0.06em] text-white sm:text-5xl lg:text-6xl">
                 {t("landing.integrations.title")}
               </h2>
-              <p className="mt-5 text-pretty text-base leading-8 text-slate-300 sm:text-lg">
+              <p className="mt-8 text-pretty text-base leading-8 text-slate-300 sm:text-lg">
                 {t("landing.integrations.description")}
               </p>
             </div>
 
-            <div className="mt-16 flex flex-col items-center justify-center gap-10 sm:mt-20 sm:flex-row sm:gap-20">
+            <div className="mt-24 flex flex-col items-center justify-center gap-16 sm:mt-32 sm:flex-row sm:gap-32">
               <div className="group relative flex flex-col items-center">
                 <div className="absolute inset-0 translate-y-2 rounded-3xl bg-emerald-500/10 opacity-0 blur-xl transition duration-500 group-hover:opacity-100" />
                 <div className="relative flex h-40 w-40 items-center justify-center rounded-3xl border border-white/10 bg-white/[0.03] p-6 shadow-2xl backdrop-blur transition-all duration-500 group-hover:-translate-y-2 group-hover:border-emerald-500/30 group-hover:bg-white/[0.06] sm:h-52 sm:w-52 sm:p-8">

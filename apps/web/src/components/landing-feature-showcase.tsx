@@ -57,22 +57,22 @@ function FeatureRow({ feature, index }: { feature: Feature; index: number }) {
   const isReversed = index % 2 === 1;
 
   return (
-    <div className={`grid items-center gap-10 lg:grid-cols-2 lg:gap-16 xl:gap-20 transition-all duration-700`}>
+    <div className={`grid items-center gap-16 lg:grid-cols-2 lg:gap-24 xl:gap-32 transition-all duration-700`}>
       {/* Text block */}
       <div className={isReversed ? "lg:order-2" : ""}>
         <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-100/62">
           0{index + 1} {feature.eyebrow}
         </p>
 
-        <h3 className="mt-5 text-3xl font-semibold tracking-[-0.05em] text-white sm:text-[2.5rem] sm:leading-[1.15] lg:text-[3rem] lg:leading-[1.1]">
+        <h3 className="mt-8 text-3xl font-semibold tracking-[-0.05em] text-white sm:text-[2.5rem] sm:leading-[1.15] lg:text-[3rem] lg:leading-[1.1]">
           {feature.title}
         </h3>
 
-        <p className="mt-5 max-w-[560px] text-pretty text-base leading-8 text-slate-300 sm:text-lg">
+        <p className="mt-8 max-w-[560px] text-pretty text-base leading-8 text-slate-300 sm:text-lg">
           {feature.description}
         </p>
 
-        <div className="mt-6 flex flex-wrap gap-3">
+        <div className="mt-10 flex flex-wrap gap-4">
           {feature.bullets.map((bullet) => (
             <span
               key={bullet}
@@ -160,23 +160,23 @@ export function LandingFeatureShowcase() {
   ];
 
   return (
-    <section id="fonctionnalites" className="relative border-t border-white/10 px-4 py-20 sm:px-6 lg:px-10 lg:py-28">
+    <section id="fonctionnalites" className="relative border-t border-white/10 px-4 py-28 sm:px-6 lg:px-10 lg:py-40">
       <div className="mx-auto max-w-[1380px]">
         {/* Section heading */}
         <div className="mx-auto max-w-[760px] text-center">
           <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-100/80">
             {t("landing.showcase.eyebrow")}
           </span>
-          <h2 className="mt-6 text-balance text-4xl font-semibold tracking-[-0.06em] text-white sm:text-5xl lg:text-6xl">
+          <h2 className="mt-10 text-balance text-4xl font-semibold tracking-[-0.06em] text-white sm:text-5xl lg:text-6xl">
             {t("landing.showcase.title")}
           </h2>
-          <p className="mt-5 text-pretty text-base leading-8 text-slate-300 sm:text-lg">
+          <p className="mt-8 text-pretty text-base leading-8 text-slate-300 sm:text-lg">
             {t("landing.showcase.description")}
           </p>
         </div>
 
         {/* Feature rows */}
-        <div className="mt-20 flex flex-col gap-20 lg:mt-28 lg:gap-28">
+        <div className="mt-28 flex flex-col gap-32 lg:mt-40 lg:gap-40">
           {features.map((feature, index) => (
             <FeatureRow key={feature.id} feature={feature} index={index} />
           ))}
