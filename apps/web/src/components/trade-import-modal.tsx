@@ -247,7 +247,7 @@ export function TradeImportModal({ isOpen, accountId, onClose, onImported }: Tra
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-secondary font-sans">{t("importModal.source")}</p>
                 <div className="mt-3 space-y-3">
-                  {(Object.keys(sourceConfig) as TradeImportSource[]).map((item) => (
+                  {(Object.keys(sourceConfig(t)) as TradeImportSource[]).map((item) => (
                     <button
                       key={item}
                       type="button"
