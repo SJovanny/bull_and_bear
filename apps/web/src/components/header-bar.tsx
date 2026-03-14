@@ -21,7 +21,7 @@ export function HeaderBar({ title, subtitle, actions }: HeaderBarProps) {
           </h1>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           {actions && <div className="flex items-center gap-2">{actions}</div>}
           <div>
             <Suspense>

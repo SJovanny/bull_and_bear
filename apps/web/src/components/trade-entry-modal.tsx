@@ -675,7 +675,7 @@ export function TradeEntryModal({
               {t("tradeModal.close")}
             </button>
           </div>
-          <div className="mt-4 grid grid-cols-5 gap-2">
+          <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-5">
             {stepConfig.map((item) => {
               const active = currentStep === item.step;
               const done = currentStep > item.step;

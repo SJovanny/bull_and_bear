@@ -42,19 +42,19 @@ export default function LandingPage() {
 
         <section className="relative flex min-h-screen flex-col px-4 pb-8 pt-0 sm:px-6 lg:px-10">
           <div className="mx-auto flex w-full max-w-[1380px] flex-1 flex-col">
-            <header className="animate-fade-up flex items-start justify-between gap-4 py-2 sm:items-center">
-              <Link href="/" className="shrink-0 -mt-10 -ml-4 sm:-mt-16 sm:-ml-8">
+            <header className="animate-fade-up flex flex-col items-center justify-between gap-4 py-2 sm:flex-row sm:items-start">
+              <Link href="/" className="shrink-0 -mt-6 sm:-mt-16 sm:-ml-8">
                 <Image
                   src="/BB_logo.png"
                   alt="Bull & Bear"
                   width={800}
                   height={800}
-                  className="h-64 w-64 object-contain sm:h-[18rem] sm:w-[18rem]"
+                  className="h-40 w-40 object-contain sm:h-64 sm:w-64 md:h-[18rem] md:w-[18rem]"
                   priority
                 />
               </Link>
 
-              <div className="flex flex-wrap items-center justify-end gap-3 rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 shadow-[0_18px_50px_rgba(0,0,0,0.24)] backdrop-blur sm:px-4">
+              <div className="flex flex-wrap items-center justify-center gap-3 rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 shadow-[0_18px_50px_rgba(0,0,0,0.24)] backdrop-blur sm:justify-end sm:px-4">
                 <a
                   href="#a-propos"
                   className="hidden items-center justify-center px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-white/70 transition hover:text-white sm:inline-flex"
@@ -93,7 +93,7 @@ export default function LandingPage() {
             </header>
 
             <div className="flex flex-1 flex-col justify-center pb-14 pt-4 sm:pt-8 lg:pb-20 lg:pt-12">
-              <div className="mx-auto flex max-w-[980px] flex-col items-center text-center -mt-16 sm:-mt-32">
+              <div className="mx-auto flex max-w-[980px] flex-col items-center text-center -mt-8 sm:-mt-32">
                 <span className="animate-fade-up-delayed inline-flex items-center rounded-full border border-cyan-300/16 bg-cyan-300/8 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-100/86">
                   {t("landing.hero.title")}
                 </span>

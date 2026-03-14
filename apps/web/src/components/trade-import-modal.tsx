@@ -227,7 +227,7 @@ export function TradeImportModal({ isOpen, accountId, onClose, onImported }: Tra
             <h2 className="text-sm font-bold uppercase tracking-[0.18em] text-secondary font-sans">{t("importModal.title")}</h2>
             <p className="mt-1 text-sm text-secondary font-sans">{t("importModal.description")}</p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <button
               type="button"
               onClick={onClose}

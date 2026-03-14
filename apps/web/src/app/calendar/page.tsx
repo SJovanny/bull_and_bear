@@ -257,7 +257,7 @@ function CalendarPageContent() {
     <DashboardShell
       title={t("calendar.title")}
       actions={
-        <>
+        <div className="flex flex-wrap gap-2">
           <button
             type="button"
             onClick={() => setIsImportModalOpen(true)}
@@ -283,11 +283,11 @@ function CalendarPageContent() {
           >
             {t("calendar.nextMonth")}
           </button>
-        </>
+        </div>
       }
     >
       <div className="mx-auto w-full max-w-7xl">
-        <section className="rounded-2xl border border-border bg-surface-1 p-6 shadow-sm">
+        <section className="rounded-2xl border border-border bg-surface-1 p-3 sm:p-6 shadow-sm">
           <div className="mb-5">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
@@ -355,7 +355,7 @@ function CalendarPageContent() {
                   <button
                     type="button"
                     onClick={() => handleCalendarDayClick(key)}
-                    className="flex min-h-24 w-full flex-col px-2 py-2 text-left"
+                    className="flex min-h-16 sm:min-h-24 w-full flex-col px-1.5 py-1.5 sm:px-2 sm:py-2 text-left"
                   >
                     <p className="text-xs font-semibold">{day.getDate()}</p>
 
@@ -440,7 +440,7 @@ function CalendarPageContent() {
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <span
                         className={`rounded-full px-2 py-1 text-xs font-semibold font-mono ${
                           pnlValue >= 0

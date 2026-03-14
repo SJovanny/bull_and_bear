@@ -13,6 +13,7 @@ import {
 } from "./icons";
 import { ThemeToggle } from "./theme-toggle";
 import { LanguageSwitcher } from "./language-switcher";
+import { LogoutButton } from "@/app/auth/logout-button";
 import { useTranslation } from "@/lib/i18n/context";
 
 export function MobileBottomNav() {
@@ -59,6 +60,9 @@ export function MobileBottomNav() {
             <div className="p-2">
                <LanguageSwitcher />
                <ThemeToggle />
+               <div className="mt-2 text-center">
+                 <LogoutButton />
+               </div>
             </div>
 
           </div>
