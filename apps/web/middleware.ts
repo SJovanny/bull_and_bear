@@ -16,21 +16,20 @@ const isDevelopment = process.env.NODE_ENV === "development";
 function buildCsp(nonce: string): string {
   const scriptSrc = [
     "'self'",
-    `'nonce-${nonce}'`,
-    "'strict-dynamic'",
-    // Fallback for browsers without nonce/strict-dynamic support:
-    "'unsafe-inline'",
-    // Next.js HMR / Fast Refresh requires eval in development:
-    ...(isDevelopment ? ["'unsafe-eval'"] : []),
+    "'unsafe-inline'", // Next.js needs this for its hydration scripts
+    "'unsafe-eval'",   // Next.js needs this for some chunk executions and dev mode
+    "https://vercel.live", // For Vercel analytics/toolbar if enabled
+    "https://*.vercel-scripts.com", 
+    "https://*.vercel.app"
   ].join(" ");
 
   return [
     "default-src 'self'",
     `script-src ${scriptSrc}`,
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob:",
+    "img-src 'self' data: blob: https://res.cloudinary.com",
     "font-src 'self' data:",
-    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.twelvedata.com",
+    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.twelvedata.com https://vercel.live",
     "frame-src 'self'",
     "frame-ancestors 'none'",
     "base-uri 'self'",
