@@ -70,6 +70,14 @@ export type TranslationKeys = {
   "landing.chartReview.bullet1": string;
   "landing.chartReview.bullet2": string;
   "landing.chartReview.bullet3": string;
+  "landing.statsSection.eyebrow": string;
+  "landing.statsSection.title": string;
+  "landing.statsSection.description": string;
+  "landing.statsSection.bullet1": string;
+  "landing.statsSection.bullet2": string;
+  "landing.statsSection.bullet3": string;
+  "landing.upcoming.title": string;
+  "landing.upcoming.description": string;
 
   // ─── Auth ────────────────────────────────────────────────────
   "auth.login.title": string;

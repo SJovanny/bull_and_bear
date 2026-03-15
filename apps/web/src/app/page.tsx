@@ -294,6 +294,66 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {/* Stats Section */}
+        <section className="relative border-t border-white/10 px-4 py-28 sm:px-6 lg:px-10 lg:py-40">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_70%_50%,rgba(45,212,191,0.06),transparent_50%)]" />
+          <div className="mx-auto max-w-[1380px]">
+            <div className="grid items-center gap-16 lg:grid-cols-12 lg:gap-20 xl:gap-24">
+              {/* Text block — left side */}
+              <div className="lg:col-span-4 lg:order-1 order-2">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-300/70">
+                  {t("landing.statsSection.eyebrow")}
+                </p>
+
+                <h3 className="mt-8 text-3xl font-semibold tracking-[-0.05em] text-white sm:text-[2.5rem] sm:leading-[1.15] lg:text-[3rem] lg:leading-[1.1]">
+                  {t("landing.statsSection.title")}
+                </h3>
+
+                <p className="mt-8 max-w-[560px] text-pretty text-base leading-8 text-slate-300 sm:text-lg">
+                  {t("landing.statsSection.description")}
+                </p>
+
+                <div className="mt-10 flex flex-wrap gap-4">
+                  {[
+                    t("landing.statsSection.bullet1"),
+                    t("landing.statsSection.bullet2"),
+                    t("landing.statsSection.bullet3"),
+                  ].map((bullet) => (
+                    <span
+                      key={bullet}
+                      className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/72"
+                    >
+                      {bullet}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Image block — right side */}
+              <div className="lg:col-span-8 lg:order-2 order-1">
+                <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03))] p-3 shadow-[0_24px_90px_rgba(0,0,0,0.34)] backdrop-blur">
+                  <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_36%)]" />
+                  <div className="pointer-events-none absolute -left-12 top-12 h-44 w-44 rounded-full bg-cyan-300/12 blur-3xl" />
+                  <div className="pointer-events-none absolute -right-8 bottom-16 h-36 w-36 rounded-full bg-emerald-300/10 blur-3xl" />
+
+                  <div className="relative overflow-hidden rounded-[22px] border border-white/10 bg-[#091321]">
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-cyan-300/15 via-emerald-300/8 to-transparent" />
+                    <div className="relative aspect-[16/10]">
+                      <Image
+                        src="/stats_example.png"
+                        alt="Advanced statistics review"
+                        fill
+                        sizes="(min-width: 1024px) 50vw, 92vw"
+                        className="object-cover object-top"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Integrations Section */}
         <section className="relative border-t border-white/10 px-4 py-28 sm:px-6 lg:px-10 lg:py-40">
           <div className="mx-auto max-w-[1380px]">
@@ -341,6 +401,26 @@ export default function LandingPage() {
                   cTrader
                 </span>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Upcoming Features Section */}
+        <section className="relative px-4 py-24 sm:px-6 lg:px-10">
+          <div className="mx-auto max-w-[1380px]">
+            <div className="mx-auto max-w-[800px] text-center">
+              <div className="inline-flex items-center justify-center rounded-full border border-violet-500/30 bg-violet-500/10 px-4 py-2 mb-8">
+                <span className="flex h-2 w-2 rounded-full bg-violet-400 animate-pulse mr-2"></span>
+                <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-violet-300">
+                  Coming Soon
+                </span>
+              </div>
+              <h2 className="text-balance text-3xl font-semibold tracking-[-0.05em] text-white sm:text-4xl lg:text-5xl">
+                {t("landing.upcoming.title")}
+              </h2>
+              <p className="mt-6 text-pretty text-base leading-8 text-slate-300 sm:text-lg">
+                {t("landing.upcoming.description")}
+              </p>
             </div>
           </div>
         </section>

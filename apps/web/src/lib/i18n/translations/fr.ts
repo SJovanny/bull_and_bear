@@ -70,6 +70,14 @@ export const fr: TranslationKeys = {
   "landing.chartReview.bullet1": "Capture au moment du trade",
   "landing.chartReview.bullet2": "Niveaux d'entrée et sortie visibles",
   "landing.chartReview.bullet3": "Revue visuelle rapide",
+  "landing.statsSection.eyebrow": "Statistiques avancées",
+  "landing.statsSection.title": "Plongez dans les détails de votre performance.",
+  "landing.statsSection.description": "Analysez ce qui compte vraiment. Du win rate au profit factor, de l'espérance au drawdown, obtenez une vision cristalline de votre stratégie.",
+  "landing.statsSection.bullet1": "Métriques détaillées",
+  "landing.statsSection.bullet2": "Aperçu de la régularité",
+  "landing.statsSection.bullet3": "Suivi du drawdown",
+  "landing.upcoming.title": "Et bien plus à venir...",
+  "landing.upcoming.description": "De nouvelles fonctionnalités puissantes sont en route pour faire de Bull & Bear tout ce dont vous avez besoin pour exceller dans votre trading.",
 
   // ─── Auth ────────────────────────────────────────────────────
   "auth.login.title": "Connexion",
