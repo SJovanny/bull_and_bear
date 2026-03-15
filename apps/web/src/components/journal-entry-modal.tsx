@@ -267,7 +267,7 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
               Annuler
             </button>
             <button type="button" onClick={handleSave} disabled={saving || loading}
-              className="inline-flex h-9 items-center justify-center rounded-lg bg-primary px-4 text-sm font-semibold text-surface-1 transition hover:opacity-90 disabled:opacity-50 font-sans shadow-sm">
+              className="inline-flex h-9 items-center justify-center rounded-lg bg-brand-500 px-4 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50 font-sans shadow-sm">
               {saving ? "Sauvegarde..." : "Sauvegarder"}
             </button>
           </div>
@@ -494,7 +494,7 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
                             onClick={() => toggleArrayItem("strategiesFocus", strategy)}
                             className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-200 border ${
                               journal.strategiesFocus.includes(strategy)
-                                ? "bg-primary border-primary text-surface-1 shadow-sm"
+                                ? "bg-brand-500 border-brand-500 text-white shadow-sm"
                                 : "bg-surface-2 border-transparent text-secondary hover:text-primary hover:bg-surface-1 hover:border-border"
                             }`}
                           >

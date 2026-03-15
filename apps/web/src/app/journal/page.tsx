@@ -145,7 +145,7 @@ function JournalPageContent() {
         <button
           type="button"
           onClick={() => handleOpenModal()}
-          className="inline-flex h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-semibold text-surface-1 shadow-sm transition hover:opacity-90 font-sans"
+          className="inline-flex h-10 items-center justify-center rounded-lg bg-brand-500 px-4 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 font-sans"
         >
           {t("journal.newEntry")}
         </button>
