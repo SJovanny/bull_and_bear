@@ -1303,7 +1303,7 @@ export function TradeEntryModal({
                   disabled={!canSubmit || isSubmitting}
                   className="inline-flex h-11 items-center justify-center rounded-xl bg-cyan-600 px-5 text-sm font-semibold text-white transition hover:bg-cyan-700 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {isSubmitting ? t("accounts.formSavingBtn") : mode === "edit" ? t("accounts.formSaveBtn") : t("tradeModal.newTrade")}
+                  {isSubmitting ? t("accounts.formSavingBtn") : t("accounts.formSaveBtn")}
                 </button>
               )}
             </div>
