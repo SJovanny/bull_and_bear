@@ -2,7 +2,6 @@ export type Locale = "fr" | "en";
 
 export type TranslationKeys = {
   // ─── Landing ─────────────────────────────────────────────────
-  "landing.hero.title": string;
   "landing.hero.punchline1": string;
   "landing.hero.punchline2": string;
   "landing.hero.subtitle": string;

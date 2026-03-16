@@ -38,21 +38,19 @@ export default function LandingPage() {
   const primaryLabel = isAuthenticated ? t("landing.hero.dashboard") : t("landing.hero.cta");
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[#07111f] text-white">
-      <div className="relative isolate min-h-screen bg-[radial-gradient(circle_at_top,rgba(56,189,248,0.18),transparent_30%),radial-gradient(circle_at_80%_18%,rgba(45,212,191,0.12),transparent_24%),linear-gradient(180deg,#07111f_0%,#0b1728_48%,#07111f_100%)]">
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(0deg,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:72px_72px] [mask-image:linear-gradient(180deg,rgba(0,0,0,0.9),transparent_92%)]" />
-        <div className="pointer-events-none absolute left-1/2 top-32 h-64 w-64 -translate-x-1/2 rounded-full bg-cyan-300/15 blur-3xl" />
+    <main className="min-h-screen overflow-x-hidden bg-[#08111d] text-white">
+      <div className="relative isolate min-h-screen bg-[linear-gradient(180deg,#08111d_0%,#0b1522_42%,#0a1320_100%)]">
 
         <section className="relative flex min-h-screen flex-col px-4 pb-8 pt-0 sm:px-6 lg:px-10">
           <div className="mx-auto flex w-full max-w-[1380px] flex-1 flex-col">
-            <header className="animate-fade-up relative z-50 flex w-full flex-row items-center justify-between py-4 sm:items-start sm:py-2">
-              <Link href="/" className="shrink-0 sm:-mt-16 sm:-ml-8">
+            <header className="animate-fade-up relative z-50 flex w-full flex-row items-center justify-between py-5">
+              <Link href="/" className="flex shrink-0 items-center">
                 <Image
                   src="/BB_logo.png"
                   alt="Bull &amp; Bear"
                   width={800}
                   height={800}
-                  className="h-36 w-36 object-contain sm:h-64 sm:w-64 md:h-[18rem] md:w-[18rem]"
+                  className="h-30 w-30 object-contain sm:h-56 sm:w-56 md:h-[16rem] md:w-[16rem]"
                   priority
                 />
               </Link>
@@ -80,7 +78,7 @@ export default function LandingPage() {
               </div>
 
               {/* Desktop Navigation */}
-              <div className="hidden items-center gap-3 rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 shadow-[0_18px_50px_rgba(0,0,0,0.24)] backdrop-blur sm:flex sm:justify-end sm:px-4">
+              <div className="hidden items-center self-center gap-3 rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 shadow-[0_18px_50px_rgba(0,0,0,0.18)] backdrop-blur sm:flex sm:justify-end sm:px-4">
                 <a
                   href="#a-propos"
                   className="hidden items-center justify-center px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-white/70 transition hover:text-white sm:inline-flex"
@@ -120,7 +118,7 @@ export default function LandingPage() {
 
             {/* Mobile Menu Dropdown */}
             {isMobileMenuOpen && (
-              <div className="animate-fade-up absolute left-4 right-4 top-24 z-40 rounded-2xl border border-white/10 bg-[#0b1728]/95 p-6 shadow-2xl backdrop-blur-xl sm:hidden">
+              <div className="animate-fade-up absolute left-4 right-4 top-24 z-40 rounded-2xl border border-white/10 bg-[#0b1728] p-6 shadow-2xl sm:hidden">
                 <nav className="flex flex-col gap-6">
                   <a
                     href="#a-propos"
@@ -159,55 +157,42 @@ export default function LandingPage() {
               </div>
             )}
 
-            <div className="flex flex-1 flex-col justify-center pb-12 pt-8 sm:pt-16 lg:pb-16 lg:pt-24">
-              <div className="mx-auto flex max-w-[980px] flex-col items-center text-center -mt-8 sm:-mt-32">
-                <span className="animate-fade-up-delayed inline-flex items-center rounded-full border border-cyan-300/16 bg-cyan-300/8 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-100/86">
-                  {t("landing.hero.title")}
-                </span>
+            <div className="flex flex-1 items-center pb-16 pt-6 sm:pt-12 lg:pb-20 lg:pt-16">
+              <div className="mx-auto grid w-full max-w-[1380px] items-center gap-10 lg:grid-cols-12 lg:gap-16">
+                <div className="relative order-2 flex justify-center lg:order-1 lg:col-span-7">
+                  <Image
+                    src="/screen-view.png"
+                    alt="Bull &amp; Bear Dashboard"
+                    width={1200}
+                    height={800}
+                    className="relative z-10 h-auto w-full max-w-[760px] object-contain"
+                    priority
+                  />
+                </div>
 
-                <h1 className="mt-12 text-balance text-[3.2rem] font-semibold leading-[0.92] tracking-[-0.08em] text-white sm:text-[4.8rem] lg:text-[7rem] xl:text-[8rem]">
-                  <span className="animate-title-rise block">{t("landing.hero.punchline1")}</span>
-                  <span className="animate-title-rise-delayed block text-cyan-100">{t("landing.hero.punchline2")}</span>
-                </h1>
+                <div className="order-1 -mt-4 flex flex-col items-start text-left lg:order-2 lg:col-span-5 lg:-mt-10">
+                  <h1 className="text-balance text-[3rem] font-semibold leading-[0.92] tracking-[-0.08em] text-white sm:text-[4.5rem] lg:text-[5.6rem] xl:text-[6.4rem]">
+                    <span className="animate-title-rise block">{t("landing.hero.punchline1")}</span>
+                    <span className="animate-title-rise-delayed block text-cyan-100">{t("landing.hero.punchline2")}</span>
+                  </h1>
 
-                <p className="animate-fade-up-delayed-2 mt-10 max-w-[760px] text-pretty text-base leading-8 text-slate-300 sm:text-lg">
-                  {t("landing.hero.subtitle")}
-                </p>
+                  <p className="animate-fade-up-delayed-2 mt-8 max-w-[540px] text-pretty text-base leading-8 text-slate-300 sm:text-lg">
+                    {t("landing.hero.subtitle")}
+                  </p>
 
-                {/* Hero CTA Button + Social Proof */}
-                <div className="animate-fade-up-delayed-3 mt-12 flex flex-col items-center gap-5">
-                  <Link
-                    href={primaryHref}
-                    className="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-white px-8 py-4 text-sm font-semibold uppercase tracking-[0.16em] text-slate-950 shadow-[0_12px_40px_rgba(56,189,248,0.2)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_60px_rgba(56,189,248,0.35)] sm:px-10 sm:py-5 sm:text-base"
-                  >
-                    <span className="absolute inset-0 bg-gradient-to-r from-cyan-200 via-white to-teal-200 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                    <span className="relative">{primaryLabel}</span>
-                  </Link>
-                  <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-white/40">
-                    {t("landing.hero.socialProof")}
-                  </span>
+                  <div className="animate-fade-up-delayed-3 mt-10 flex flex-col items-start gap-5">
+                    <Link
+                      href={primaryHref}
+                      className="inline-flex items-center justify-center rounded-full border border-white bg-white px-8 py-4 text-sm font-semibold uppercase tracking-[0.16em] text-slate-950 transition-colors duration-200 hover:bg-slate-100 sm:px-10 sm:py-5 sm:text-base"
+                    >
+                      <span>{primaryLabel}</span>
+                    </Link>
+                    <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-white/40">
+                      {t("landing.hero.socialProof")}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Hero Product Screenshot */}
-        <section className="relative -mt-8 px-4 pb-28 sm:px-6 lg:-mt-16 lg:px-10 lg:pb-40">
-          <div className="mx-auto max-w-[1000px]">
-            <div className="animate-hero-float relative flex justify-center">
-              {/* Removed border and background wrappers to allow the 3D laptop image to float naturally on the page */}
-              <div className="pointer-events-none absolute -right-16 top-16 h-56 w-56 rounded-full bg-cyan-300/10 blur-3xl" />
-              <div className="pointer-events-none absolute -left-12 bottom-20 h-44 w-44 rounded-full bg-emerald-300/8 blur-3xl" />
-              
-              <Image
-                src="/screen-view.png"
-                alt="Bull &amp; Bear Dashboard"
-                width={1200}
-                height={800}
-                className="relative z-10 h-auto w-full object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
-                priority
-              />
             </div>
           </div>
         </section>
@@ -219,9 +204,6 @@ export default function LandingPage() {
         <section id="a-propos" className="relative border-t border-white/10 px-4 py-28 sm:px-6 lg:px-10 lg:py-40">
           <div className="mx-auto max-w-[1380px]">
             <div className="mx-auto max-w-[760px] text-center">
-              <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-100/80">
-                {t("landing.about.title")}
-              </span>
               <h2 className="mt-10 text-balance text-4xl font-semibold tracking-[-0.06em] text-white sm:text-5xl lg:text-6xl">
                 {t("landing.about.title")}
               </h2>
@@ -358,9 +340,6 @@ export default function LandingPage() {
         <section className="relative border-t border-white/10 px-4 py-28 sm:px-6 lg:px-10 lg:py-40">
           <div className="mx-auto max-w-[1380px]">
             <div className="mx-auto max-w-[760px] text-center">
-              <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-emerald-300/80">
-                {t("landing.integrations.eyebrow")}
-              </span>
               <h2 className="mt-10 text-balance text-4xl font-semibold tracking-[-0.06em] text-white sm:text-5xl lg:text-6xl">
                 {t("landing.integrations.title")}
               </h2>
@@ -408,13 +387,7 @@ export default function LandingPage() {
         {/* Upcoming Features Section */}
         <section className="relative px-4 py-24 sm:px-6 lg:px-10">
           <div className="mx-auto max-w-[1380px]">
-            <div className="mx-auto max-w-[800px] text-center">
-              <div className="inline-flex items-center justify-center rounded-full border border-violet-500/30 bg-violet-500/10 px-4 py-2 mb-8">
-                <span className="flex h-2 w-2 rounded-full bg-violet-400 animate-pulse mr-2"></span>
-                <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-violet-300">
-                  Coming Soon
-                </span>
-              </div>
+          <div className="mx-auto max-w-[800px] text-center">
               <h2 className="text-balance text-3xl font-semibold tracking-[-0.05em] text-white sm:text-4xl lg:text-5xl">
                 {t("landing.upcoming.title")}
               </h2>

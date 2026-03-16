@@ -2,7 +2,6 @@ import type { TranslationKeys } from "../types";
 
 export const en: TranslationKeys = {
   // ─── Landing ─────────────────────────────────────────────────
-  "landing.hero.title": "Your smart trading journal",
   "landing.hero.punchline1": "Trade. Review.",
   "landing.hero.punchline2": "Grow.",
   "landing.hero.subtitle": "Track, analyze and improve every trade. Bull & Bear helps you become a more disciplined and profitable trader.",

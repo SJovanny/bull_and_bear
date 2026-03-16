@@ -164,9 +164,6 @@ export function LandingFeatureShowcase() {
       <div className="mx-auto max-w-[1380px]">
         {/* Section heading */}
         <div className="mx-auto max-w-[760px] text-center">
-          <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-100/80">
-            {t("landing.showcase.eyebrow")}
-          </span>
           <h2 className="mt-10 text-balance text-4xl font-semibold tracking-[-0.06em] text-white sm:text-5xl lg:text-6xl">
             {t("landing.showcase.title")}
           </h2>
