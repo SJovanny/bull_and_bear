@@ -1,9 +1,10 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState, useCallback } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+
 import { DashboardShell } from "@/components/dashboard-shell";
 import { JournalEntryModal } from "@/components/journal-entry-modal";
-import { formatNumber, compactPnl, pnlColorClass, pnlBgClass } from "@/lib/format";
+import { compactPnl, pnlColorClass } from "@/lib/format";
 import { useSelectedAccountId } from "@/hooks/use-selected-account-id";
 import { useTranslation } from "@/lib/i18n/context";
 import type { Trade } from "@/types";
@@ -34,8 +35,23 @@ function toDateKey(date: Date) {
   return date.toISOString().slice(0, 10);
 }
 
+function startOfMonth(date: Date) {
+  return new Date(date.getFullYear(), date.getMonth(), 1);
+}
+
+function addMonths(date: Date, amount: number) {
+  return new Date(date.getFullYear(), date.getMonth() + amount, 1);
+}
+
+function isSameMonth(left: Date, right: Date) {
+  return left.getFullYear() === right.getFullYear() && left.getMonth() === right.getMonth();
+}
+
 function formatMonthYearUpper(date: Date, locale: string) {
-  const parts = new Intl.DateTimeFormat(locale === "fr" ? "fr-FR" : "en-US", { month: "long", year: "numeric" }).formatToParts(date);
+  const parts = new Intl.DateTimeFormat(locale === "fr" ? "fr-FR" : "en-US", {
+    month: "long",
+    year: "numeric",
+  }).formatToParts(date);
   return parts.map((part) => (part.type === "month" ? part.value.toUpperCase() : part.value)).join("");
 }
 
@@ -49,42 +65,47 @@ export default function JournalPage() {
 
 function JournalPageContent() {
   const selectedAccountId = useSelectedAccountId();
+  const { t, locale } = useTranslation();
+
   const [trades, setTrades] = useState<Trade[]>([]);
   const [journals, setJournals] = useState<JournalEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string>(() => toDateKey(new Date()));
-  const { t, locale } = useTranslation();
+  const [selectedMonth, setSelectedMonth] = useState(() => startOfMonth(new Date()));
 
   const loadData = useCallback(async () => {
-    if (!selectedAccountId) return;
+    if (!selectedAccountId) {
+      return;
+    }
+
     setLoading(true);
     setError(null);
+
     try {
       const [tradesRes, journalsRes] = await Promise.all([
         fetch(`/api/trades?accountId=${selectedAccountId}`),
-        fetch(`/api/journals?accountId=${selectedAccountId}`) // Needs backend route or we fetch individual days (we need a list route)
+        fetch(`/api/journals?accountId=${selectedAccountId}`),
       ]);
-      
+
       const tradesPayload = await tradesRes.json();
-      if (!tradesRes.ok) throw new Error(tradesPayload.error || "Failed to load trades");
+      if (!tradesRes.ok) {
+        throw new Error(tradesPayload.error || "Failed to load trades");
+      }
       setTrades(tradesPayload.trades || []);
 
-      // Fake journals if the backend list route doesn't exist yet (will build that next)
       if (journalsRes.ok) {
-         const journalsPayload = await journalsRes.json();
-         setJournals(journalsPayload.journals || []);
+        const journalsPayload = await journalsRes.json();
+        setJournals(journalsPayload.journals || []);
       }
-      
-      } catch (err: unknown) {
-        if (err instanceof Error) {
-           setError(err.message);
-        } else {
-           setError("Unknown error");
-        }
-      } finally {
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Unknown error");
+      }
+    } finally {
       setLoading(false);
     }
   }, [selectedAccountId]);
@@ -93,54 +114,68 @@ function JournalPageContent() {
     loadData();
   }, [loadData]);
 
-  const summariesByMonth = useMemo(() => {
+  const monthSummaries = useMemo(() => {
     const dayMap = new Map<string, DaySummary>();
 
-    // 1. Map trades
     trades.forEach((trade) => {
-      const key = toDateKey(new Date(trade.openedAt));
-      const pnl = Number(trade.netPnl ?? 0);
-      const current = dayMap.get(key) || { dateStr: key, dateObj: new Date(`${key}T12:00:00`), pnl: 0, tradeCount: 0, journal: null };
-      current.pnl += pnl;
+      const tradeDate = new Date(trade.openedAt);
+      if (!isSameMonth(tradeDate, selectedMonth)) {
+        return;
+      }
+
+      const key = toDateKey(tradeDate);
+      const current = dayMap.get(key) || {
+        dateStr: key,
+        dateObj: new Date(`${key}T12:00:00`),
+        pnl: 0,
+        tradeCount: 0,
+        journal: null,
+      };
+
+      current.pnl += Number(trade.netPnl ?? 0);
       current.tradeCount += 1;
       dayMap.set(key, current);
     });
 
-    // 2. Map journals
     journals.forEach((journal) => {
-      const key = new Date(journal.date).toISOString().slice(0, 10);
-      const current = dayMap.get(key) || { dateStr: key, dateObj: new Date(`${key}T12:00:00`), pnl: 0, tradeCount: 0, journal: null };
+      const journalDate = new Date(journal.date);
+      if (!isSameMonth(journalDate, selectedMonth)) {
+        return;
+      }
+
+      const key = journalDate.toISOString().slice(0, 10);
+      const current = dayMap.get(key) || {
+        dateStr: key,
+        dateObj: new Date(`${key}T12:00:00`),
+        pnl: 0,
+        tradeCount: 0,
+        journal: null,
+      };
+
       current.journal = journal;
       dayMap.set(key, current);
     });
 
-    // Sort descending
-    const sortedDays = Array.from(dayMap.values()).sort((a, b) => b.dateStr.localeCompare(a.dateStr));
-
-    // Group by month string (e.g. "MARS 2026")
-    const grouped = new Map<string, DaySummary[]>();
-    sortedDays.forEach(day => {
-       const monthStr = formatMonthYearUpper(day.dateObj, locale);
-       const bucket = grouped.get(monthStr) || [];
-       bucket.push(day);
-       grouped.set(monthStr, bucket);
-    });
-
-    return grouped;
-  }, [trades, journals]);
+    return Array.from(dayMap.values()).sort((a, b) => b.dateStr.localeCompare(a.dateStr));
+  }, [journals, selectedMonth, trades]);
 
   function handleOpenModal(dateKey?: string) {
     if (dateKey) {
       setSelectedDate(dateKey);
     } else {
-      setSelectedDate(toDateKey(new Date()));
+      const today = new Date();
+      setSelectedDate(toDateKey(isSameMonth(selectedMonth, today) ? today : selectedMonth));
     }
+
     setIsModalOpen(true);
   }
 
+  const isCurrentMonth = isSameMonth(selectedMonth, new Date());
+  const selectedMonthLabel = formatMonthYearUpper(selectedMonth, locale);
+
   return (
-    <DashboardShell 
-      title={t("journal.title")} 
+    <DashboardShell
+      title={t("journal.title")}
       actions={
         <button
           type="button"
@@ -152,20 +187,42 @@ function JournalPageContent() {
       }
     >
       <div className="mx-auto w-full max-w-5xl space-y-12">
-        
-        {error ? <div className="rounded-xl border border-pnl-negative/20 bg-pnl-negative/5 px-4 py-3 text-sm text-pnl-negative font-sans">{error}</div> : null}
-        
-        {loading && summariesByMonth.size === 0 ? (
-          <div className="flex items-center justify-center py-20 text-secondary font-sans animate-pulse">
-            {t("journal.loading")}
+        <div className="flex items-center justify-between gap-4 rounded-2xl border border-border bg-surface-1 px-4 py-3 shadow-sm">
+          <button
+            type="button"
+            onClick={() => setSelectedMonth((current) => addMonths(current, -1))}
+            className="inline-flex h-10 items-center justify-center rounded-lg border border-border px-4 text-sm font-semibold text-primary transition hover:bg-surface-2 font-sans"
+          >
+            {t("calendar.prevMonth")}
+          </button>
+
+          <div className="text-center">
+            <p className="font-sans text-[10px] font-bold uppercase tracking-[0.18em] text-secondary">{t("calendar.date")}</p>
+            <h2 className="mt-1 font-sans text-lg font-bold text-primary sm:text-xl">{selectedMonthLabel}</h2>
           </div>
+
+          <button
+            type="button"
+            onClick={() => setSelectedMonth((current) => addMonths(current, 1))}
+            disabled={isCurrentMonth}
+            className="inline-flex h-10 items-center justify-center rounded-lg border border-border px-4 text-sm font-semibold text-primary transition hover:bg-surface-2 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent font-sans"
+          >
+            {t("calendar.nextMonth")}
+          </button>
+        </div>
+
+        {error ? <div className="rounded-xl border border-pnl-negative/20 bg-pnl-negative/5 px-4 py-3 font-sans text-sm text-pnl-negative">{error}</div> : null}
+
+        {loading && monthSummaries.length === 0 ? (
+          <div className="flex items-center justify-center py-20 font-sans text-secondary animate-pulse">{t("journal.loading")}</div>
         ) : null}
 
-        {!loading && summariesByMonth.size === 0 ? (
+        {!loading && monthSummaries.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border bg-surface-1 p-12 text-center shadow-sm">
-            <h3 className="text-lg font-bold text-primary font-sans">{t("journal.emptyTitle")}</h3>
-            <p className="mt-2 text-sm text-secondary font-sans max-w-sm mx-auto">{t("journal.emptyDesc")}</p>
+            <h3 className="font-sans text-lg font-bold text-primary">{t("journal.emptyTitle")}</h3>
+            <p className="mx-auto mt-2 max-w-sm font-sans text-sm text-secondary">{t("journal.emptyDesc")}</p>
             <button
+              type="button"
               onClick={() => handleOpenModal()}
               className="mt-6 inline-flex h-10 items-center justify-center rounded-lg bg-brand-500 px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-600 font-sans"
             >
@@ -174,85 +231,77 @@ function JournalPageContent() {
           </div>
         ) : null}
 
-        {Array.from(summariesByMonth.entries()).map(([monthName, days]) => (
-          <section key={monthName} className="space-y-6">
-            
-            {/* Month Separator */}
+        {monthSummaries.length > 0 ? (
+          <section className="space-y-6">
             <div className="flex items-center gap-4">
-               <h2 className="text-xs font-bold tracking-[0.2em] text-secondary font-sans">{monthName}</h2>
-               <div className="h-px flex-1 bg-border/60"></div>
+              <h2 className="font-sans text-xs font-bold tracking-[0.2em] text-secondary">{selectedMonthLabel}</h2>
+              <div className="h-px flex-1 bg-border/60" />
             </div>
 
-            {/* Flashcards Grid */}
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {days.map((day) => {
-                
-                // Truncate notes
-                const previewNote = day.journal?.notes 
-                  ? (day.journal.notes.length > 80 ? day.journal.notes.substring(0, 80) + "..." : day.journal.notes)
+              {monthSummaries.map((day) => {
+                const previewNote = day.journal?.notes
+                  ? (day.journal.notes.length > 80 ? `${day.journal.notes.substring(0, 80)}...` : day.journal.notes)
                   : t("journal.noNote");
 
                 return (
                   <button
                     key={day.dateStr}
+                    type="button"
                     onClick={() => handleOpenModal(day.dateStr)}
-                    className="group relative flex min-h-[160px] flex-col overflow-hidden rounded-2xl border border-border bg-surface-1 p-5 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-brand-500 hover:shadow-md text-left"
+                    className="group relative flex min-h-[160px] flex-col overflow-hidden rounded-2xl border border-border bg-surface-1 p-5 text-left shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-brand-500 hover:shadow-md"
                   >
-                    {/* Header: Date + PnL */}
-                    <div className="flex items-start justify-between w-full mb-4">
+                    <div className="mb-4 flex w-full items-start justify-between">
                       <div className="space-y-1">
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-secondary font-sans">
+                        <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-secondary">
                           {day.dateObj.toLocaleDateString(locale === "fr" ? "fr-FR" : "en-US", { weekday: "short" })}
                         </span>
-                        <p className="text-xl font-black text-primary font-sans leading-none">{day.dateObj.getDate()}</p>
+                        <p className="font-sans text-xl font-black leading-none text-primary">{day.dateObj.getDate()}</p>
                       </div>
-                      
-                      {day.tradeCount > 0 && (
-                        <div className={`flex flex-col items-end`}>
-                          <span className={`text-sm font-bold font-mono tracking-tight ${pnlColorClass(day.pnl)}`}>
-                            {day.pnl > 0 ? "+" : ""}{compactPnl(day.pnl)}
+
+                      {day.tradeCount > 0 ? (
+                        <div className="flex flex-col items-end">
+                          <span className={`font-mono text-sm font-bold tracking-tight ${pnlColorClass(day.pnl)}`}>
+                            {day.pnl > 0 ? "+" : ""}
+                            {compactPnl(day.pnl)}
                           </span>
-                          <span className="text-[10px] font-semibold text-secondary uppercase font-sans">
+                          <span className="font-sans text-[10px] font-semibold uppercase text-secondary">
                             {day.tradeCount} {day.tradeCount > 1 ? t("common.trades") : t("common.trade")}
                           </span>
                         </div>
-                      )}
+                      ) : null}
                     </div>
 
-                    {/* Middle: Tags / Execution */}
-                    <div className="mb-4 flex flex-wrap gap-1.5 min-h-[24px]">
+                    <div className="mb-4 flex min-h-[24px] flex-wrap gap-1.5">
                       {day.journal?.executionRating ? (
                         <span className="inline-flex items-center rounded-md border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-bold text-amber-700">
-                           ★ {day.journal.executionRating}/5
+                          * {day.journal.executionRating}/5
                         </span>
                       ) : null}
-                      
-                      {Array.isArray(day.journal?.mentalState) && day.journal!.mentalState.length > 0 ? (
-                        day.journal!.mentalState.slice(0, 2).map((state, i) => (
-                           <span key={i} className="inline-flex items-center rounded-md border border-purple-200 bg-purple-50 px-1.5 py-0.5 text-[10px] font-bold text-purple-700">
-                             {state}
-                           </span>
-                        ))
-                      ) : null}
+
+                      {Array.isArray(day.journal?.mentalState) && day.journal.mentalState.length > 0
+                        ? day.journal.mentalState.slice(0, 2).map((state, index) => (
+                            <span key={index} className="inline-flex items-center rounded-md border border-purple-200 bg-purple-50 px-1.5 py-0.5 text-[10px] font-bold text-purple-700">
+                              {state}
+                            </span>
+                          ))
+                        : null}
                     </div>
 
-                    {/* Bottom: Note preview */}
                     <div className="mt-auto border-t border-border pt-3">
-                      <p className={`text-xs leading-relaxed font-sans ${day.journal?.notes ? "text-primary" : "text-secondary italic"}`}>
+                      <p className={`font-sans text-xs leading-relaxed ${day.journal?.notes ? "text-primary" : "italic text-secondary"}`}>
                         &quot;{previewNote}&quot;
                       </p>
                     </div>
-
                   </button>
                 );
               })}
             </div>
           </section>
-        ))}
-
+        ) : null}
       </div>
 
-      <JournalEntryModal 
+      <JournalEntryModal
         isOpen={isModalOpen}
         dateStr={selectedDate}
         accountId={selectedAccountId}
