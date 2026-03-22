@@ -118,6 +118,9 @@ export type TranslationKeys = {
   // ─── Logout ─────────────────────────────────────────────────
   "logout.button": string;
   "logout.tooltip": string;
+  "session.idleWarning": string;
+  "session.idlePrompt": string;
+  "session.stayConnected": string;
 
   // ─── Account Switcher ───────────────────────────────────────
   "accountSwitcher.label": string;

@@ -118,6 +118,9 @@ export const fr: TranslationKeys = {
   // ─── Logout ─────────────────────────────────────────────────
   "logout.button": "Déconnexion",
   "logout.tooltip": "Déconnexion",
+  "session.idleWarning": "Votre session va bientôt être fermée pour cause d'inactivité.",
+  "session.idlePrompt": "Interagissez avec l'application pour rester connecté.",
+  "session.stayConnected": "Rester connecté",
 
   // ─── Account Switcher ───────────────────────────────────────
   "accountSwitcher.label": "Choisir un compte",

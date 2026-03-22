@@ -118,6 +118,9 @@ export const en: TranslationKeys = {
   // ─── Logout ─────────────────────────────────────────────────
   "logout.button": "Log out",
   "logout.tooltip": "Log out",
+  "session.idleWarning": "Your session is about to end because of inactivity.",
+  "session.idlePrompt": "Interact with the app to stay signed in.",
+  "session.stayConnected": "Stay signed in",
 
   // ─── Account Switcher ───────────────────────────────────────
   "accountSwitcher.label": "Choose an account",

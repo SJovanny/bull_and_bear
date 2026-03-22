@@ -4,6 +4,7 @@ import { type ReactNode } from "react";
 import { Sidebar } from "./sidebar";
 import { HeaderBar } from "./header-bar";
 import { MobileBottomNav } from "./mobile-bottom-nav";
+import { IdleSessionGuard } from "./idle-session-guard";
 
 type DashboardShellProps = {
   title: string;
@@ -15,6 +16,8 @@ type DashboardShellProps = {
 export function DashboardShell({ title, subtitle, actions, children }: DashboardShellProps) {
   return (
     <div className="min-h-screen bg-bg text-primary">
+      <IdleSessionGuard />
+
       <div className="flex min-h-screen w-full">
         <Sidebar />
 
