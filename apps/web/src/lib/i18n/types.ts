@@ -359,6 +359,33 @@ export type TranslationKeys = {
   "journalModal.netPnl": string;
   "journalModal.tradesList": string;
   "journalModal.noTrades": string;
+  "journalModal.closeEvent": string;
+  "journalModal.forecastPlaceholder": string;
+  "journalModal.long": string;
+  "journalModal.short": string;
+  "journalModal.loadJournalError": string;
+  "journalModal.loadTradesError": string;
+  "journalModal.saveError": string;
+  "journalModal.unknownError": string;
+  "journalModal.strategyBreakout": string;
+  "journalModal.strategyPullback": string;
+  "journalModal.strategyReversal": string;
+  "journalModal.strategyTrendFollowing": string;
+  "journalModal.strategyScalp": string;
+  "journalModal.strategyRange": string;
+  "journalModal.mentalCalm": string;
+  "journalModal.mentalFocused": string;
+  "journalModal.mentalTired": string;
+  "journalModal.mentalAnxious": string;
+  "journalModal.mentalFomo": string;
+  "journalModal.mentalTilt": string;
+  "journalModal.mentalOverconfident": string;
+  "journalModal.mistakeOvertrading": string;
+  "journalModal.mistakeRevengeTrading": string;
+  "journalModal.mistakeMovedStopLoss": string;
+  "journalModal.mistakeForcedEntry": string;
+  "journalModal.mistakeTooLargeSize": string;
+  "journalModal.mistakeHesitated": string;
 
   // ─── Trade Entry Modal ──────────────────────────────────────
   "tradeModal.newTrade": string;

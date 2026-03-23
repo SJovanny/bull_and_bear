@@ -3,6 +3,15 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { formatNumber, pnlColorClass, compactPnl } from "@/lib/format";
+import {
+  journalMentalStates,
+  journalMistakes,
+  journalStrategies,
+  mentalStateLabelKeys,
+  mistakeLabelKeys,
+  strategyLabelKeys,
+} from "@/lib/journal-labels";
+import { useTranslation } from "@/lib/i18n/context";
 import type { Trade } from "@/types";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -79,17 +88,10 @@ async function readResponsePayload(response: Response) {
   }
 }
 
-const strategiesList = ["Breakout", "Pullback", "Reversal", "Trend Following", "Scalp", "Range"];
-const mentalStatesList = ["Calm", "Focused", "Tired", "Anxious", "FOMO", "Tilt", "Overconfident"];
-const mistakesList = ["Overtrading", "Revenge Trading", "Moved Stop Loss", "Forced Entry", "Too Large Size", "Hesitated"];
-
 const impactColors: Record<EconomicEvent["impact"], string> = {
   low:    "bg-slate-100 text-slate-600 border-slate-200",
   medium: "bg-amber-50 text-amber-700 border-amber-200",
   high:   "bg-rose-50 text-rose-700 border-rose-200",
-};
-const impactLabels: Record<EconomicEvent["impact"], string> = {
-  low: "Faible", medium: "Moyen", high: "Fort",
 };
 
 // ─── Modal ───────────────────────────────────────────────────────────────────
@@ -103,6 +105,7 @@ type JournalEntryModalProps = {
 };
 
 export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved }: JournalEntryModalProps) {
+  const { t, locale } = useTranslation();
   const [journal, setJournal] = useState<JournalEntry>(defaultJournal);
   const [trades, setTrades] = useState<Trade[]>([]);
   const [loading, setLoading] = useState(false);
@@ -131,14 +134,14 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
           throw new Error(
             (journalPayload && typeof journalPayload === "object" && "error" in journalPayload && typeof journalPayload.error === "string"
               ? journalPayload.error
-              : null) || "Failed to load journal"
+              : null) || t("journalModal.loadJournalError")
           );
         }
         if (!tradesRes.ok) {
           throw new Error(
             (tradesPayload && typeof tradesPayload === "object" && "error" in tradesPayload && typeof tradesPayload.error === "string"
               ? tradesPayload.error
-              : null) || "Failed to load trades"
+              : null) || t("journalModal.loadTradesError")
           );
         }
 
@@ -167,14 +170,14 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
         setTrades(allTrades.filter(t => t.openedAt.startsWith(dateStr)));
 
       } catch (err: unknown) {
-        setError(err instanceof Error ? err.message : "Unknown error");
+        setError(err instanceof Error ? err.message : t("journalModal.unknownError"));
       } finally {
         setLoading(false);
       }
     }
 
     loadData();
-  }, [isOpen, accountId, dateStr]);
+  }, [isOpen, accountId, dateStr, t]);
 
   if (!isOpen) return null;
 
@@ -196,13 +199,13 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
         throw new Error(
           (payload && typeof payload === "object" && "error" in payload && typeof payload.error === "string"
             ? payload.error
-            : null) || "Failed to save journal"
+            : null) || t("journalModal.saveError")
         );
       }
       onSaved();
       onClose();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Unknown error");
+      setError(err instanceof Error ? err.message : t("journalModal.unknownError"));
     } finally {
       setSaving(false);
     }
@@ -238,9 +241,14 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
   // ── Misc ──────────────────────────────────────────────────────────────────
 
   const dailyPnl   = trades.reduce((sum, t) => sum + Number(t.netPnl || 0), 0);
-  const displayDate = new Date(`${dateStr}T12:00:00`).toLocaleDateString("fr-FR", {
+  const displayDate = new Date(`${dateStr}T12:00:00`).toLocaleDateString(locale === "fr" ? "fr-FR" : "en-US", {
     weekday: "long", day: "numeric", month: "long", year: "numeric",
   });
+  const impactLabels: Record<EconomicEvent["impact"], string> = {
+    low: t("journalModal.impactLow"),
+    medium: t("journalModal.impactMedium"),
+    high: t("journalModal.impactHigh"),
+  };
 
   // ── Render ────────────────────────────────────────────────────────────────
 
@@ -258,17 +266,17 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
         {/* ── Header ─────────────────────────────────────────────────────── */}
         <div className="flex shrink-0 items-center justify-between border-b border-border bg-surface-1/80 px-4 py-3 sm:px-6 backdrop-blur-md">
           <div>
-            <h2 className="text-sm font-bold uppercase tracking-widest text-secondary font-sans">Carnet de bord</h2>
+            <h2 className="text-sm font-bold uppercase tracking-widest text-secondary font-sans">{t("journalModal.title")}</h2>
             <p className="text-lg font-semibold text-primary capitalize">{displayDate}</p>
           </div>
           <div className="flex items-center gap-3">
             <button type="button" onClick={onClose}
               className="inline-flex h-9 items-center justify-center rounded-lg px-3 text-sm font-medium text-secondary hover:bg-surface-2 hover:text-primary transition-colors font-sans">
-              Annuler
+              {t("journalModal.cancel")}
             </button>
             <button type="button" onClick={handleSave} disabled={saving || loading}
               className="inline-flex h-9 items-center justify-center rounded-lg bg-brand-500 px-4 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50 font-sans shadow-sm">
-              {saving ? "Sauvegarde..." : "Sauvegarder"}
+              {saving ? t("journalModal.saving") : t("journalModal.save")}
             </button>
           </div>
         </div>
@@ -288,7 +296,7 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
 
               {loading ? (
                 <div className="flex items-center justify-center py-20 text-secondary font-sans">
-                  <span className="animate-pulse">Ouverture du carnet...</span>
+                  <span className="animate-pulse">{t("journalModal.loading")}</span>
                 </div>
               ) : (
                 <>
@@ -297,21 +305,21 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
                     value={journal.notes}
                     onChange={e => setJournal({ ...journal, notes: e.target.value })}
                     className="w-full resize-none bg-transparent text-xl font-medium text-primary placeholder:text-secondary/40 outline-none leading-relaxed min-h-[120px]"
-                    placeholder="Comment s'est passée la journée ? (Notes libres...)"
+                    placeholder={t("journalModal.notesPlaceholder")}
                   />
 
                   {/* ── Pre-Market ──────────────────────────────────────── */}
                   <div className="space-y-6 rounded-2xl bg-surface-1 p-6 shadow-sm border border-border/50">
                     <h3 className="flex items-center gap-2 text-sm font-bold text-primary font-sans">
                       <span className="flex h-6 w-6 items-center justify-center rounded bg-surface-2 text-xs">🌅</span>
-                      Préparation (Pre-Market)
+                      {t("journalModal.preMarket")}
                     </h3>
 
                     {/* ── Economic Events ─────────────────────────────── */}
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <label className="text-xs font-bold uppercase tracking-wider text-secondary font-sans">
-                          Annonces Économiques
+                          {t("journalModal.economicEvents")}
                         </label>
                         <button
                           type="button"
@@ -321,7 +329,7 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
                           <svg fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="h-3 w-3">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                           </svg>
-                          Ajouter
+                          {t("journalModal.addEvent")}
                         </button>
                       </div>
 
@@ -331,7 +339,7 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
                           onClick={addEvent}
                           className="w-full rounded-xl border border-dashed border-border py-5 text-sm text-secondary hover:border-brand-400 hover:text-brand-500 transition-colors font-sans"
                         >
-                          + Cliquez pour ajouter une annonce économique
+                          {t("journalModal.addEventCta")}
                         </button>
                       )}
 
@@ -361,7 +369,7 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
                                 type="text"
                                 value={event.name}
                                 onChange={e => updateEvent(event.id, "name", e.target.value)}
-                                placeholder="Nom de l'annonce (ex: CPI, NFP...)"
+                                placeholder={t("journalModal.eventName")}
                                 className="h-8 flex-1 min-w-[140px] rounded-lg border border-border bg-surface-1 px-3 text-sm text-primary placeholder:text-secondary/50 outline-none focus:ring-2 focus:ring-brand-500 font-sans"
                               />
 
@@ -381,7 +389,7 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
                                 type="button"
                                 onClick={() => removeEvent(event.id)}
                                 className="ml-auto flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-secondary hover:bg-pnl-negative/10 hover:text-pnl-negative transition-colors"
-                                aria-label="Supprimer l'annonce"
+                                aria-label={t("journalModal.closeEvent")}
                               >
                                 <svg fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-4 w-4">
                                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -393,26 +401,26 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
                             <div className="grid grid-cols-2 gap-3">
                               <div className="space-y-1">
                                 <label className="text-[10px] font-bold uppercase tracking-wider text-secondary font-sans">
-                                  Prévu / Consensus
+                                  {t("journalModal.forecast")}
                                 </label>
                                 <input
                                   type="text"
                                   value={event.forecast}
                                   onChange={e => updateEvent(event.id, "forecast", e.target.value)}
-                                  placeholder="ex: 200k, 0.3%, 2.5%"
+                                  placeholder={t("journalModal.forecastPlaceholder")}
                                   className="h-9 w-full rounded-lg border border-border bg-surface-1 px-3 text-sm font-mono text-primary placeholder:text-secondary/40 outline-none focus:ring-2 focus:ring-brand-500"
                                 />
                               </div>
                               <div className="space-y-1">
                                 <label className="text-[10px] font-bold uppercase tracking-wider text-secondary font-sans">
-                                  Résultat Réel
+                                  {t("journalModal.actual")}
                                 </label>
                                 <div className="relative">
                                   <input
                                     type="text"
                                     value={event.actual}
                                     onChange={e => updateEvent(event.id, "actual", e.target.value)}
-                                    placeholder="À remplir après l'annonce..."
+                                    placeholder={t("journalModal.actualPlaceholder")}
                                     className={`h-9 w-full rounded-lg border px-3 text-sm font-mono placeholder:text-secondary/40 outline-none focus:ring-2 font-sans transition-colors ${
                                       event.actual
                                         ? "border-pnl-positive/40 bg-pnl-positive/5 text-pnl-positive focus:ring-pnl-positive/30"
@@ -433,28 +441,28 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
                     {/* Market Conditions */}
                     <div className="space-y-1.5">
                       <label className="text-xs font-bold uppercase tracking-wider text-secondary font-sans">
-                        Conditions de marché
+                        {t("journalModal.marketConditions")}
                       </label>
                       <input
                         type="text"
                         value={journal.marketConditions}
                         onChange={e => setJournal({ ...journal, marketConditions: e.target.value })}
                         className="w-full bg-transparent border-b border-border/60 px-0 py-2 text-sm text-primary outline-none transition-colors focus:border-brand-500 placeholder:text-secondary/50 font-sans"
-                        placeholder="Tendance générale, volatilité, biais du jour..."
+                        placeholder={t("journalModal.marketConditionsPlaceholder")}
                       />
                     </div>
 
                     {/* Key Levels */}
                     <div className="space-y-1.5">
                       <label className="text-xs font-bold uppercase tracking-wider text-secondary font-sans">
-                        Niveaux clés / Watchlist
+                        {t("journalModal.keyLevels")}
                       </label>
                       <input
                         type="text"
                         value={journal.keyLevels}
                         onChange={e => setJournal({ ...journal, keyLevels: e.target.value })}
                         className="w-full bg-transparent border-b border-border/60 px-0 py-2 text-sm text-primary outline-none transition-colors focus:border-brand-500 placeholder:text-secondary/50 font-sans"
-                        placeholder="Supports, résistances, actifs surveillés..."
+                        placeholder={t("journalModal.keyLevelsPlaceholder")}
                       />
                     </div>
                   </div>
@@ -463,10 +471,10 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
                   <div className="space-y-6 rounded-2xl bg-surface-1 p-6 shadow-sm border border-border/50">
                     <h3 className="flex items-center gap-2 text-sm font-bold text-primary font-sans">
                       <span className="flex h-6 w-6 items-center justify-center rounded bg-surface-2 text-xs">🎯</span>
-                      Exécution &amp; Discipline
+                      {t("journalModal.execution")}
                     </h3>
                     <div className="space-y-3">
-                      <label className="text-xs font-bold uppercase tracking-wider text-secondary font-sans">Note de discipline</label>
+                      <label className="text-xs font-bold uppercase tracking-wider text-secondary font-sans">{t("journalModal.disciplineRating")}</label>
                       <div className="flex gap-2">
                         {[1, 2, 3, 4, 5].map(rating => (
                           <button
@@ -485,9 +493,9 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
                       </div>
                     </div>
                     <div className="space-y-3">
-                      <label className="text-xs font-bold uppercase tracking-wider text-secondary font-sans">Stratégies jouées</label>
+                      <label className="text-xs font-bold uppercase tracking-wider text-secondary font-sans">{t("journalModal.strategiesPlayed")}</label>
                       <div className="flex flex-wrap gap-2">
-                        {strategiesList.map(strategy => (
+                        {journalStrategies.map((strategy) => (
                           <button
                             key={strategy}
                             type="button"
@@ -498,7 +506,7 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
                                 : "bg-surface-2 border-transparent text-secondary hover:text-primary hover:bg-surface-1 hover:border-border"
                             }`}
                           >
-                            {strategy}
+                            {t(strategyLabelKeys[strategy])}
                           </button>
                         ))}
                       </div>
@@ -509,31 +517,31 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
                   <div className="space-y-6 rounded-2xl bg-surface-1 p-6 shadow-sm border border-border/50">
                     <h3 className="flex items-center gap-2 text-sm font-bold text-primary font-sans">
                       <span className="flex h-6 w-6 items-center justify-center rounded bg-surface-2 text-xs">🧠</span>
-                      Psychologie
+                      {t("journalModal.psychology")}
                     </h3>
                     <div className="space-y-3">
-                      <label className="text-xs font-bold uppercase tracking-wider text-secondary font-sans">État Mental</label>
+                      <label className="text-xs font-bold uppercase tracking-wider text-secondary font-sans">{t("journalModal.mentalState")}</label>
                       <div className="flex flex-wrap gap-2">
-                        {mentalStatesList.map(state => (
+                        {journalMentalStates.map((state) => (
                           <button key={state} type="button" onClick={() => toggleArrayItem("mentalState", state)}
                             className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-200 border ${
                               journal.mentalState.includes(state)
                                 ? "bg-purple-500 border-purple-500 text-white shadow-sm"
                                 : "bg-surface-2 border-transparent text-secondary hover:text-primary hover:bg-surface-1 hover:border-border"
-                            }`}>{state}</button>
+                            }`}>{t(mentalStateLabelKeys[state])}</button>
                         ))}
                       </div>
                     </div>
                     <div className="space-y-3">
-                      <label className="text-xs font-bold uppercase tracking-wider text-secondary font-sans">Erreurs Commises</label>
+                      <label className="text-xs font-bold uppercase tracking-wider text-secondary font-sans">{t("journalModal.mistakes")}</label>
                       <div className="flex flex-wrap gap-2">
-                        {mistakesList.map(mistake => (
+                        {journalMistakes.map((mistake) => (
                           <button key={mistake} type="button" onClick={() => toggleArrayItem("mistakes", mistake)}
                             className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-200 border ${
                               journal.mistakes.includes(mistake)
                                 ? "bg-rose-500 border-rose-500 text-white shadow-sm"
                                 : "bg-surface-2 border-transparent text-secondary hover:text-primary hover:bg-surface-1 hover:border-border"
-                            }`}>{mistake}</button>
+                            }`}>{t(mistakeLabelKeys[mistake])}</button>
                         ))}
                       </div>
                     </div>
@@ -543,13 +551,13 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
                   <div className="space-y-4 rounded-2xl bg-brand-500/5 p-6 border border-brand-500/20">
                     <h3 className="flex items-center gap-2 text-sm font-bold text-brand-600 font-sans">
                       <span className="flex h-6 w-6 items-center justify-center rounded bg-brand-500 text-white text-xs">💡</span>
-                      Leçons apprises
+                      {t("journalModal.lessons")}
                     </h3>
                     <textarea
                       value={journal.lessonsLearned}
                       onChange={e => setJournal({ ...journal, lessonsLearned: e.target.value })}
                       className="w-full resize-none bg-transparent text-sm text-primary placeholder:text-brand-500/40 outline-none leading-relaxed min-h-[80px] font-sans"
-                      placeholder="Qu'est-ce que je retiens d'important aujourd'hui ?"
+                      placeholder={t("journalModal.lessonsPlaceholder")}
                     />
                   </div>
                 </>
@@ -560,26 +568,26 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
           {/* Right: Trades sidebar */}
           <div className="w-full md:w-80 shrink-0 border-t md:border-t-0 md:border-l border-border bg-surface-1 flex flex-col">
             <div className="p-5 sm:p-6 border-b border-border bg-surface-2/30">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-secondary mb-4 font-sans">Résultat Réel</h3>
+              <h3 className="text-xs font-bold uppercase tracking-widest text-secondary mb-4 font-sans">{t("journalModal.actualResult")}</h3>
               <div className="flex items-end justify-between">
                 <div>
-                  <p className="text-[10px] uppercase font-bold text-secondary tracking-wider mb-1">PnL Net</p>
+                  <p className="text-[10px] uppercase font-bold text-secondary tracking-wider mb-1">{t("journalModal.netPnl")}</p>
                   <p className={`text-3xl font-black font-mono tracking-tight ${pnlColorClass(dailyPnl)}`}>
                     {dailyPnl > 0 ? "+" : ""}{formatNumber(dailyPnl)}
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-[10px] uppercase font-bold text-secondary tracking-wider mb-1">Trades</p>
+                  <p className="text-[10px] uppercase font-bold text-secondary tracking-wider mb-1">{t("common.trades")}</p>
                   <p className="text-xl font-bold font-mono text-primary">{trades.length}</p>
                 </div>
               </div>
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-secondary font-sans ml-2">Liste des trades</h3>
+              <h3 className="text-xs font-bold uppercase tracking-widest text-secondary font-sans ml-2">{t("journalModal.tradesList")}</h3>
               {trades.length === 0 ? (
                 <p className="p-4 text-center text-sm text-secondary font-sans border border-dashed border-border rounded-xl">
-                  Aucun trade enregistré à cette date.
+                  {t("journalModal.noTrades")}
                 </p>
               ) : (
                 trades.map(trade => (
@@ -597,7 +605,7 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
                     </div>
                     <div className="flex justify-between items-center text-xs text-secondary font-sans">
                       <span className={`px-1.5 py-0.5 rounded-md font-semibold ${trade.side === "LONG" ? "bg-emerald-500/10 text-emerald-600" : "bg-rose-500/10 text-rose-600"}`}>
-                        {trade.side}
+                        {trade.side === "LONG" ? t("journalModal.long") : t("journalModal.short")}
                       </span>
                       <span className="font-mono">
                         {new Date(trade.openedAt).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}

@@ -7,6 +7,7 @@ import { JournalEntryModal } from "@/components/journal-entry-modal";
 import { compactPnl, pnlColorClass } from "@/lib/format";
 import { useSelectedAccountId } from "@/hooks/use-selected-account-id";
 import { useTranslation } from "@/lib/i18n/context";
+import { mentalStateLabelKeys } from "@/lib/journal-labels";
 import type { Trade } from "@/types";
 
 type JournalEntry = {
@@ -91,7 +92,7 @@ function JournalPageContent() {
 
       const tradesPayload = await tradesRes.json();
       if (!tradesRes.ok) {
-        throw new Error(tradesPayload.error || "Failed to load trades");
+        throw new Error(tradesPayload.error || t("journalModal.loadTradesError"));
       }
       setTrades(tradesPayload.trades || []);
 
@@ -103,12 +104,12 @@ function JournalPageContent() {
       if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError("Unknown error");
+        setError(t("journalModal.unknownError"));
       }
     } finally {
       setLoading(false);
     }
-  }, [selectedAccountId]);
+  }, [selectedAccountId, t]);
 
   useEffect(() => {
     loadData();
@@ -282,7 +283,9 @@ function JournalPageContent() {
                       {Array.isArray(day.journal?.mentalState) && day.journal.mentalState.length > 0
                         ? day.journal.mentalState.slice(0, 2).map((state, index) => (
                             <span key={index} className="inline-flex items-center rounded-md border border-purple-200 bg-purple-50 px-1.5 py-0.5 text-[10px] font-bold text-purple-700">
-                              {state}
+                              {Object.prototype.hasOwnProperty.call(mentalStateLabelKeys, state)
+                                ? t(mentalStateLabelKeys[state as keyof typeof mentalStateLabelKeys])
+                                : state}
                             </span>
                           ))
                         : null}

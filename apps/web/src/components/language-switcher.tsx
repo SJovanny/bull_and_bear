@@ -1,7 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
 import { useTranslation } from "@/lib/i18n/context";
 
 function FlagIcon({ locale }: { locale: "fr" | "en" }) {
@@ -28,48 +26,27 @@ function FlagIcon({ locale }: { locale: "fr" | "en" }) {
 
 export function LanguageSwitcher({ isCollapsed = false }: { isCollapsed?: boolean }) {
   const { locale, setLocale } = useTranslation();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   function toggle() {
     setLocale(locale === "fr" ? "en" : "fr");
   }
 
-  // Prevent hydration mismatch by not rendering until mounted.
-  if (!mounted) {
-    return <div className="h-[40px] w-[100px] opacity-0" aria-hidden="true" />;
-  }
-
   const nextLocale = locale === "fr" ? "en" : "fr";
-  const label = locale === "fr" ? "Francais" : "English";
+  const label = locale === "fr" ? "Français" : "English";
 
   return (
     <button
       type="button"
       onClick={toggle}
-      className="group relative flex w-full items-center rounded-lg px-3 py-2.5 text-sm font-medium text-slate-400 transition-colors hover:bg-white/5 hover:text-slate-200"
-      aria-label="Switch language"
+      className={`group relative flex items-center rounded-lg px-3 py-2.5 text-sm font-medium text-slate-400 transition-colors hover:bg-white/5 hover:text-slate-200 ${isCollapsed ? "w-full justify-center" : "w-auto justify-center"}`}
+      aria-label={`Switch language to ${nextLocale.toUpperCase()}`}
+      title={label}
     >
-      <span className={`shrink-0 ${isCollapsed ? "mx-auto" : "mr-3"}`}>
+      <span className="shrink-0">
         <FlagIcon locale={locale} />
       </span>
 
-      {!isCollapsed && <span>{label}</span>}
-
-      {isCollapsed && (
-        <div className="absolute left-full z-50 ml-4 hidden whitespace-nowrap rounded bg-slate-800 px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:block group-hover:opacity-100">
-          {label}
-        </div>
-      )}
-
-      {!isCollapsed && (
-        <span className="ml-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
-          {nextLocale}
-        </span>
-      )}
+      <span className="sr-only">{label}</span>
     </button>
   );
 }
