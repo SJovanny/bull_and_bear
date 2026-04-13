@@ -28,8 +28,6 @@ type TradeChartProps = {
   openedAt: string;
   closedAt: string | null;
   entryPrice: string;
-  initialStopLoss: string | null;
-  initialTakeProfit: string | null;
   exitPrice: string | null;
 };
 
@@ -346,8 +344,6 @@ export function TradeChart({
   openedAt,
   closedAt,
   entryPrice,
-  initialStopLoss,
-  initialTakeProfit,
   exitPrice,
 }: TradeChartProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -370,10 +366,7 @@ export function TradeChart({
   });
 
   const palette = useMemo(() => chartPalette(theme), [theme]);
-  const entry = useMemo(() => parseLevel(entryPrice), [entryPrice]);
-  const stop = useMemo(() => parseLevel(initialStopLoss), [initialStopLoss]);
-  const take = useMemo(() => parseLevel(initialTakeProfit), [initialTakeProfit]);
-  const exit = useMemo(() => parseLevel(exitPrice), [exitPrice]);
+  const entry = useMemo(() => parseLevel(entryPrice), [entryPrice]);  const exit = useMemo(() => parseLevel(exitPrice), [exitPrice]);
   const data = state.requestKey === requestKey ? state.data : null;
   const error = state.requestKey === requestKey ? state.error : null;
   const loading = state.requestKey !== requestKey;
@@ -584,7 +577,7 @@ export function TradeChart({
       chart.remove();
       chartRef.current = null;
     };
-  }, [bars, closedAt, entry, exit, interval, openedAt, palette]);
+  }, [bars, closedAt, entry, exit, interval, openedAt, palette, data?.interval]);
 
   const levels = [
     { label: "PE", value: entry, color: palette.entry },

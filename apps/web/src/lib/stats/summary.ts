@@ -1,6 +1,5 @@
 import type { StatsSummary } from "@/types";
 
-import { formatRange, toNumber, tradePnl } from "./serializers";
 import type { StatsQuery, StatsTrade } from "./types";
 
 function computeLongestStreak(values: number[], predicate: (value: number) => boolean) {

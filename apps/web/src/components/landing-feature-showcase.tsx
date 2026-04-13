@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
 
 import { IconDashboard, IconJournal, IconStats } from "@/components/icons";
 import { useTranslation } from "@/lib/i18n/context";

@@ -34,11 +34,12 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
     const savedLocale = getInitialLocaleFromStorage();
     if (savedLocale && savedLocale !== "fr") {
-      setLocaleState(savedLocale);
+      setTimeout(() => setLocaleState(savedLocale), 0);
     }
+    setTimeout(() => setMounted(true), 0);
+
   }, []);
 
   const setLocale = useCallback((next: Locale) => {

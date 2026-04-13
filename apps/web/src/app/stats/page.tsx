@@ -243,7 +243,7 @@ function StatsPageContent() {
               >
                 {BREAKDOWN_KEYS.map((key) => (
                   <option key={key} value={key}>
-                    {t(`stats.breakdown.options.${key}` as any)}
+                    {t(`stats.breakdown.options.${key}` as Parameters<typeof t>[0])}
                   </option>
                 ))}
               </select>
@@ -292,7 +292,7 @@ function StatsPageContent() {
               >
                 {DISTRIBUTION_KEYS.map((key) => (
                   <option key={key} value={key}>
-                    {t(`stats.distribution.options.${key}` as any)}
+                    {t(`stats.distribution.options.${key}` as Parameters<typeof t>[0])}
                   </option>
                 ))}
               </select>

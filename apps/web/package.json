@@ -32,6 +32,7 @@
     "@supabase/supabase-js": "^2.98.0",
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.36.4",
+    "file-type": "^22.0.1",
     "lightweight-charts": "^5.1.0",
     "next": "^16.1.6",
     "nodejs-xlsx": "^1.0.2",

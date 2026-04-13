@@ -1,9 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { DashboardShell } from "@/components/dashboard-shell";
-import { useSelectedAccountId } from "@/hooks/use-selected-account-id";
 import { useTranslation } from "@/lib/i18n/context";
 import { formatNumber, pnlColorClass } from "@/lib/format";
 
