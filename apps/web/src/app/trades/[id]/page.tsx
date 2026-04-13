@@ -414,12 +414,7 @@ export default function TradeDetailPage() {
                     interval={trade.entryTimeframe}
                     side={trade.side}
                     openedAt={trade.openedAt}
-                    closedAt={trade.closedAt}
-                    entryPrice={trade.entryPrice}
-                    initialStopLoss={trade.initialStopLoss}
-                    initialTakeProfit={trade.initialTakeProfit}
-                    exitPrice={trade.exitPrice}
-                  />
+                    closedAt={trade.closedAt}                    entryPrice={trade.entryPrice}                    exitPrice={trade.exitPrice}                  />
                 </div>
               </div>
             </section>

@@ -1,4 +1,7 @@
 import type { StatsSummary } from "@/types";
+import { computeNetPnl } from "@/lib/trade-calc";
+import { formatRange } from "./serializers";
+
 
 import type { StatsQuery, StatsTrade } from "./types";
 
@@ -54,7 +57,7 @@ export function buildSummary(
   closedTrades: StatsTrade[],
   initialBalance: number | null = null,
 ): StatsSummary {
-  const pnlValues = closedTrades.map(tradePnl);
+  const pnlValues = closedTrades.map(t => Number(t.netPnl));
   const winners = pnlValues.filter((value) => value > 0);
   const losers = pnlValues.filter((value) => value < 0);
   const breakeven = pnlValues.filter((value) => value === 0);
