@@ -97,7 +97,7 @@ export function DashboardCharts({
 
   return (
     <section className="grid gap-3 xl:grid-cols-2">
-      <article className="rounded-2xl border border-border bg-surface-1 p-4 shadow-sm transition-all hover:shadow-md">
+      <article className="rounded-2xl border border-[#2e2e2e] bg-surface-1 p-4 shadow-none border border-[#2e2e2e] transition-all hover:shadow-none border border-[#2e2e2e]">
         <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
           <div>
             <h2 className="text-sm font-semibold uppercase tracking-[0.08em] text-secondary font-sans">
@@ -110,7 +110,7 @@ export function DashboardCharts({
 
           <div className="flex flex-wrap items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-secondary font-sans">
             {hasBalance ? (
-              <span className="inline-flex overflow-hidden rounded-full border border-border bg-surface-2">
+              <span className="inline-flex overflow-hidden rounded-full border border-[#2e2e2e] bg-surface-2">
                 <button
                   type="button"
                   onClick={() => setEquityMode("dollar")}
@@ -132,7 +132,7 @@ export function DashboardCharts({
           </div>
         </div>
 
-        <div className="rounded-2xl border border-border bg-surface-2 p-4">
+        <div className="rounded-2xl border border-[#2e2e2e] bg-surface-2 p-4">
           <div className="mb-4 flex flex-wrap items-center gap-x-6 gap-y-3">
             <div className="flex items-center gap-2.5">
               <span
@@ -164,7 +164,7 @@ export function DashboardCharts({
           </div>
 
           {cumulativeSeries.length === 0 ? (
-            <div className="flex h-64 items-center justify-center rounded-xl border border-dashed border-border bg-surface-1 px-4 text-sm text-secondary font-sans">
+            <div className="flex h-64 items-center justify-center rounded-xl border border-dashed border-[#2e2e2e] bg-surface-1 px-4 text-sm text-secondary font-sans">
               {t("charts.noClosedTrades")}
             </div>
           ) : (
@@ -178,7 +178,7 @@ export function DashboardCharts({
               <div className="relative h-64">
                 {hoveredPoint ? (
                   <div
-                    className="pointer-events-none absolute z-10 -translate-x-1/2 rounded-xl border border-border bg-surface-1 px-3 py-2 text-xs shadow-md"
+                    className="pointer-events-none absolute z-10 -translate-x-1/2 rounded-xl border border-[#2e2e2e] bg-surface-1 px-3 py-2 text-xs shadow-none border border-[#2e2e2e]"
                     style={{
                       left: `${hoveredPoint.x}%`,
                       top: `calc(${Math.max(hoveredPoint.y - 16, 0)}% - 0.5rem)`,
@@ -297,7 +297,7 @@ export function DashboardCharts({
         </div>
       </article>
 
-      <article className="rounded-xl border border-border bg-surface-1 p-4 shadow-sm transition-all hover:shadow-md">
+      <article className="rounded-xl border border-[#2e2e2e] bg-surface-1 p-4 shadow-none border border-[#2e2e2e] transition-all hover:shadow-none border border-[#2e2e2e]">
         <div className="mb-2 flex items-center justify-between">
           <h2 className="text-sm font-semibold uppercase tracking-[0.08em] text-secondary font-sans">{t("charts.dailyPnl14d")}</h2>
         </div>

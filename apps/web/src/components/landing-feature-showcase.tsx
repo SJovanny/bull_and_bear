@@ -73,7 +73,7 @@ function FeatureRow({ feature, index }: { feature: Feature; index: number }) {
           {feature.bullets.map((bullet) => (
             <span
               key={bullet}
-              className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/72"
+              className="rounded-full border border-white/10 bg-[#1c1c1c]/[0.04] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/72"
             >
               {bullet}
             </span>

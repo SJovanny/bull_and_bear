@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
+import { Inter, Source_Code_Pro } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "@/lib/i18n/context";
 
-const plusJakartaSans = Plus_Jakarta_Sans({
+const inter = Inter({
   variable: "--font-sans",
   subsets: ["latin"],
 });
 
-const jetBrainsMono = JetBrains_Mono({
+const sourceCodePro = Source_Code_Pro({
   variable: "--font-mono",
   subsets: ["latin"],
 });
@@ -31,7 +31,7 @@ export default function RootLayout({
   return (
     <html lang="fr" suppressHydrationWarning>
       <body
-        className={`${plusJakartaSans.variable} ${jetBrainsMono.variable} font-sans antialiased`}
+        className={`${inter.variable} ${sourceCodePro.variable} font-sans antialiased text-[#fafafa] bg-[#171717]`}
         suppressHydrationWarning
       >
         <LanguageProvider>

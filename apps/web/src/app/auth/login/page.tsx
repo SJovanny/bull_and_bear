@@ -77,7 +77,7 @@ export default function LoginPage() {
           />
         </Link>
 
-        <div className="relative z-10 w-full max-w-md rounded-2xl border border-white/10 bg-white/[0.04] p-6 shadow-[0_18px_50px_rgba(0,0,0,0.24)] backdrop-blur sm:p-8">
+        <div className="relative z-10 w-full max-w-md rounded-2xl border border-white/10 bg-[#1c1c1c]/[0.04] p-6 shadow-[0_18px_50px_rgba(0,0,0,0.24)] backdrop-blur sm:p-8">
           <p className="inline-flex items-center rounded-full border border-cyan-300/16 bg-cyan-300/8 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-cyan-100/86">
             Authentication
           </p>
@@ -91,7 +91,7 @@ export default function LoginPage() {
                 type="email"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
-                className="h-11 rounded-xl border border-white/10 bg-white/[0.03] px-3 text-sm text-white outline-none ring-cyan-500/50 transition focus:border-cyan-500/50 focus:bg-white/[0.08] focus:ring-2 placeholder:text-white/30"
+                className="h-11 rounded-xl border border-white/10 bg-[#1c1c1c]/[0.03] px-3 text-sm text-white outline-none ring-cyan-500/50 transition focus:border-cyan-500/50 focus:bg-[#1c1c1c]/[0.08] focus:ring-2 placeholder:text-white/30"
                 required
               />
             </label>
@@ -102,7 +102,7 @@ export default function LoginPage() {
                 type="password"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
-                className="h-11 rounded-xl border border-white/10 bg-white/[0.03] px-3 text-sm text-white outline-none ring-cyan-500/50 transition focus:border-cyan-500/50 focus:bg-white/[0.08] focus:ring-2 placeholder:text-white/30"
+                className="h-11 rounded-xl border border-white/10 bg-[#1c1c1c]/[0.03] px-3 text-sm text-white outline-none ring-cyan-500/50 transition focus:border-cyan-500/50 focus:bg-[#1c1c1c]/[0.08] focus:ring-2 placeholder:text-white/30"
                 required
               />
             </label>
@@ -116,23 +116,23 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="mt-2 inline-flex h-11 w-full items-center justify-center rounded-xl bg-white px-4 text-sm font-semibold uppercase tracking-[0.16em] text-slate-950 transition hover:-translate-y-0.5 hover:bg-cyan-50 disabled:opacity-50 disabled:hover:translate-y-0"
+              className="mt-2 inline-flex h-11 w-full items-center justify-center rounded-xl bg-[#1c1c1c] px-4 text-sm font-semibold uppercase tracking-[0.16em] text-slate-950 transition hover:-translate-y-0.5 hover:bg-cyan-50 disabled:opacity-50 disabled:hover:translate-y-0"
             >
               {isSubmitting ? t("auth.login.submitting") : t("auth.login.submit")}
             </button>
           </form>
 
           <div className="mt-6 flex items-center justify-center space-x-4">
-            <div className="h-px flex-1 bg-white/10"></div>
+            <div className="h-px flex-1 bg-[#1c1c1c]/10"></div>
             <span className="text-xs font-medium uppercase tracking-wider text-slate-400">{t("auth.login.or")}</span>
-            <div className="h-px flex-1 bg-white/10"></div>
+            <div className="h-px flex-1 bg-[#1c1c1c]/10"></div>
           </div>
 
           <button
             type="button"
             onClick={handleGoogleLogin}
             disabled={isSubmitting}
-            className="mt-6 inline-flex h-11 w-full items-center justify-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-white/[0.08] disabled:opacity-50 disabled:hover:translate-y-0"
+            className="mt-6 inline-flex h-11 w-full items-center justify-center gap-3 rounded-xl border border-white/10 bg-[#1c1c1c]/[0.03] px-4 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#1c1c1c]/[0.08] disabled:opacity-50 disabled:hover:translate-y-0"
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className="h-5 w-5">
               <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>

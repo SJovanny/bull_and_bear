@@ -181,18 +181,18 @@ function JournalPageContent() {
         <button
           type="button"
           onClick={() => handleOpenModal()}
-          className="inline-flex h-10 items-center justify-center rounded-lg bg-brand-500 px-4 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 font-sans"
+          className="inline-flex h-10 items-center justify-center rounded-lg bg-brand-500 px-4 text-sm font-semibold text-white shadow-none border border-[#2e2e2e] transition hover:opacity-90 font-sans"
         >
           {t("journal.newEntry")}
         </button>
       }
     >
       <div className="mx-auto w-full max-w-5xl space-y-12">
-        <div className="flex items-center justify-between gap-4 rounded-2xl border border-border bg-surface-1 px-4 py-3 shadow-sm">
+        <div className="flex items-center justify-between gap-4 rounded-2xl border border-[#2e2e2e] bg-surface-1 px-4 py-3 shadow-none border border-[#2e2e2e]">
           <button
             type="button"
             onClick={() => setSelectedMonth((current) => addMonths(current, -1))}
-            className="inline-flex h-10 items-center justify-center rounded-lg border border-border px-4 text-sm font-semibold text-primary transition hover:bg-surface-2 font-sans"
+            className="inline-flex h-10 items-center justify-center rounded-lg border border-[#2e2e2e] px-4 text-sm font-semibold text-primary transition hover:bg-surface-2 font-sans"
           >
             {t("calendar.prevMonth")}
           </button>
@@ -206,7 +206,7 @@ function JournalPageContent() {
             type="button"
             onClick={() => setSelectedMonth((current) => addMonths(current, 1))}
             disabled={isCurrentMonth}
-            className="inline-flex h-10 items-center justify-center rounded-lg border border-border px-4 text-sm font-semibold text-primary transition hover:bg-surface-2 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent font-sans"
+            className="inline-flex h-10 items-center justify-center rounded-lg border border-[#2e2e2e] px-4 text-sm font-semibold text-primary transition hover:bg-surface-2 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent font-sans"
           >
             {t("calendar.nextMonth")}
           </button>
@@ -219,13 +219,13 @@ function JournalPageContent() {
         ) : null}
 
         {!loading && monthSummaries.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-border bg-surface-1 p-12 text-center shadow-sm">
+          <div className="rounded-2xl border border-dashed border-[#2e2e2e] bg-surface-1 p-12 text-center shadow-none border border-[#2e2e2e]">
             <h3 className="font-sans text-lg font-bold text-primary">{t("journal.emptyTitle")}</h3>
             <p className="mx-auto mt-2 max-w-sm font-sans text-sm text-secondary">{t("journal.emptyDesc")}</p>
             <button
               type="button"
               onClick={() => handleOpenModal()}
-              className="mt-6 inline-flex h-10 items-center justify-center rounded-lg bg-brand-500 px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-600 font-sans"
+              className="mt-6 inline-flex h-10 items-center justify-center rounded-lg bg-brand-500 px-6 text-sm font-semibold text-white shadow-none border border-[#2e2e2e] transition hover:bg-brand-600 font-sans"
             >
               {t("journal.emptyAction")}
             </button>
@@ -250,7 +250,7 @@ function JournalPageContent() {
                     key={day.dateStr}
                     type="button"
                     onClick={() => handleOpenModal(day.dateStr)}
-                    className="group relative flex min-h-[160px] flex-col overflow-hidden rounded-2xl border border-border bg-surface-1 p-5 text-left shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-brand-500 hover:shadow-md"
+                    className="group relative flex min-h-[160px] flex-col overflow-hidden rounded-2xl border border-[#2e2e2e] bg-surface-1 p-5 text-left shadow-none border border-[#2e2e2e] transition-all duration-200 hover:-translate-y-1 hover:border-brand-500 hover:shadow-none border border-[#2e2e2e]"
                   >
                     <div className="mb-4 flex w-full items-start justify-between">
                       <div className="space-y-1">
@@ -291,7 +291,7 @@ function JournalPageContent() {
                         : null}
                     </div>
 
-                    <div className="mt-auto border-t border-border pt-3">
+                    <div className="mt-auto border-t border-[#2e2e2e] pt-3">
                       <p className={`font-sans text-xs leading-relaxed ${day.journal?.notes ? "text-primary" : "italic text-secondary"}`}>
                         &quot;{previewNote}&quot;
                       </p>

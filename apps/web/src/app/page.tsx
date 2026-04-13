@@ -61,7 +61,7 @@ export default function LandingPage() {
                 <button
                   type="button"
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className="inline-flex items-center justify-center rounded-md p-2 text-white/70 hover:bg-white/10 hover:text-white focus:outline-none"
+                  className="inline-flex items-center justify-center rounded-md p-2 text-white/70 hover:bg-[#1c1c1c]/10 hover:text-white focus:outline-none"
                   aria-expanded={isMobileMenuOpen}
                 >
                   <span className="sr-only">{isMobileMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}</span>
@@ -78,7 +78,7 @@ export default function LandingPage() {
               </div>
 
               {/* Desktop Navigation */}
-              <div className="hidden items-center self-center gap-3 rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 shadow-[0_18px_50px_rgba(0,0,0,0.18)] backdrop-blur sm:flex sm:justify-end sm:px-4">
+              <div className="hidden items-center self-center gap-3 rounded-full border border-white/10 bg-[#1c1c1c]/[0.04] px-3 py-2 shadow-[0_18px_50px_rgba(0,0,0,0.18)] backdrop-blur sm:flex sm:justify-end sm:px-4">
                 <a
                   href="#a-propos"
                   className="hidden items-center justify-center px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-white/70 transition hover:text-white sm:inline-flex"
@@ -101,14 +101,14 @@ export default function LandingPage() {
                   {!isAuthenticated && (
                     <Link
                       href="/auth/login"
-                      className="inline-flex items-center justify-center rounded-full border border-white/14 bg-white/[0.03] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-white transition hover:-translate-y-0.5 hover:bg-white/[0.08] sm:px-5 sm:py-3"
+                      className="inline-flex items-center justify-center rounded-full border border-white/14 bg-[#1c1c1c]/[0.03] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-white transition hover:-translate-y-0.5 hover:bg-[#1c1c1c]/[0.08] sm:px-5 sm:py-3"
                     >
                       {t("landing.nav.login")}
                     </Link>
                   )}
                   <Link
                     href={primaryHref}
-                    className="inline-flex items-center justify-center rounded-full bg-white px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-slate-950 transition hover:-translate-y-0.5 hover:bg-cyan-50 sm:px-5 sm:py-3"
+                    className="inline-flex items-center justify-center rounded-full bg-[#1c1c1c] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-slate-950 transition hover:-translate-y-0.5 hover:bg-cyan-50 sm:px-5 sm:py-3"
                   >
                     {primaryLabel}
                   </Link>
@@ -140,7 +140,7 @@ export default function LandingPage() {
                       <Link
                         href="/auth/login"
                         onClick={() => setIsMobileMenuOpen(false)}
-                        className="inline-flex w-full items-center justify-center rounded-xl border border-white/14 bg-white/[0.03] px-5 py-3.5 text-sm font-semibold uppercase tracking-[0.16em] text-white transition active:bg-white/[0.08]"
+                        className="inline-flex w-full items-center justify-center rounded-xl border border-white/14 bg-[#1c1c1c]/[0.03] px-5 py-3.5 text-sm font-semibold uppercase tracking-[0.16em] text-white transition active:bg-[#1c1c1c]/[0.08]"
                       >
                         {t("landing.nav.login")}
                       </Link>
@@ -148,7 +148,7 @@ export default function LandingPage() {
                     <Link
                       href={primaryHref}
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className="inline-flex w-full items-center justify-center rounded-xl bg-white px-5 py-3.5 text-sm font-semibold uppercase tracking-[0.16em] text-slate-950 transition active:bg-cyan-50"
+                      className="inline-flex w-full items-center justify-center rounded-xl bg-[#1c1c1c] px-5 py-3.5 text-sm font-semibold uppercase tracking-[0.16em] text-slate-950 transition active:bg-cyan-50"
                     >
                       {primaryLabel}
                     </Link>
@@ -183,7 +183,7 @@ export default function LandingPage() {
                   <div className="animate-fade-up-delayed-3 mt-10 flex flex-col items-start gap-5">
                     <Link
                       href={primaryHref}
-                      className="inline-flex items-center justify-center rounded-full border border-white bg-white px-8 py-4 text-sm font-semibold uppercase tracking-[0.16em] text-slate-950 transition-colors duration-200 hover:bg-slate-100 sm:px-10 sm:py-5 sm:text-base"
+                      className="inline-flex items-center justify-center rounded-full border border-white bg-[#1c1c1c] px-8 py-4 text-sm font-semibold uppercase tracking-[0.16em] text-slate-950 transition-colors duration-200 hover:bg-slate-100 sm:px-10 sm:py-5 sm:text-base"
                     >
                       <span>{primaryLabel}</span>
                     </Link>
@@ -265,7 +265,7 @@ export default function LandingPage() {
                   ].map((bullet) => (
                     <span
                       key={bullet}
-                      className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/72"
+                      className="rounded-full border border-white/10 bg-[#1c1c1c]/[0.04] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/72"
                     >
                       {bullet}
                     </span>
@@ -303,7 +303,7 @@ export default function LandingPage() {
                   ].map((bullet) => (
                     <span
                       key={bullet}
-                      className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/72"
+                      className="rounded-full border border-white/10 bg-[#1c1c1c]/[0.04] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/72"
                     >
                       {bullet}
                     </span>
@@ -351,7 +351,7 @@ export default function LandingPage() {
             <div className="mt-24 flex flex-col items-center justify-center gap-16 sm:mt-32 sm:flex-row sm:gap-32">
               <div className="group relative flex flex-col items-center">
                 <div className="absolute inset-0 translate-y-2 rounded-3xl bg-emerald-500/10 opacity-0 blur-xl transition duration-500 group-hover:opacity-100" />
-                <div className="relative flex h-40 w-40 items-center justify-center rounded-3xl border border-white/10 bg-white/[0.03] p-6 shadow-2xl backdrop-blur transition-all duration-500 group-hover:-translate-y-2 group-hover:border-emerald-500/30 group-hover:bg-white/[0.06] sm:h-52 sm:w-52 sm:p-8">
+                <div className="relative flex h-40 w-40 items-center justify-center rounded-3xl border border-white/10 bg-[#1c1c1c]/[0.03] p-6 shadow-2xl backdrop-blur transition-all duration-500 group-hover:-translate-y-2 group-hover:border-emerald-500/30 group-hover:bg-[#1c1c1c]/[0.06] sm:h-52 sm:w-52 sm:p-8">
                   <Image
                     src="https://res.cloudinary.com/ddvabefhf/image/upload/v1773439524/mt5_i8o5cc.jpg"
                     alt="MetaTrader"
@@ -367,7 +367,7 @@ export default function LandingPage() {
 
               <div className="group relative flex flex-col items-center">
                 <div className="absolute inset-0 translate-y-2 rounded-3xl bg-emerald-500/10 opacity-0 blur-xl transition duration-500 group-hover:opacity-100" />
-                <div className="relative flex h-40 w-40 items-center justify-center rounded-3xl border border-white/10 bg-white/[0.03] p-6 shadow-2xl backdrop-blur transition-all duration-500 group-hover:-translate-y-2 group-hover:border-emerald-500/30 group-hover:bg-white/[0.06] sm:h-52 sm:w-52 sm:p-8">
+                <div className="relative flex h-40 w-40 items-center justify-center rounded-3xl border border-white/10 bg-[#1c1c1c]/[0.03] p-6 shadow-2xl backdrop-blur transition-all duration-500 group-hover:-translate-y-2 group-hover:border-emerald-500/30 group-hover:bg-[#1c1c1c]/[0.06] sm:h-52 sm:w-52 sm:p-8">
                   <Image
                     src="https://res.cloudinary.com/ddvabefhf/image/upload/v1773440476/ctrader_logo_full_pwcbdz.png"
                     alt="cTrader"

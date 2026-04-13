@@ -71,7 +71,7 @@ export function ImageLightbox({ images, initialIndex = 0, onClose }: ImageLightb
       <button
         type="button"
         onClick={onClose}
-        className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm transition-colors hover:bg-white/20"
+        className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-[#1c1c1c]/10 text-white backdrop-blur-sm transition-colors hover:bg-[#1c1c1c]/20"
         aria-label="Fermer"
       >
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -81,7 +81,7 @@ export function ImageLightbox({ images, initialIndex = 0, onClose }: ImageLightb
 
       {/* Counter */}
       {images.length > 1 && (
-        <div className="absolute top-4 left-1/2 z-10 -translate-x-1/2 rounded-full bg-white/10 px-4 py-1.5 text-sm font-medium text-white backdrop-blur-sm">
+        <div className="absolute top-4 left-1/2 z-10 -translate-x-1/2 rounded-full bg-[#1c1c1c]/10 px-4 py-1.5 text-sm font-medium text-white backdrop-blur-sm">
           {currentIndex + 1} / {images.length}
         </div>
       )}
@@ -94,7 +94,7 @@ export function ImageLightbox({ images, initialIndex = 0, onClose }: ImageLightb
             e.stopPropagation();
             goToPrev();
           }}
-          className="absolute left-4 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm transition-colors hover:bg-white/20"
+          className="absolute left-4 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-[#1c1c1c]/10 text-white backdrop-blur-sm transition-colors hover:bg-[#1c1c1c]/20"
           aria-label="Image precedente"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -111,7 +111,7 @@ export function ImageLightbox({ images, initialIndex = 0, onClose }: ImageLightb
             e.stopPropagation();
             goToNext();
           }}
-          className="absolute right-4 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm transition-colors hover:bg-white/20"
+          className="absolute right-4 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-[#1c1c1c]/10 text-white backdrop-blur-sm transition-colors hover:bg-[#1c1c1c]/20"
           aria-label="Image suivante"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

@@ -217,12 +217,12 @@ export function TradeImportModal({ isOpen, accountId, onClose, onImported }: Tra
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-3 sm:p-6" onClick={onClose}>
       <div
-        className="flex h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl border border-border bg-surface-1 shadow-2xl"
+        className="flex h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl border border-[#2e2e2e] bg-surface-1 shadow-2xl"
         onClick={(event) => event.stopPropagation()}
         role="dialog"
         aria-modal="true"
       >
-        <div className="flex items-center justify-between border-b border-border px-4 py-3 sm:px-6">
+        <div className="flex items-center justify-between border-b border-[#2e2e2e] px-4 py-3 sm:px-6">
           <div>
             <h2 className="text-sm font-bold uppercase tracking-[0.18em] text-secondary font-sans">{t("importModal.title")}</h2>
             <p className="mt-1 text-sm text-secondary font-sans">{t("importModal.description")}</p>
@@ -239,7 +239,7 @@ export function TradeImportModal({ isOpen, accountId, onClose, onImported }: Tra
               type="button"
               onClick={confirmImport}
               disabled={!preview || preview.summary.readyToImport === 0 || isImporting || Boolean(mismatchMessage)}
-              className="inline-flex h-9 items-center justify-center rounded-lg bg-brand-500 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-600 disabled:cursor-not-allowed disabled:bg-border disabled:text-secondary disabled:shadow-none font-sans"
+              className="inline-flex h-9 items-center justify-center rounded-lg bg-brand-500 px-4 text-sm font-semibold text-white shadow-none border border-[#2e2e2e] transition hover:bg-brand-600 disabled:cursor-not-allowed disabled:bg-border disabled:text-secondary disabled:shadow-none font-sans"
             >
               {isImporting ? t("importModal.importing") : `${t("importModal.importBtn")} ${preview?.summary.readyToImport ?? 0} trade${(preview?.summary.readyToImport ?? 0) > 1 ? "s" : ""}`}
             </button>
@@ -247,7 +247,7 @@ export function TradeImportModal({ isOpen, accountId, onClose, onImported }: Tra
         </div>
 
         <div className="grid flex-1 gap-0 overflow-hidden lg:grid-cols-[320px_1fr]">
-          <aside className="border-b border-border bg-surface-2/40 p-4 lg:border-b-0 lg:border-r lg:p-6">
+          <aside className="border-b border-[#2e2e2e] bg-surface-2/40 p-4 lg:border-b-0 lg:border-r lg:p-6">
             <div className="space-y-5">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-secondary font-sans">{t("importModal.source")}</p>
@@ -263,11 +263,11 @@ export function TradeImportModal({ isOpen, accountId, onClose, onImported }: Tra
                       }}
                       className={`w-full rounded-2xl border p-4 text-left transition flex items-start gap-4 ${
                         source === item
-                          ? "border-brand-500 bg-brand-500/5 shadow-sm"
-                          : "border-border bg-surface-1 hover:border-brand-500/40"
+                          ? "border-brand-500 bg-brand-500/5 shadow-none border border-[#2e2e2e]"
+                          : "border-[#2e2e2e] bg-surface-1 hover:border-brand-500/40"
                       }`}
                     >
-                      <div className={`shrink-0 flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl border ${source === item ? 'border-brand-500/30' : 'border-border/50'} bg-white`}>
+                      <div className={`shrink-0 flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl border ${source === item ? 'border-brand-500/30' : 'border-[#2e2e2e]/50'} bg-[#1c1c1c]`}>
                         <Image
                           src={sourceConfig(t)[item].image}
                           alt={sourceConfig(t)[item].alt}
@@ -287,7 +287,7 @@ export function TradeImportModal({ isOpen, accountId, onClose, onImported }: Tra
 
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-secondary font-sans">{t("importModal.file")}</p>
-                <label className="mt-3 flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-surface-1 px-4 py-8 text-center transition hover:border-brand-500/50 hover:bg-brand-500/5">
+                <label className="mt-3 flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-[#2e2e2e] bg-surface-1 px-4 py-8 text-center transition hover:border-brand-500/50 hover:bg-brand-500/5">
                   <span className="text-sm font-semibold text-primary font-sans">{fileName || t("importModal.chooseFile")}</span>
                   <span className="mt-2 text-xs text-secondary font-sans">
                     {source === "CTRADER" ? t("importModal.cTraderHelper") : t("importModal.mtHelper")}
@@ -306,7 +306,7 @@ export function TradeImportModal({ isOpen, accountId, onClose, onImported }: Tra
               </button>
 
               {preview ? (
-                <div className="rounded-2xl border border-border bg-surface-1 p-4 text-sm font-sans">
+                <div className="rounded-2xl border border-[#2e2e2e] bg-surface-1 p-4 text-sm font-sans">
                   <p className="font-semibold text-primary">{t("importModal.summary")}</p>
                   <div className="mt-3 space-y-2 text-secondary">
                     <p>{preview.summary.totalRows} {t("importModal.linesDetected")}</p>
@@ -323,7 +323,7 @@ export function TradeImportModal({ isOpen, accountId, onClose, onImported }: Tra
           </aside>
 
           <section className="flex min-h-0 flex-col overflow-hidden">
-            <div className="border-b border-border px-4 py-3 sm:px-6">
+            <div className="border-b border-[#2e2e2e] px-4 py-3 sm:px-6">
               <p className="text-sm font-semibold text-primary font-sans">{t("importModal.previewTitle")}</p>
               <p className="mt-1 text-xs text-secondary font-sans">{t("importModal.previewDesc")}</p>
             </div>
@@ -335,7 +335,7 @@ export function TradeImportModal({ isOpen, accountId, onClose, onImported }: Tra
             ) : (
               <div className="grid min-h-0 flex-1 gap-0 lg:grid-cols-[1fr_280px]">
                 <div className="overflow-auto px-4 py-4 sm:px-6">
-                  <div className="overflow-hidden rounded-2xl border border-border">
+                  <div className="overflow-hidden rounded-2xl border border-[#2e2e2e]">
                     <table className="min-w-full divide-y divide-border text-left text-sm font-sans">
                       <thead className="bg-surface-2/70 text-secondary">
                         <tr>
@@ -384,7 +384,7 @@ export function TradeImportModal({ isOpen, accountId, onClose, onImported }: Tra
                   </div>
                 </div>
 
-                <aside className="border-t border-border bg-surface-2/30 p-4 lg:border-l lg:border-t-0">
+                <aside className="border-t border-[#2e2e2e] bg-surface-2/30 p-4 lg:border-l lg:border-t-0">
                   <p className="text-sm font-semibold text-primary font-sans">{t("importModal.errorTitle")}</p>
                   {preview.errors.length === 0 ? (
                     <p className="mt-3 text-sm text-secondary font-sans">{t("importModal.noErrors")}</p>

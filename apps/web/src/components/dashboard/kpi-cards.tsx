@@ -39,7 +39,7 @@ export function KpiCards({
     <section className={`grid gap-3 sm:grid-cols-2 ${hasBalance ? "xl:grid-cols-6" : "xl:grid-cols-5"}`}>
       {/* Account Balance — only shown when initialBalance is set */}
       {hasBalance ? (
-        <article className="relative rounded-2xl border border-border bg-surface-1 p-5 shadow-sm group transition-all hover:shadow-md">
+        <article className="relative rounded-2xl border border-[#2e2e2e] bg-surface-1 p-5 shadow-none border border-[#2e2e2e] group transition-all hover:shadow-none border border-[#2e2e2e]">
           <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-brand-500 to-transparent opacity-50 transition-opacity group-hover:opacity-100" />
           <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-secondary font-sans">
             <MetricLabel
@@ -82,7 +82,7 @@ export function KpiCards({
       ) : null}
 
       {/* Net PnL — featured card */}
-      <article className="relative rounded-2xl border border-border bg-surface-1 p-5 shadow-sm group transition-all hover:shadow-md">
+      <article className="relative rounded-2xl border border-[#2e2e2e] bg-surface-1 p-5 shadow-none border border-[#2e2e2e] group transition-all hover:shadow-none border border-[#2e2e2e]">
         <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-brand-500 to-transparent opacity-50 transition-opacity group-hover:opacity-100" />
         <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-secondary font-sans">
           <MetricLabel
@@ -115,7 +115,7 @@ export function KpiCards({
       </article>
 
       {/* Win Rate — circular gauge */}
-      <article className="relative rounded-2xl border border-border bg-surface-1 p-5 shadow-sm transition-all hover:shadow-md">
+      <article className="relative rounded-2xl border border-[#2e2e2e] bg-surface-1 p-5 shadow-none border border-[#2e2e2e] transition-all hover:shadow-none border border-[#2e2e2e]">
         <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-secondary font-sans">
           <MetricLabel
             label="Win Rate"
@@ -149,7 +149,7 @@ export function KpiCards({
       </article>
 
       {/* Profit Factor */}
-      <article className="relative rounded-2xl border border-border bg-surface-1 p-5 shadow-sm transition-all hover:shadow-md">
+      <article className="relative rounded-2xl border border-[#2e2e2e] bg-surface-1 p-5 shadow-none border border-[#2e2e2e] transition-all hover:shadow-none border border-[#2e2e2e]">
         <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-secondary font-sans">
           <MetricLabel
             label="Profit Factor"
@@ -171,7 +171,7 @@ export function KpiCards({
       </article>
 
       {/* Total Trades */}
-      <article className="relative rounded-2xl border border-border bg-surface-1 p-5 shadow-sm transition-all hover:shadow-md">
+      <article className="relative rounded-2xl border border-[#2e2e2e] bg-surface-1 p-5 shadow-none border border-[#2e2e2e] transition-all hover:shadow-none border border-[#2e2e2e]">
         <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-secondary font-sans">
           <MetricLabel
             label="Total Trades"
@@ -194,7 +194,7 @@ export function KpiCards({
       </article>
 
       {/* Open / Closed */}
-      <article className="relative rounded-2xl border border-border bg-surface-1 p-5 shadow-sm transition-all hover:shadow-md">
+      <article className="relative rounded-2xl border border-[#2e2e2e] bg-surface-1 p-5 shadow-none border border-[#2e2e2e] transition-all hover:shadow-none border border-[#2e2e2e]">
         <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-secondary font-sans">
           <MetricLabel
             label="Open / Closed"

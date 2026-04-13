@@ -673,7 +673,7 @@ export function TradeEntryModal({
         role="dialog"
         aria-modal="true"
         aria-label={mode === "edit" ? "Modifier le trade" : "Ajouter un trade"}
-        className="flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl"
+        className="flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-[#1c1c1c] shadow-2xl"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="border-b border-slate-200 px-5 py-4">
@@ -709,7 +709,7 @@ export function TradeEntryModal({
                       ? "border-cyan-400 bg-cyan-50"
                       : done
                         ? "border-emerald-200 bg-emerald-50"
-                        : "border-slate-200 bg-white"
+                        : "border-slate-200 bg-[#1c1c1c]"
                   }`}
                 >
                   <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">
@@ -1090,7 +1090,7 @@ export function TradeEntryModal({
                           className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
                             selected
                               ? "border-cyan-600 bg-cyan-600 text-white"
-                              : "border-slate-300 bg-white text-slate-700"
+                              : "border-slate-300 bg-[#1c1c1c] text-slate-700"
                           }`}
                         >
                           {item}
@@ -1220,7 +1220,7 @@ export function TradeEntryModal({
                                 className="mt-2 h-24 w-full rounded-lg object-cover"
                               />
                             ) : (
-                              <div className="mt-2 flex h-24 items-center justify-center rounded-lg border border-slate-200 bg-white text-[11px] font-medium text-slate-400">
+                              <div className="mt-2 flex h-24 items-center justify-center rounded-lg border border-slate-200 bg-[#1c1c1c] text-[11px] font-medium text-slate-400">
                                 Placeholder {item.label}
                               </div>
                             )}

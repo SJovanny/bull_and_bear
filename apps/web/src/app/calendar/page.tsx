@@ -270,7 +270,7 @@ function CalendarPageContent() {
             onClick={() =>
               setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1))
             }
-            className="inline-flex h-10 items-center justify-center rounded-lg border border-border px-3 text-sm font-medium text-secondary hover:bg-surface-2 transition-colors font-sans"
+            className="inline-flex h-10 items-center justify-center rounded-lg border border-[#2e2e2e] px-3 text-sm font-medium text-secondary hover:bg-surface-2 transition-colors font-sans"
           >
             {t("calendar.prevMonth")}
           </button>
@@ -279,7 +279,7 @@ function CalendarPageContent() {
             onClick={() =>
               setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1))
             }
-            className="inline-flex h-10 items-center justify-center rounded-lg border border-border px-3 text-sm font-medium text-secondary hover:bg-surface-2 transition-colors font-sans"
+            className="inline-flex h-10 items-center justify-center rounded-lg border border-[#2e2e2e] px-3 text-sm font-medium text-secondary hover:bg-surface-2 transition-colors font-sans"
           >
             {t("calendar.nextMonth")}
           </button>
@@ -287,7 +287,7 @@ function CalendarPageContent() {
       }
     >
       <div className="mx-auto w-full max-w-7xl">
-        <section className="rounded-2xl border border-border bg-surface-1 p-3 sm:p-6 shadow-sm">
+        <section className="rounded-2xl border border-[#2e2e2e] bg-surface-1 p-3 sm:p-6 shadow-none border border-[#2e2e2e]">
           <div className="mb-5">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
@@ -307,7 +307,7 @@ function CalendarPageContent() {
                   type="date"
                   value={selectedDate}
                   onChange={(event) => handleDateSelectorChange(event.target.value)}
-                  className="h-10 rounded-lg border border-border bg-surface-2 px-3 text-sm text-primary outline-none focus:ring-2 focus:ring-brand-500 font-sans"
+                  className="h-10 rounded-lg border border-[#2e2e2e] bg-surface-2 px-3 text-sm text-primary outline-none focus:ring-2 focus:ring-brand-500 font-sans"
                 />
               </div>
             </div>
@@ -333,8 +333,8 @@ function CalendarPageContent() {
               const isSelected = key === selectedDate;
 
               let cellClass = isCurrentMonth
-                ? "border-border bg-surface-1 hover:bg-surface-2"
-                : "border-border/40 bg-surface-2/40 text-secondary/50";
+                ? "border-[#2e2e2e] bg-surface-1 hover:bg-surface-2"
+                : "border-[#2e2e2e]/40 bg-surface-2/40 text-secondary/50";
 
               if (tradeCount > 0) {
                 if (pnl > 0) {
@@ -342,7 +342,7 @@ function CalendarPageContent() {
                 } else if (pnl < 0) {
                   cellClass = "border-pnl-negative/30 bg-pnl-negative/10 text-pnl-negative hover:bg-pnl-negative/20";
                 } else {
-                  cellClass = "border-border bg-surface-2 text-primary hover:bg-surface-2";
+                  cellClass = "border-[#2e2e2e] bg-surface-2 text-primary hover:bg-surface-2";
                 }
               }
 
@@ -390,7 +390,7 @@ function CalendarPageContent() {
 
         <section
           id="selected-day-panel"
-          className={`mt-4 rounded-2xl border border-border bg-surface-1 p-6 shadow-sm transition ${
+          className={`mt-4 rounded-2xl border border-[#2e2e2e] bg-surface-1 p-6 shadow-none border border-[#2e2e2e] transition ${
             isDayPanelHighlighted ? "ring-2 ring-brand-500 ring-offset-1" : ""
           }`}
         >
@@ -404,7 +404,7 @@ function CalendarPageContent() {
             <button
               type="button"
               onClick={() => openTradeModal(selectedDate)}
-              className="inline-flex h-9 items-center justify-center rounded-lg border border-border px-3 text-sm font-medium text-secondary hover:bg-surface-2 hover:text-primary transition-colors font-sans"
+              className="inline-flex h-9 items-center justify-center rounded-lg border border-[#2e2e2e] px-3 text-sm font-medium text-secondary hover:bg-surface-2 hover:text-primary transition-colors font-sans"
             >
               {t("calendar.addTrade")}
             </button>
@@ -420,7 +420,7 @@ function CalendarPageContent() {
                 return (
                   <article
                     key={trade.id}
-                    className="flex flex-col gap-3 rounded-xl border border-border bg-surface-2 px-3 py-3 sm:flex-row sm:items-center sm:justify-between"
+                    className="flex flex-col gap-3 rounded-xl border border-[#2e2e2e] bg-surface-2 px-3 py-3 sm:flex-row sm:items-center sm:justify-between"
                   >
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-primary font-sans">
@@ -454,7 +454,7 @@ function CalendarPageContent() {
 
                       <Link
                         href={`/trades/${trade.id}`}
-                        className="inline-flex h-8 items-center justify-center rounded-lg border border-border px-3 text-xs font-medium text-secondary hover:bg-surface-1 hover:text-primary transition-colors font-sans"
+                        className="inline-flex h-8 items-center justify-center rounded-lg border border-[#2e2e2e] px-3 text-xs font-medium text-secondary hover:bg-surface-1 hover:text-primary transition-colors font-sans"
                       >
                         {t("calendar.view")}
                       </Link>

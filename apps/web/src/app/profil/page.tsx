@@ -60,7 +60,7 @@ export default function ProfilPage() {
         ) : null}
 
         <section className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
-          <article className="rounded-2xl border border-border bg-surface-1 p-6 shadow-sm">
+          <article className="rounded-2xl border border-[#2e2e2e] bg-surface-1 p-6 shadow-none border border-[#2e2e2e]">
             <p className="text-xs font-semibold uppercase tracking-[0.1em] text-secondary font-sans">{t("profile.identity")}</p>
             <div className="mt-4 space-y-4">
               <div>
@@ -84,7 +84,7 @@ export default function ProfilPage() {
             </div>
           </article>
 
-          <article className="rounded-2xl border border-border bg-surface-1 p-6 shadow-sm">
+          <article className="rounded-2xl border border-[#2e2e2e] bg-surface-1 p-6 shadow-none border border-[#2e2e2e]">
             <p className="text-xs font-semibold uppercase tracking-[0.1em] text-secondary font-sans">{t("profile.accountOverview")}</p>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <div className="rounded-xl bg-surface-2 px-4 py-4">

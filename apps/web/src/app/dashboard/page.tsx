@@ -120,7 +120,7 @@ function DashboardContent() {
   return (
     <DashboardShell title={t("dashboard.title")} >
       <div className="mx-auto flex max-w-[1440px] flex-col gap-4">
-        <section className="rounded-xl border border-border bg-surface-1 p-2 shadow-sm transition-shadow hover:shadow-md">
+        <section className="rounded-xl border border-[#2e2e2e] bg-surface-1 p-2 shadow-none border border-[#2e2e2e] transition-shadow hover:shadow-none border border-[#2e2e2e]">
           <div className="flex flex-wrap items-center gap-2">
             {(["7D", "30D", "YTD", "ALL"] as DashboardPeriod[]).map((item) => (
               <button
@@ -129,7 +129,7 @@ function DashboardContent() {
                 onClick={() => setPeriod(item)}
                 className={`inline-flex h-9 items-center justify-center rounded-md px-3 font-sans text-xs font-semibold tracking-[0.08em] transition ${
                   period === item
-                    ? "bg-brand-500 text-white shadow-sm"
+                    ? "bg-brand-500 text-white shadow-none border border-[#2e2e2e]"
                     : "bg-surface-1 text-secondary hover:bg-surface-2 hover:text-primary"
                 }`}
               >
@@ -140,7 +140,7 @@ function DashboardContent() {
         </section>
 
         {error ? (
-          <section className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 font-sans text-sm text-rose-700 shadow-sm">
+          <section className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 font-sans text-sm text-rose-700 shadow-none border border-[#2e2e2e]">
             {error === "Unauthorized" ? "You must be connected to access this page." : error}
           </section>
         ) : null}

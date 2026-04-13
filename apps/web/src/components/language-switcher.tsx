@@ -15,10 +15,10 @@ function FlagIcon({ locale }: { locale: "fr" | "en" }) {
 
   return (
     <span className="relative inline-flex h-5 w-7 overflow-hidden rounded-[4px] border border-white/12 bg-[#b22234] shadow-[0_1px_2px_rgba(0,0,0,0.18)]">
-      <span className="absolute inset-x-0 top-[15%] h-[10%] bg-white" />
-      <span className="absolute inset-x-0 top-[35%] h-[10%] bg-white" />
-      <span className="absolute inset-x-0 top-[55%] h-[10%] bg-white" />
-      <span className="absolute inset-x-0 top-[75%] h-[10%] bg-white" />
+      <span className="absolute inset-x-0 top-[15%] h-[10%] bg-[#1c1c1c]" />
+      <span className="absolute inset-x-0 top-[35%] h-[10%] bg-[#1c1c1c]" />
+      <span className="absolute inset-x-0 top-[55%] h-[10%] bg-[#1c1c1c]" />
+      <span className="absolute inset-x-0 top-[75%] h-[10%] bg-[#1c1c1c]" />
       <span className="absolute left-0 top-0 h-[58%] w-[45%] bg-[#3c3b6e]" />
     </span>
   );
@@ -38,7 +38,7 @@ export function LanguageSwitcher({ isCollapsed = false }: { isCollapsed?: boolea
     <button
       type="button"
       onClick={toggle}
-      className={`group relative flex items-center rounded-lg px-3 py-2.5 text-sm font-medium text-slate-400 transition-colors hover:bg-white/5 hover:text-slate-200 ${isCollapsed ? "w-full justify-center" : "w-auto justify-center"}`}
+      className={`group relative flex items-center rounded-lg px-3 py-2.5 text-sm font-medium text-slate-400 transition-colors hover:bg-[#1c1c1c]/5 hover:text-slate-200 ${isCollapsed ? "w-full justify-center" : "w-auto justify-center"}`}
       aria-label={`Switch language to ${nextLocale.toUpperCase()}`}
       title={label}
     >

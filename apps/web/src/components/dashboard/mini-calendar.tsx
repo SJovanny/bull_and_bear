@@ -11,7 +11,7 @@ type MiniCalendarProps = {
 
 export function MiniCalendar({ days }: MiniCalendarProps) {
   return (
-    <article className="flex h-full flex-col rounded-xl border border-border bg-surface-1 p-6 shadow-sm transition-all hover:shadow-md">
+    <article className="flex h-full flex-col rounded-xl border border-[#2e2e2e] bg-surface-1 p-6 shadow-none border border-[#2e2e2e] transition-all hover:shadow-none border border-[#2e2e2e]">
       <div className="mb-6 flex shrink-0 items-center justify-between">
         <h2 className="font-sans text-sm font-semibold uppercase tracking-[0.08em] text-secondary">Calendar Preview</h2>
         <Link href="/journal" className="font-sans text-xs font-medium text-brand-500 transition-colors hover:text-brand-600">
@@ -39,7 +39,7 @@ export function MiniCalendar({ days }: MiniCalendarProps) {
               dayNumberClasses += " text-primary";
               pnlTextClasses += ` ${pnlColorClass(day.pnl)}`;
             } else {
-              containerClasses += " border-border bg-surface-1 text-secondary hover:bg-surface-2";
+              containerClasses += " border-[#2e2e2e] bg-surface-1 text-secondary hover:bg-surface-2";
             }
           } else {
             containerClasses += " border-transparent bg-surface-2 text-secondary opacity-50";
