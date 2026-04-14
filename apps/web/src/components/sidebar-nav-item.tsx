@@ -19,8 +19,8 @@ export function SidebarNavItem({ href, label, icon: Icon, isCollapsed }: Sidebar
       href={href}
       className={`group relative flex items-center rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
         isActive
-          ? "bg-[#1c1c1c]/10 text-white"
-          : "text-slate-400 hover:bg-[#1c1c1c]/5 hover:text-slate-200"
+          ? "bg-white/10 text-white"
+          : "text-slate-400 hover:bg-white/5 hover:text-slate-200"
       }`}
     >
       {isActive && (

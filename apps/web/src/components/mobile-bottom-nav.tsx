@@ -33,7 +33,7 @@ export function MobileBottomNav() {
       {showMore && (
         <div className="fixed inset-0 z-40 bg-black/50 lg:hidden" onClick={() => setShowMore(false)}>
           <div 
-            className="absolute bottom-20 left-4 right-4 overflow-hidden rounded-xl border border-[#2e2e2e] bg-surface-1 shadow-lg animate-in slide-in-from-bottom-4"
+            className="absolute bottom-20 left-4 right-4 overflow-hidden rounded-xl border border-border bg-surface-1 shadow-lg animate-in slide-in-from-bottom-4"
             onClick={e => e.stopPropagation()}
           >
             <div className="p-2">
@@ -55,7 +55,7 @@ export function MobileBottomNav() {
               </Link>
             </div>
             
-            <div className="border-t border-[#2e2e2e]"></div>
+            <div className="border-t border-border"></div>
             
             <div className="p-2">
                <LanguageSwitcher />
@@ -69,7 +69,7 @@ export function MobileBottomNav() {
         </div>
       )}
 
-      <nav className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-around border-t border-[#2e2e2e] bg-surface-1/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-lg lg:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-around border-t border-border bg-surface-1/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-lg lg:hidden">
         {navItems.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
           

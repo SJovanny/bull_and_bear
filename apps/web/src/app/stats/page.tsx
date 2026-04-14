@@ -131,7 +131,7 @@ function StatsPageContent() {
         ) : null}
 
         <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-[1.25fr_1.25fr_1fr_1fr]">
-          <article className="rounded-2xl border border-[#2e2e2e] bg-surface-1 p-5 shadow-none border border-[#2e2e2e]">
+          <article className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm">
             <div className="text-xs uppercase tracking-[0.1em] text-secondary font-sans">
               <MetricLabel label={t("stats.metrics.netPnl")} description={t("stats.metrics.netPnlDesc")} />
             </div>
@@ -141,7 +141,7 @@ function StatsPageContent() {
             <p className="mt-2 text-xs text-secondary font-sans">{t("stats.metrics.netPnlNote")}</p>
           </article>
 
-          <article className="rounded-2xl border border-[#2e2e2e] bg-surface-1 p-5 shadow-none border border-[#2e2e2e]">
+          <article className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm">
             <div className="text-xs uppercase tracking-[0.1em] text-secondary font-sans">
               <MetricLabel
                 label={t("stats.metrics.expectancy")}
@@ -154,7 +154,7 @@ function StatsPageContent() {
             <p className="mt-2 text-xs text-secondary font-sans">{t("stats.metrics.expectancyNote")}</p>
           </article>
 
-          <article className="rounded-2xl border border-[#2e2e2e] bg-surface-1 p-5 shadow-none border border-[#2e2e2e]">
+          <article className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm">
             <div className="text-xs uppercase tracking-[0.1em] text-secondary font-sans">
               <MetricLabel
                 label={t("stats.metrics.maxDrawdown")}
@@ -167,7 +167,7 @@ function StatsPageContent() {
             <p className="mt-2 text-xs text-secondary font-sans">{t("stats.metrics.maxDrawdownNote")}</p>
           </article>
 
-          <article className="rounded-2xl border border-[#2e2e2e] bg-surface-1 p-5 shadow-none border border-[#2e2e2e]">
+          <article className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm">
             <div className="text-xs uppercase tracking-[0.1em] text-secondary font-sans">
               <MetricLabel label={t("stats.metrics.avgHolding")} description={t("stats.metrics.avgHoldingDesc")} />
             </div>
@@ -179,7 +179,7 @@ function StatsPageContent() {
         </section>
 
         <section className="grid gap-3 xl:grid-cols-[1.15fr_0.85fr]">
-          <article className="rounded-2xl border border-[#2e2e2e] bg-surface-1 p-5 shadow-none border border-[#2e2e2e]">
+          <article className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm">
             <div className="text-xs uppercase tracking-[0.1em] text-secondary font-sans">
               <MetricLabel label={t("stats.metrics.bestWorst")} description={t("stats.metrics.bestWorstDesc")} />
             </div>
@@ -201,7 +201,7 @@ function StatsPageContent() {
             </div>
           </article>
 
-          <article className="rounded-2xl border border-[#2e2e2e] bg-surface-1 p-5 shadow-none border border-[#2e2e2e]">
+          <article className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm">
             <div className="text-xs uppercase tracking-[0.1em] text-secondary font-sans">
               <MetricLabel
                 label={t("stats.metrics.streakSnapshot")}
@@ -225,7 +225,7 @@ function StatsPageContent() {
         </section>
 
         <section className="grid gap-4 xl:grid-cols-[1.4fr_0.6fr]">
-          <article className="rounded-2xl border border-[#2e2e2e] bg-surface-1 p-5 shadow-none border border-[#2e2e2e]">
+          <article className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm">
             <div className="mb-4 flex items-center justify-between gap-3">
               <div>
                 <div className="text-sm font-semibold uppercase tracking-[0.08em] text-secondary font-sans">
@@ -239,7 +239,7 @@ function StatsPageContent() {
               <select
                 value={breakdownBy}
                 onChange={(event) => setBreakdownBy(event.target.value as BreakdownKey)}
-                className="rounded-lg border border-[#2e2e2e] bg-surface-2 px-3 py-2 text-xs font-semibold text-primary font-sans"
+                className="rounded-lg border border-border bg-surface-2 px-3 py-2 text-xs font-semibold text-primary font-sans"
               >
                 {BREAKDOWN_KEYS.map((key) => (
                   <option key={key} value={key}>
@@ -263,7 +263,7 @@ function StatsPageContent() {
                 </thead>
                 <tbody>
                   {topBreakdown.map((item) => (
-                    <tr key={item.key} className="border-t border-[#2e2e2e]">
+                    <tr key={item.key} className="border-t border-border">
                       <td className="px-2 py-2 font-semibold text-primary font-sans">{item.label}</td>
                       <td className="px-2 py-2 text-secondary font-mono">{item.trades}</td>
                       <td className="px-2 py-2 text-secondary font-mono">{formatNumber(item.winRate, 1)}%</td>
@@ -277,7 +277,7 @@ function StatsPageContent() {
             </div>
           </article>
 
-          <article className="rounded-2xl border border-[#2e2e2e] bg-surface-1 p-5 shadow-none border border-[#2e2e2e]">
+          <article className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm">
             <div className="mb-4 flex items-center justify-between gap-3">
               <div>
                 <div className="text-sm font-semibold uppercase tracking-[0.08em] text-secondary font-sans">
@@ -288,7 +288,7 @@ function StatsPageContent() {
               <select
                 value={distributionMetric}
                 onChange={(event) => setDistributionMetric(event.target.value as DistributionMetric)}
-                className="rounded-lg border border-[#2e2e2e] bg-surface-2 px-3 py-2 text-xs font-semibold text-primary font-sans"
+                className="rounded-lg border border-border bg-surface-2 px-3 py-2 text-xs font-semibold text-primary font-sans"
               >
                 {DISTRIBUTION_KEYS.map((key) => (
                   <option key={key} value={key}>
@@ -300,7 +300,7 @@ function StatsPageContent() {
 
             <div className="flex h-48 items-end gap-2 rounded-xl bg-surface-2 p-3">
               {distributionBins.length === 0 ? (
-                <div className="flex h-full w-full items-center justify-center rounded-lg border border-dashed border-[#2e2e2e] px-4 text-center text-sm text-secondary font-sans">
+                <div className="flex h-full w-full items-center justify-center rounded-lg border border-dashed border-border px-4 text-center text-sm text-secondary font-sans">
                   {distributionEmptyMessage()}
                 </div>
               ) : distributionBins.map((bin) => {
@@ -328,7 +328,7 @@ function StatsPageContent() {
         </section>
 
         <section className="grid gap-4 xl:grid-cols-3">
-          <article className="rounded-2xl border border-[#2e2e2e] bg-surface-1 p-5 shadow-none border border-[#2e2e2e]">
+          <article className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm">
             <div className="text-sm font-semibold uppercase tracking-[0.08em] text-secondary font-sans">
               <MetricLabel
                 label={t("stats.timeAnalysis.weekdayEdge")}
@@ -353,7 +353,7 @@ function StatsPageContent() {
             </div>
           </article>
 
-          <article className="rounded-2xl border border-[#2e2e2e] bg-surface-1 p-5 shadow-none border border-[#2e2e2e]">
+          <article className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm">
             <div className="text-sm font-semibold uppercase tracking-[0.08em] text-secondary font-sans">
               <MetricLabel
                 label={t("stats.timeAnalysis.bestWindows")}
@@ -385,7 +385,7 @@ function StatsPageContent() {
             </div>
           </article>
 
-          <article className="rounded-2xl border border-[#2e2e2e] bg-surface-1 p-5 shadow-none border border-[#2e2e2e]">
+          <article className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm">
             <div className="text-sm font-semibold uppercase tracking-[0.08em] text-secondary font-sans">
               <MetricLabel
                 label={t("stats.timeAnalysis.seasonality")}

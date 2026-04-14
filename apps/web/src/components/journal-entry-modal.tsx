@@ -264,7 +264,7 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
         aria-modal="true"
       >
         {/* ── Header ─────────────────────────────────────────────────────── */}
-        <div className="flex shrink-0 items-center justify-between border-b border-[#2e2e2e] bg-surface-1/80 px-4 py-3 sm:px-6 backdrop-blur-md">
+        <div className="flex shrink-0 items-center justify-between border-b border-border bg-surface-1/80 px-4 py-3 sm:px-6 backdrop-blur-md">
           <div>
             <h2 className="text-sm font-bold uppercase tracking-widest text-secondary font-sans">{t("journalModal.title")}</h2>
             <p className="text-lg font-semibold text-primary capitalize">{displayDate}</p>
@@ -275,7 +275,7 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
               {t("journalModal.cancel")}
             </button>
             <button type="button" onClick={handleSave} disabled={saving || loading}
-              className="inline-flex h-9 items-center justify-center rounded-lg bg-brand-500 px-4 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50 font-sans shadow-none border border-[#2e2e2e]">
+              className="inline-flex h-9 items-center justify-center rounded-lg bg-brand-500 px-4 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50 font-sans shadow-sm">
               {saving ? t("journalModal.saving") : t("journalModal.save")}
             </button>
           </div>
@@ -309,7 +309,7 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
                   />
 
                   {/* ── Pre-Market ──────────────────────────────────────── */}
-                  <div className="space-y-6 rounded-2xl bg-surface-1 p-6 shadow-none border border-[#2e2e2e] border border-[#2e2e2e]/50">
+                  <div className="space-y-6 rounded-2xl bg-surface-1 p-6 shadow-sm border border-border/50">
                     <h3 className="flex items-center gap-2 text-sm font-bold text-primary font-sans">
                       <span className="flex h-6 w-6 items-center justify-center rounded bg-surface-2 text-xs">🌅</span>
                       {t("journalModal.preMarket")}
@@ -324,7 +324,7 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
                         <button
                           type="button"
                           onClick={addEvent}
-                          className="inline-flex items-center gap-1 rounded-lg bg-brand-500 px-2.5 py-1 text-xs font-semibold text-white shadow-none border border-[#2e2e2e] hover:bg-brand-600 transition-colors font-sans"
+                          className="inline-flex items-center gap-1 rounded-lg bg-brand-500 px-2.5 py-1 text-xs font-semibold text-white shadow-sm hover:bg-brand-600 transition-colors font-sans"
                         >
                           <svg fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="h-3 w-3">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -337,7 +337,7 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
                         <button
                           type="button"
                           onClick={addEvent}
-                          className="w-full rounded-xl border border-dashed border-[#2e2e2e] py-5 text-sm text-secondary hover:border-brand-400 hover:text-brand-500 transition-colors font-sans"
+                          className="w-full rounded-xl border border-dashed border-border py-5 text-sm text-secondary hover:border-brand-400 hover:text-brand-500 transition-colors font-sans"
                         >
                           {t("journalModal.addEventCta")}
                         </button>
@@ -347,7 +347,7 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
                         {journal.economicEvents.map((event, idx) => (
                           <div
                             key={event.id}
-                            className="group relative rounded-xl border border-[#2e2e2e] bg-surface-2 p-4 transition-shadow hover:shadow-none border border-[#2e2e2e]"
+                            className="group relative rounded-xl border border-border bg-surface-2 p-4 transition-shadow hover:shadow-sm"
                           >
                             {/* Row 1: Time + Name + Impact + Delete */}
                             <div className="flex flex-wrap items-center gap-2 mb-3">
@@ -361,7 +361,7 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
                                 type="time"
                                 value={event.time}
                                 onChange={e => updateEvent(event.id, "time", e.target.value)}
-                                className="h-8 rounded-lg border border-[#2e2e2e] bg-surface-1 px-2 text-sm font-mono text-primary outline-none focus:ring-2 focus:ring-brand-500 w-28"
+                                className="h-8 rounded-lg border border-border bg-surface-1 px-2 text-sm font-mono text-primary outline-none focus:ring-2 focus:ring-brand-500 w-28"
                               />
 
                               {/* Name */}
@@ -370,7 +370,7 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
                                 value={event.name}
                                 onChange={e => updateEvent(event.id, "name", e.target.value)}
                                 placeholder={t("journalModal.eventName")}
-                                className="h-8 flex-1 min-w-[140px] rounded-lg border border-[#2e2e2e] bg-surface-1 px-3 text-sm text-primary placeholder:text-secondary/50 outline-none focus:ring-2 focus:ring-brand-500 font-sans"
+                                className="h-8 flex-1 min-w-[140px] rounded-lg border border-border bg-surface-1 px-3 text-sm text-primary placeholder:text-secondary/50 outline-none focus:ring-2 focus:ring-brand-500 font-sans"
                               />
 
                               {/* Impact selector */}
@@ -408,7 +408,7 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
                                   value={event.forecast}
                                   onChange={e => updateEvent(event.id, "forecast", e.target.value)}
                                   placeholder={t("journalModal.forecastPlaceholder")}
-                                  className="h-9 w-full rounded-lg border border-[#2e2e2e] bg-surface-1 px-3 text-sm font-mono text-primary placeholder:text-secondary/40 outline-none focus:ring-2 focus:ring-brand-500"
+                                  className="h-9 w-full rounded-lg border border-border bg-surface-1 px-3 text-sm font-mono text-primary placeholder:text-secondary/40 outline-none focus:ring-2 focus:ring-brand-500"
                                 />
                               </div>
                               <div className="space-y-1">
@@ -424,7 +424,7 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
                                     className={`h-9 w-full rounded-lg border px-3 text-sm font-mono placeholder:text-secondary/40 outline-none focus:ring-2 font-sans transition-colors ${
                                       event.actual
                                         ? "border-pnl-positive/40 bg-pnl-positive/5 text-pnl-positive focus:ring-pnl-positive/30"
-                                        : "border-[#2e2e2e] bg-surface-1 text-primary focus:ring-brand-500"
+                                        : "border-border bg-surface-1 text-primary focus:ring-brand-500"
                                     }`}
                                   />
                                   {event.actual && (
@@ -447,7 +447,7 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
                         type="text"
                         value={journal.marketConditions}
                         onChange={e => setJournal({ ...journal, marketConditions: e.target.value })}
-                        className="w-full bg-transparent border-b border-[#2e2e2e]/60 px-0 py-2 text-sm text-primary outline-none transition-colors focus:border-brand-500 placeholder:text-secondary/50 font-sans"
+                        className="w-full bg-transparent border-b border-border/60 px-0 py-2 text-sm text-primary outline-none transition-colors focus:border-brand-500 placeholder:text-secondary/50 font-sans"
                         placeholder={t("journalModal.marketConditionsPlaceholder")}
                       />
                     </div>
@@ -461,14 +461,14 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
                         type="text"
                         value={journal.keyLevels}
                         onChange={e => setJournal({ ...journal, keyLevels: e.target.value })}
-                        className="w-full bg-transparent border-b border-[#2e2e2e]/60 px-0 py-2 text-sm text-primary outline-none transition-colors focus:border-brand-500 placeholder:text-secondary/50 font-sans"
+                        className="w-full bg-transparent border-b border-border/60 px-0 py-2 text-sm text-primary outline-none transition-colors focus:border-brand-500 placeholder:text-secondary/50 font-sans"
                         placeholder={t("journalModal.keyLevelsPlaceholder")}
                       />
                     </div>
                   </div>
 
                   {/* ── Execution ───────────────────────────────────────── */}
-                  <div className="space-y-6 rounded-2xl bg-surface-1 p-6 shadow-none border border-[#2e2e2e] border border-[#2e2e2e]/50">
+                  <div className="space-y-6 rounded-2xl bg-surface-1 p-6 shadow-sm border border-border/50">
                     <h3 className="flex items-center gap-2 text-sm font-bold text-primary font-sans">
                       <span className="flex h-6 w-6 items-center justify-center rounded bg-surface-2 text-xs">🎯</span>
                       {t("journalModal.execution")}
@@ -483,8 +483,8 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
                             onClick={() => setJournal({ ...journal, executionRating: rating })}
                             className={`flex h-12 w-12 items-center justify-center rounded-xl border-2 text-lg font-bold transition-all duration-200 ${
                               journal.executionRating === rating
-                                ? "border-brand-500 bg-brand-500 text-white shadow-none border border-[#2e2e2e] scale-105"
-                                : "border-[#2e2e2e] bg-surface-2 text-secondary hover:border-brand-400/50 hover:bg-surface-1"
+                                ? "border-brand-500 bg-brand-500 text-white shadow-md scale-105"
+                                : "border-border bg-surface-2 text-secondary hover:border-brand-400/50 hover:bg-surface-1"
                             }`}
                           >
                             {rating}
@@ -502,8 +502,8 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
                             onClick={() => toggleArrayItem("strategiesFocus", strategy)}
                             className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-200 border ${
                               journal.strategiesFocus.includes(strategy)
-                                ? "bg-brand-500 border-brand-500 text-white shadow-none border border-[#2e2e2e]"
-                                : "bg-surface-2 border-transparent text-secondary hover:text-primary hover:bg-surface-1 hover:border-[#2e2e2e]"
+                                ? "bg-brand-500 border-brand-500 text-white shadow-sm"
+                                : "bg-surface-2 border-transparent text-secondary hover:text-primary hover:bg-surface-1 hover:border-border"
                             }`}
                           >
                             {t(strategyLabelKeys[strategy])}
@@ -514,7 +514,7 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
                   </div>
 
                   {/* ── Psychology ──────────────────────────────────────── */}
-                  <div className="space-y-6 rounded-2xl bg-surface-1 p-6 shadow-none border border-[#2e2e2e] border border-[#2e2e2e]/50">
+                  <div className="space-y-6 rounded-2xl bg-surface-1 p-6 shadow-sm border border-border/50">
                     <h3 className="flex items-center gap-2 text-sm font-bold text-primary font-sans">
                       <span className="flex h-6 w-6 items-center justify-center rounded bg-surface-2 text-xs">🧠</span>
                       {t("journalModal.psychology")}
@@ -526,8 +526,8 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
                           <button key={state} type="button" onClick={() => toggleArrayItem("mentalState", state)}
                             className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-200 border ${
                               journal.mentalState.includes(state)
-                                ? "bg-purple-500 border-purple-500 text-white shadow-none border border-[#2e2e2e]"
-                                : "bg-surface-2 border-transparent text-secondary hover:text-primary hover:bg-surface-1 hover:border-[#2e2e2e]"
+                                ? "bg-purple-500 border-purple-500 text-white shadow-sm"
+                                : "bg-surface-2 border-transparent text-secondary hover:text-primary hover:bg-surface-1 hover:border-border"
                             }`}>{t(mentalStateLabelKeys[state])}</button>
                         ))}
                       </div>
@@ -539,8 +539,8 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
                           <button key={mistake} type="button" onClick={() => toggleArrayItem("mistakes", mistake)}
                             className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-200 border ${
                               journal.mistakes.includes(mistake)
-                                ? "bg-rose-500 border-rose-500 text-white shadow-none border border-[#2e2e2e]"
-                                : "bg-surface-2 border-transparent text-secondary hover:text-primary hover:bg-surface-1 hover:border-[#2e2e2e]"
+                                ? "bg-rose-500 border-rose-500 text-white shadow-sm"
+                                : "bg-surface-2 border-transparent text-secondary hover:text-primary hover:bg-surface-1 hover:border-border"
                             }`}>{t(mistakeLabelKeys[mistake])}</button>
                         ))}
                       </div>
@@ -566,8 +566,8 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
           </div>
 
           {/* Right: Trades sidebar */}
-          <div className="w-full md:w-80 shrink-0 border-t md:border-t-0 md:border-l border-[#2e2e2e] bg-surface-1 flex flex-col">
-            <div className="p-5 sm:p-6 border-b border-[#2e2e2e] bg-surface-2/30">
+          <div className="w-full md:w-80 shrink-0 border-t md:border-t-0 md:border-l border-border bg-surface-1 flex flex-col">
+            <div className="p-5 sm:p-6 border-b border-border bg-surface-2/30">
               <h3 className="text-xs font-bold uppercase tracking-widest text-secondary mb-4 font-sans">{t("journalModal.actualResult")}</h3>
               <div className="flex items-end justify-between">
                 <div>
@@ -586,7 +586,7 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
               <h3 className="text-xs font-bold uppercase tracking-widest text-secondary font-sans ml-2">{t("journalModal.tradesList")}</h3>
               {trades.length === 0 ? (
-                <p className="p-4 text-center text-sm text-secondary font-sans border border-dashed border-[#2e2e2e] rounded-xl">
+                <p className="p-4 text-center text-sm text-secondary font-sans border border-dashed border-border rounded-xl">
                   {t("journalModal.noTrades")}
                 </p>
               ) : (
@@ -595,7 +595,7 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
                     key={trade.id}
                     href={`/trades/${trade.id}`}
                     onClick={onClose}
-                    className="block rounded-xl border border-[#2e2e2e] bg-surface-1 p-3 hover:border-brand-500 hover:shadow-none border border-[#2e2e2e] transition-all group"
+                    className="block rounded-xl border border-border bg-surface-1 p-3 hover:border-brand-500 hover:shadow-sm transition-all group"
                   >
                     <div className="flex justify-between items-center mb-1.5">
                       <span className="font-bold text-sm text-primary group-hover:text-brand-500 transition-colors font-sans">{trade.symbol}</span>

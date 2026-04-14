@@ -27,8 +27,8 @@ export function LogoutButton({ isSidebarContext = false, isCollapsed = false, la
   const baseStyles = "inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors disabled:opacity-50";
   
   const contextStyles = isSidebarContext
-    ? "group relative w-full px-3 py-2.5 text-slate-400 hover:bg-[#1c1c1c]/5 hover:text-slate-200"
-    : "h-10 border border-[#2e2e2e] bg-surface-1 px-3 text-primary hover:bg-surface-2";
+    ? "group relative w-full px-3 py-2.5 text-slate-400 hover:bg-white/5 hover:text-slate-200"
+    : "h-10 border border-border bg-surface-1 px-3 text-primary hover:bg-surface-2";
 
   return (
     <button

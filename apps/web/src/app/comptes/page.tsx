@@ -229,7 +229,7 @@ export default function ComptesPage() {
           </section>
         ) : null}
 
-        <section className="rounded-2xl border border-[#2e2e2e] bg-surface-1 p-5 shadow-none border border-[#2e2e2e]">
+        <section className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.08em] text-secondary font-sans">{t("accounts.tradingAccounts")}</p>
@@ -247,9 +247,9 @@ export default function ComptesPage() {
         </section>
 
         <section className="grid gap-4 xl:grid-cols-[1.25fr_0.75fr]">
-          <article className="rounded-2xl border border-[#2e2e2e] bg-surface-1 p-5 shadow-none border border-[#2e2e2e]">
+          <article className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm">
             {accounts.length === 0 ? (
-              <div className="flex min-h-64 flex-col items-center justify-center rounded-xl border border-dashed border-[#2e2e2e] bg-surface-2 px-6 text-center">
+              <div className="flex min-h-64 flex-col items-center justify-center rounded-xl border border-dashed border-border bg-surface-2 px-6 text-center">
                 <p className="text-lg font-semibold text-primary font-sans">{t("accounts.noAccounts")}</p>
                 <p className="mt-2 max-w-md text-sm text-secondary font-sans">
                   {t("accounts.createFirstAccount")}
@@ -271,7 +271,7 @@ export default function ComptesPage() {
                   const hasBalance = bal?.currentBalance != null;
 
                   return (
-                    <article key={account.id} className="rounded-xl border border-[#2e2e2e] bg-surface-2 p-4">
+                    <article key={account.id} className="rounded-xl border border-border bg-surface-2 p-4">
                       <div className="flex items-start justify-between gap-3">
                         <div>
                           <p className="text-lg font-semibold text-primary font-sans">{account.name}</p>
@@ -315,7 +315,7 @@ export default function ComptesPage() {
                         <button
                           type="button"
                           onClick={() => openEditForm(account)}
-                          className="inline-flex h-9 items-center justify-center rounded-lg border border-[#2e2e2e] bg-surface-1 px-3 text-sm font-semibold text-primary transition hover:bg-[#1c1c1c]"
+                          className="inline-flex h-9 items-center justify-center rounded-lg border border-border bg-surface-1 px-3 text-sm font-semibold text-primary transition hover:bg-white"
                         >
                           {t("accounts.editBtn")}
                         </button>
@@ -335,7 +335,7 @@ export default function ComptesPage() {
             )}
           </article>
 
-          <article className="rounded-2xl border border-[#2e2e2e] bg-surface-1 p-5 shadow-none border border-[#2e2e2e]">
+          <article className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm">
             <div className="mb-4">
               <p className="text-sm font-semibold uppercase tracking-[0.08em] text-secondary font-sans">
                 {editingAccountId ? t("accounts.editAccountTitle") : t("accounts.addAccountTitle")}
@@ -355,7 +355,7 @@ export default function ComptesPage() {
                     value={form.name}
                     onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
                     placeholder={t("accounts.formNamePlaceholder")}
-                    className="h-11 rounded-xl border border-[#2e2e2e] bg-surface-2 px-3 text-sm text-primary outline-none ring-brand-500 transition focus:ring-2"
+                    className="h-11 rounded-xl border border-border bg-surface-2 px-3 text-sm text-primary outline-none ring-brand-500 transition focus:ring-2"
                     required
                   />
                 </label>
@@ -366,7 +366,7 @@ export default function ComptesPage() {
                     value={form.broker}
                     onChange={(event) => setForm((current) => ({ ...current, broker: event.target.value }))}
                     placeholder={t("accounts.formBrokerPlaceholder")}
-                    className="h-11 rounded-xl border border-[#2e2e2e] bg-surface-2 px-3 text-sm text-primary outline-none ring-brand-500 transition focus:ring-2"
+                    className="h-11 rounded-xl border border-border bg-surface-2 px-3 text-sm text-primary outline-none ring-brand-500 transition focus:ring-2"
                   />
                 </label>
 
@@ -378,7 +378,7 @@ export default function ComptesPage() {
                       onChange={(event) => setForm((current) => ({ ...current, currency: event.target.value.toUpperCase() }))}
                       maxLength={3}
                       placeholder={t("accounts.formCurrencyPlaceholder")}
-                      className="h-11 rounded-xl border border-[#2e2e2e] bg-surface-2 px-3 text-sm uppercase text-primary outline-none ring-brand-500 transition focus:ring-2"
+                      className="h-11 rounded-xl border border-border bg-surface-2 px-3 text-sm uppercase text-primary outline-none ring-brand-500 transition focus:ring-2"
                       required
                     />
                   </label>
@@ -388,7 +388,7 @@ export default function ComptesPage() {
                     <select
                       value={form.accountType}
                       onChange={(event) => setForm((current) => ({ ...current, accountType: event.target.value as AccountType }))}
-                      className="h-11 rounded-xl border border-[#2e2e2e] bg-surface-2 px-3 text-sm text-primary outline-none ring-brand-500 transition focus:ring-2"
+                      className="h-11 rounded-xl border border-border bg-surface-2 px-3 text-sm text-primary outline-none ring-brand-500 transition focus:ring-2"
                     >
                       {accountTypeOptions.map((option) => (
                         <option key={option} value={option}>
@@ -408,7 +408,7 @@ export default function ComptesPage() {
                     value={form.initialBalance}
                     onChange={(event) => setForm((current) => ({ ...current, initialBalance: event.target.value }))}
                     placeholder={t("accounts.formInitialBalancePlaceholder")}
-                    className="h-11 rounded-xl border border-[#2e2e2e] bg-surface-2 px-3 text-sm text-primary outline-none ring-brand-500 transition focus:ring-2"
+                    className="h-11 rounded-xl border border-border bg-surface-2 px-3 text-sm text-primary outline-none ring-brand-500 transition focus:ring-2"
                   />
                   <span className="text-xs text-secondary font-sans">{t("accounts.formInitialBalanceHelp")}</span>
                 </label>
@@ -424,14 +424,14 @@ export default function ComptesPage() {
                   <button
                     type="button"
                     onClick={closeForm}
-                    className="inline-flex h-11 items-center justify-center rounded-xl border border-[#2e2e2e] bg-surface-1 px-5 text-sm font-semibold text-primary transition hover:bg-surface-2"
+                    className="inline-flex h-11 items-center justify-center rounded-xl border border-border bg-surface-1 px-5 text-sm font-semibold text-primary transition hover:bg-surface-2"
                   >
                     {t("accounts.formCancelBtn")}
                   </button>
                 </div>
               </form>
             ) : (
-              <div className="rounded-xl border border-dashed border-[#2e2e2e] bg-surface-2 px-4 py-5 text-sm text-secondary font-sans">
+              <div className="rounded-xl border border-dashed border-border bg-surface-2 px-4 py-5 text-sm text-secondary font-sans">
                 {t("accounts.emptySelectionText")}<span className="font-semibold text-primary">{t("accounts.clickAdd")}</span>{t("accounts.toOpenForm")}<span className="font-semibold text-primary">{t("accounts.orChoose")}</span>{t("accounts.onExisting")}
               </div>
             )}

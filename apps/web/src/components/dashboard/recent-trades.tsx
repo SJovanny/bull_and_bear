@@ -13,8 +13,8 @@ type RecentTradesProps = {
 export function RecentTrades({ loading, trades }: RecentTradesProps) {
   const { t } = useTranslation();
   return (
-    <article className="overflow-hidden rounded-xl border border-[#2e2e2e] bg-surface-1 shadow-none border border-[#2e2e2e] transition-all hover:shadow-none border border-[#2e2e2e] flex flex-col h-full">
-      <div className="border-b border-[#2e2e2e] px-4 py-3 shrink-0">
+    <article className="overflow-hidden rounded-xl border border-border bg-surface-1 shadow-sm transition-all hover:shadow-md flex flex-col h-full">
+      <div className="border-b border-border px-4 py-3 shrink-0">
         <h2 className="text-sm font-semibold uppercase tracking-[0.08em] text-secondary font-sans">{t("recentTrades.title")}</h2>
       </div>
 

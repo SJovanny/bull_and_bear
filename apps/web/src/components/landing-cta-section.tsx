@@ -25,7 +25,7 @@ export function LandingCtaSection({ href }: { href: string }) {
         <div className="mt-12 flex flex-col items-center gap-4 sm:flex-row sm:justify-center sm:gap-6">
           <Link
             href={href}
-            className="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-[#1c1c1c] px-8 py-4 text-sm font-semibold uppercase tracking-[0.16em] text-slate-950 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_20px_60px_rgba(56,189,248,0.3)]"
+            className="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-white px-8 py-4 text-sm font-semibold uppercase tracking-[0.16em] text-slate-950 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_20px_60px_rgba(56,189,248,0.3)]"
           >
             {/* Animated gradient on hover */}
             <span className="absolute inset-0 bg-gradient-to-r from-cyan-200 via-white to-teal-200 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />

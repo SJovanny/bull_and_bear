@@ -127,7 +127,7 @@ export function AccountSwitcher() {
     <select
       value={selectedAccountId}
       onChange={(event) => handleAccountChange(event.target.value)}
-      className="h-10 min-w-0 w-full rounded-lg border border-[#2e2e2e] bg-surface-1 px-3 py-2 text-sm text-primary outline-none ring-brand-500 transition focus:ring-2 sm:w-auto sm:max-w-[260px]"
+      className="h-10 min-w-0 w-full rounded-lg border border-border bg-surface-1 px-3 py-2 text-sm text-primary outline-none ring-brand-500 transition focus:ring-2 sm:w-auto sm:max-w-[260px]"
       aria-label={t("accountSwitcher.label")}
     >
       {accounts.map((account) => {

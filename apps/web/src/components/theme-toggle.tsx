@@ -31,7 +31,7 @@ export function ThemeToggle({ isCollapsed = false }: { isCollapsed?: boolean }) 
     <button
       type="button"
       onClick={toggleTheme}
-      className={`group relative flex w-full items-center rounded-lg px-3 py-2.5 text-sm font-medium text-slate-400 transition-colors hover:bg-[#1c1c1c]/5 hover:text-slate-200`}
+      className={`group relative flex w-full items-center rounded-lg px-3 py-2.5 text-sm font-medium text-slate-400 transition-colors hover:bg-white/5 hover:text-slate-200`}
       aria-label="Toggle theme"
     >
       <Icon className={`h-5 w-5 shrink-0 ${isCollapsed ? "mx-auto" : "mr-3"}`} />

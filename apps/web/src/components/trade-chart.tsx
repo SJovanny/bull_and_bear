@@ -585,8 +585,8 @@ export function TradeChart({
   ].filter((level) => level.value != null);
 
   return (
-    <div className="rounded-xl border border-[#2e2e2e] bg-surface-1 shadow-none border border-[#2e2e2e]">
-      <div className="flex flex-col gap-3 border-b border-[#2e2e2e] px-4 py-3 sm:flex-row sm:items-start sm:justify-between">
+    <div className="rounded-xl border border-border bg-surface-1 shadow-sm">
+      <div className="flex flex-col gap-3 border-b border-border px-4 py-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-secondary">Graphique du trade</p>
           <p className="mt-1 text-sm font-semibold text-primary">
@@ -609,7 +609,7 @@ export function TradeChart({
           {levels.map((level) => (
             <span
               key={level.label}
-              className="inline-flex items-center gap-2 rounded-full border border-[#2e2e2e] bg-surface-1 px-3 py-1.5 text-xs shadow-none border border-[#2e2e2e]"
+              className="inline-flex items-center gap-2 rounded-full border border-border bg-surface-1 px-3 py-1.5 text-xs shadow-sm"
             >
               <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: level.color }} />
               <span className="font-semibold text-primary">{level.label}</span>

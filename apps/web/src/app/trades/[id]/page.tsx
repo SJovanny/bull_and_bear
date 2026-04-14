@@ -135,7 +135,7 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 
 function InfoCard({ label, children, className }: { label: string; children: React.ReactNode; className?: string }) {
   return (
-    <div className={`rounded-xl border border-[#2e2e2e] bg-surface-1 p-4 transition-all hover:shadow-none border border-[#2e2e2e] ${className ?? ""}`}>
+    <div className={`rounded-xl border border-border bg-surface-1 p-4 transition-all hover:shadow-sm ${className ?? ""}`}>
       <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-secondary">{label}</p>
       <div className="mt-1.5">{children}</div>
     </div>
@@ -149,7 +149,7 @@ function InfoValue({ children, className }: { children: React.ReactNode; classNa
 function TextBlock({ label, value }: { label: string; value: string | null }) {
   const text = plainText(value);
   return (
-    <div className="rounded-xl border border-[#2e2e2e] bg-surface-1 p-4">
+    <div className="rounded-xl border border-border bg-surface-1 p-4">
       <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-secondary">{label}</p>
       <p className="mt-2 text-sm leading-relaxed text-primary/80">{text}</p>
     </div>
@@ -217,7 +217,7 @@ function ScreenshotGrid({ screenshots, onClickImage, t }: { screenshots: string[
           key={`${url}-${index}`}
           type="button"
           onClick={() => onClickImage(index)}
-          className="group relative aspect-video w-full overflow-hidden rounded-xl border border-[#2e2e2e] bg-surface-2 transition-all hover:border-brand-500/40 hover:shadow-none border border-[#2e2e2e] focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:ring-offset-2"
+          className="group relative aspect-video w-full overflow-hidden rounded-xl border border-border bg-surface-2 transition-all hover:border-brand-500/40 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:ring-offset-2"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -228,7 +228,7 @@ function ScreenshotGrid({ screenshots, onClickImage, t }: { screenshots: string[
           />
           {/* Hover overlay */}
           <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors group-hover:bg-black/20">
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1c1c1c]/80 opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
+            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/80 opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
               <svg className="h-5 w-5 text-slate-700" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="9" cy="9" r="6" />
                 <path d="M13.5 13.5L17 17" />
@@ -305,7 +305,7 @@ export default function TradeDetailPage() {
         <>
           <Link
             href="/journal"
-            className="inline-flex h-10 items-center justify-center rounded-lg border border-[#2e2e2e] px-3 text-sm font-medium text-secondary hover:bg-surface-2 transition-colors"
+            className="inline-flex h-10 items-center justify-center rounded-lg border border-border px-3 text-sm font-medium text-secondary hover:bg-surface-2 transition-colors"
           >
             {t("tradeDetail.backJournal")}
           </Link>
@@ -334,7 +334,7 @@ export default function TradeDetailPage() {
             {/* ====================================================== */}
             {/*  HERO BANNER                                            */}
             {/* ====================================================== */}
-            <section className="rounded-2xl border border-[#2e2e2e] bg-surface-1 p-6 shadow-none border border-[#2e2e2e] sm:p-8">
+            <section className="rounded-2xl border border-border bg-surface-1 p-6 shadow-sm sm:p-8">
               <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
                 {/* Left: Symbol + metadata badges */}
                 <div className="space-y-3">
@@ -443,7 +443,7 @@ export default function TradeDetailPage() {
               </div>
 
               {/* Confluences */}
-              <div className="rounded-xl border border-[#2e2e2e] bg-surface-1 p-4">
+              <div className="rounded-xl border border-border bg-surface-1 p-4">
                 <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-secondary">{t("tradeDetail.confluences")}</p>
                 {trade.confluences && trade.confluences.length > 0 ? (
                   <div className="mt-2 flex flex-wrap gap-2">
