@@ -12,6 +12,7 @@ import { toDateKey } from "@/lib/format";
 import { useTutorialStatus } from "@/hooks/use-tutorial-status";
 import { TutorialProvider } from "@/components/tutorial/tutorial-provider";
 import { tutorialStepsMap } from "@/config/tutorial-steps";
+import { mockCalendarTrades } from "@/config/tutorial-mock-data";
 
 type Trade = {
   id: string;
@@ -108,6 +109,10 @@ function CalendarPageContent() {
   const { t, locale } = useTranslation();
   const { tutorialsCompleted, loaded: tutorialLoaded } = useTutorialStatus();
 
+  // Inject mock data when tutorial hasn't been completed and no real trades
+  const shouldUseMock = tutorialLoaded && tutorialsCompleted.calendar !== true && !loading;
+  const displayTrades = shouldUseMock ? (mockCalendarTrades as Trade[]) : trades;
+
   const tradesEndpoint = useMemo(() => {
     if (!selectedAccountId) {
       return null;
@@ -129,7 +134,7 @@ function CalendarPageContent() {
   const tradesByDay = useMemo(() => {
     const dayMap = new Map<string, Trade[]>();
 
-    trades.forEach((trade) => {
+    displayTrades.forEach((trade) => {
       const key = toDateKey(new Date(trade.openedAt));
       const bucket = dayMap.get(key) ?? [];
       bucket.push(trade);
@@ -139,19 +144,19 @@ function CalendarPageContent() {
     dayMap.forEach((bucket) => bucket.sort((a, b) => (a.openedAt < b.openedAt ? 1 : -1)));
 
     return dayMap;
-  }, [trades]);
+  }, [displayTrades]);
 
   const pnlByDay = useMemo(() => {
     const pnlMap = new Map<string, number>();
 
-    trades.forEach((trade) => {
+    displayTrades.forEach((trade) => {
       const key = toDateKey(new Date(trade.openedAt));
       const current = pnlMap.get(key) ?? 0;
       pnlMap.set(key, current + Number(trade.netPnl ?? 0));
     });
 
     return pnlMap;
-  }, [trades]);
+  }, [displayTrades]);
 
   const selectedDayTrades = useMemo(() => {
     return tradesByDay.get(selectedDate) ?? [];

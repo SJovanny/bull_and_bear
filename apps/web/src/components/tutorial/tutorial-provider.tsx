@@ -11,6 +11,7 @@ import type { Step } from "react-joyride";
 import { useTranslation } from "@/lib/i18n/context";
 import type { TutorialPage } from "@/config/tutorial-steps";
 import type { TranslationKeys } from "@/lib/i18n/types";
+import { useTutorialContext } from "./tutorial-context";
 
 const Joyride = dynamic(() => import("react-joyride").then((m) => m.Joyride), {
   ssr: false,
@@ -25,14 +26,23 @@ type TutorialProviderProps = {
 export function TutorialProvider({ page, steps, tutorialCompleted }: TutorialProviderProps) {
   const [run, setRun] = useState(false);
   const { t } = useTranslation();
+  const { setActivePage } = useTutorialContext();
 
   // Auto-start if tutorial not completed
   useEffect(() => {
     if (!tutorialCompleted) {
-      const timer = setTimeout(() => setRun(true), 600);
+      const timer = setTimeout(() => {
+        setRun(true);
+        setActivePage(page);
+      }, 600);
       return () => clearTimeout(timer);
     }
-  }, [tutorialCompleted]);
+  }, [tutorialCompleted, page, setActivePage]);
+
+  // Clean up on unmount
+  useEffect(() => {
+    return () => setActivePage(null);
+  }, [setActivePage]);
 
   const handleEvent = useCallback(
     async (data: EventData, _controls: Controls) => {
@@ -40,6 +50,7 @@ export function TutorialProvider({ page, steps, tutorialCompleted }: TutorialPro
 
       if (status === "finished" || status === "skipped") {
         setRun(false);
+        setActivePage(null);
         try {
           await fetch("/api/me/tutorial", {
             method: "PATCH",
@@ -51,7 +62,7 @@ export function TutorialProvider({ page, steps, tutorialCompleted }: TutorialPro
         }
       }
     },
-    [page],
+    [page, setActivePage],
   );
 
   // Translate step content using i18n keys

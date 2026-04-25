@@ -12,6 +12,7 @@ import { useTutorialStatus } from "@/hooks/use-tutorial-status";
 import { useTranslation } from "@/lib/i18n/context";
 import { TutorialProvider } from "@/components/tutorial/tutorial-provider";
 import { tutorialStepsMap } from "@/config/tutorial-steps";
+import { mockTrades, mockStatsSummary, mockStatsEquity, mockStatsCalendar } from "@/config/tutorial-mock-data";
 import type { Account, DashboardPeriod, StatsCalendar, StatsEquity, StatsSummary, Trade } from "@/types";
 
 export default function DashboardPage() {
@@ -121,6 +122,13 @@ function DashboardContent() {
     loadData();
   }, [accountScopedBase, period, router, selectedAccountId]);
 
+  // Inject mock data when tutorial hasn't been completed and no real data
+  const shouldUseMock = tutorialLoaded && tutorialsCompleted.dashboard !== true && !loading;
+  const displayTrades = shouldUseMock ? (mockTrades as Trade[]) : trades;
+  const displaySummary = shouldUseMock ? mockStatsSummary : summary;
+  const displayEquity = shouldUseMock ? mockStatsEquity : equity;
+  const displayCalendar = shouldUseMock ? mockStatsCalendar : calendar;
+
   return (
     <DashboardShell title={t("dashboard.title")} >
       <div className="mx-auto flex max-w-[1440px] flex-col gap-4">
@@ -159,40 +167,40 @@ function DashboardContent() {
 
         <div data-tutorial="kpi-cards">
           <KpiCards
-            loading={loading}
-            totalNetPnl={summary?.realized.netPnl ?? 0}
-            winRate={summary?.realized.winRate ?? 0}
-            profitFactor={summary?.realized.profitFactor ?? 0}
-            totalTrades={summary?.activity.totalTrades ?? 0}
-            openTrades={summary?.activity.openTrades ?? 0}
-            closedTrades={summary?.activity.closedTrades ?? 0}
+            loading={loading && !shouldUseMock}
+            totalNetPnl={displaySummary?.realized.netPnl ?? 0}
+            winRate={displaySummary?.realized.winRate ?? 0}
+            profitFactor={displaySummary?.realized.profitFactor ?? 0}
+            totalTrades={displaySummary?.activity.totalTrades ?? 0}
+            openTrades={displaySummary?.activity.openTrades ?? 0}
+            closedTrades={displaySummary?.activity.closedTrades ?? 0}
             currency={selectedAccountCurrency}
-            currentBalance={summary?.currentBalance ?? null}
-            returnPercent={summary?.returnPercent ?? null}
-            maxDrawdownPercent={summary?.maxDrawdownPercent ?? null}
+            currentBalance={displaySummary?.currentBalance ?? null}
+            returnPercent={displaySummary?.returnPercent ?? null}
+            maxDrawdownPercent={displaySummary?.maxDrawdownPercent ?? null}
           />
         </div>
 
         <div data-tutorial="charts">
           <DashboardCharts
-            totalTrades={summary?.activity.totalTrades ?? 0}
+            totalTrades={displaySummary?.activity.totalTrades ?? 0}
             period={period}
-            totalNetPnl={equity?.totalNetPnl ?? 0}
-            cumulativeSeries={equity?.cumulativeSeries ?? []}
-            last14Days={equity?.recentDailySeries ?? []}
-            openTrades={summary?.activity.openTrades ?? 0}
-            closedTrades={summary?.activity.closedTrades ?? 0}
+            totalNetPnl={displayEquity?.totalNetPnl ?? 0}
+            cumulativeSeries={displayEquity?.cumulativeSeries ?? []}
+            last14Days={displayEquity?.recentDailySeries ?? []}
+            openTrades={displaySummary?.activity.openTrades ?? 0}
+            closedTrades={displaySummary?.activity.closedTrades ?? 0}
             accountsCount={accounts.length}
-            initialBalance={equity?.initialBalance ?? null}
+            initialBalance={displayEquity?.initialBalance ?? null}
           />
         </div>
 
         <section className="grid items-start gap-3 xl:grid-cols-[0.55fr_1.45fr]">
           <div data-tutorial="recent-trades">
-            <RecentTrades loading={loading} trades={trades} />
+            <RecentTrades loading={loading && !shouldUseMock} trades={displayTrades} />
           </div>
           <div data-tutorial="mini-calendar">
-            <MiniCalendar days={calendar?.days ?? []} />
+            <MiniCalendar days={displayCalendar?.days ?? []} />
           </div>
         </section>
       </div>

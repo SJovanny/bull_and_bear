@@ -19,6 +19,7 @@ import type {
 import { useTutorialStatus } from "@/hooks/use-tutorial-status";
 import { TutorialProvider } from "@/components/tutorial/tutorial-provider";
 import { tutorialStepsMap } from "@/config/tutorial-steps";
+import { mockStatsSummary, mockStatsBreakdown, mockStatsDistribution, mockStatsTimeAnalysis } from "@/config/tutorial-mock-data";
 
 // We will pass the translation function (t) into these or translate them inline.
 const BREAKDOWN_KEYS = ["symbol", "setupName", "strategyTag", "assetClass", "side", "entryTimeframe", "planFollowed", "executionRating"] as const;
@@ -99,14 +100,21 @@ function StatsPageContent() {
     loadStats();
   }, [baseQuery, breakdownBy, distributionMetric]);
 
-  const topBreakdown = breakdown?.items.slice(0, 8) ?? [];
-  const strongestWeekday = [...(timeAnalysis?.weekday ?? [])].sort((a, b) => b.netPnl - a.netPnl)[0] ?? null;
-  const strongestHour = [...(timeAnalysis?.hourly ?? [])].sort((a, b) => b.netPnl - a.netPnl)[0] ?? null;
+  // Inject mock data when tutorial hasn't been completed and no real data
+  const shouldUseMock = tutorialLoaded && tutorialsCompleted.stats !== true && !loading;
+  const displaySummary = shouldUseMock ? mockStatsSummary : summary;
+  const displayBreakdown = shouldUseMock ? mockStatsBreakdown : breakdown;
+  const displayDistribution = shouldUseMock ? mockStatsDistribution : distribution;
+  const displayTimeAnalysis = shouldUseMock ? mockStatsTimeAnalysis : timeAnalysis;
+
+  const topBreakdown = displayBreakdown?.items.slice(0, 8) ?? [];
+  const strongestWeekday = [...(displayTimeAnalysis?.weekday ?? [])].sort((a, b) => b.netPnl - a.netPnl)[0] ?? null;
+  const strongestHour = [...(displayTimeAnalysis?.hourly ?? [])].sort((a, b) => b.netPnl - a.netPnl)[0] ?? null;
   const selectedAccountCurrency = accounts.find((account) => account.id === selectedAccountId)?.currency ?? "USD";
-  const distributionBins = distribution?.bins ?? [];
+  const distributionBins = displayDistribution?.bins ?? [];
   const maxDistributionCount = Math.max(1, ...distributionBins.map((item) => item.count));
   const isMonetaryDistribution = distributionMetric === "pnl";
-  const drawdownValue = summary?.realized.maxDrawdown ?? 0;
+  const drawdownValue = displaySummary?.realized.maxDrawdown ?? 0;
   const drawdownDisplay = drawdownValue <= 0 ? `0 ${selectedAccountCurrency}` : `-${formatNumber(drawdownValue)} ${selectedAccountCurrency}`;
 
   function formatMoney(value: number) {
@@ -146,8 +154,8 @@ function StatsPageContent() {
             <div className="text-xs uppercase tracking-[0.1em] text-secondary font-sans">
               <MetricLabel label={t("stats.metrics.netPnl")} description={t("stats.metrics.netPnlDesc")} />
             </div>
-            <p className={`mt-2 text-3xl font-semibold font-mono ${pnlColorClass(summary?.realized.netPnl ?? 0)}`}>
-              {loading ? "..." : formatMoney(summary?.realized.netPnl ?? 0)}
+            <p className={`mt-2 text-3xl font-semibold font-mono ${pnlColorClass(displaySummary?.realized.netPnl ?? 0)}`}>
+              {loading ? "..." : formatMoney(displaySummary?.realized.netPnl ?? 0)}
             </p>
             <p className="mt-2 text-xs text-secondary font-sans">{t("stats.metrics.netPnlNote")}</p>
           </article>
@@ -159,8 +167,8 @@ function StatsPageContent() {
                 description={t("stats.metrics.expectancyDesc")}
               />
             </div>
-            <p className={`mt-2 text-3xl font-semibold font-mono ${pnlColorClass(summary?.realized.expectancy ?? 0)}`}>
-              {loading ? "..." : formatMoney(summary?.realized.expectancy ?? 0)}
+            <p className={`mt-2 text-3xl font-semibold font-mono ${pnlColorClass(displaySummary?.realized.expectancy ?? 0)}`}>
+              {loading ? "..." : formatMoney(displaySummary?.realized.expectancy ?? 0)}
             </p>
             <p className="mt-2 text-xs text-secondary font-sans">{t("stats.metrics.expectancyNote")}</p>
           </article>
@@ -172,7 +180,7 @@ function StatsPageContent() {
                 description={t("stats.metrics.maxDrawdownDesc")}
               />
             </div>
-            <p className={`mt-2 text-3xl font-semibold font-mono ${pnlColorClass(-(summary?.realized.maxDrawdown ?? 0))}`}>
+            <p className={`mt-2 text-3xl font-semibold font-mono ${pnlColorClass(-(displaySummary?.realized.maxDrawdown ?? 0))}`}>
               {loading ? "..." : drawdownDisplay}
             </p>
             <p className="mt-2 text-xs text-secondary font-sans">{t("stats.metrics.maxDrawdownNote")}</p>
@@ -183,7 +191,7 @@ function StatsPageContent() {
               <MetricLabel label={t("stats.metrics.avgHolding")} description={t("stats.metrics.avgHoldingDesc")} />
             </div>
             <p className="mt-2 text-3xl font-semibold text-primary font-mono">
-              {loading ? "..." : `${formatNumber(summary?.realized.averageHoldingHours ?? 0)}h`}
+              {loading ? "..." : `${formatNumber(displaySummary?.realized.averageHoldingHours ?? 0)}h`}
             </p>
             <p className="mt-2 text-xs text-secondary font-sans">{t("stats.metrics.avgHoldingNote")}</p>
           </article>
@@ -197,15 +205,15 @@ function StatsPageContent() {
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
               <div className="rounded-xl bg-surface-2 px-4 py-3">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-secondary font-sans">{t("stats.metrics.bestTrade")}</p>
-                <p className={`mt-2 text-2xl font-semibold font-mono ${pnlColorClass(summary?.realized.bestTrade ?? 0)}`}>
-                  {loading ? "..." : formatMoney(summary?.realized.bestTrade ?? 0)}
+                <p className={`mt-2 text-2xl font-semibold font-mono ${pnlColorClass(displaySummary?.realized.bestTrade ?? 0)}`}>
+                  {loading ? "..." : formatMoney(displaySummary?.realized.bestTrade ?? 0)}
                 </p>
                 <p className="mt-2 text-xs text-secondary font-sans">{t("stats.metrics.bestTradeNote")}</p>
               </div>
               <div className="rounded-xl bg-surface-2 px-4 py-3">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-secondary font-sans">{t("stats.metrics.worstTrade")}</p>
-                <p className={`mt-2 text-2xl font-semibold font-mono ${pnlColorClass(summary?.realized.worstTrade ?? 0)}`}>
-                  {loading ? "..." : formatMoney(summary?.realized.worstTrade ?? 0)}
+                <p className={`mt-2 text-2xl font-semibold font-mono ${pnlColorClass(displaySummary?.realized.worstTrade ?? 0)}`}>
+                  {loading ? "..." : formatMoney(displaySummary?.realized.worstTrade ?? 0)}
                 </p>
                 <p className="mt-2 text-xs text-secondary font-sans">{t("stats.metrics.worstTradeNote")}</p>
               </div>
@@ -222,15 +230,15 @@ function StatsPageContent() {
             <div className="mt-3 grid grid-cols-2 gap-3">
               <div className="rounded-xl bg-surface-2 px-4 py-3">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-secondary font-sans">{t("stats.metrics.winStreak")}</p>
-                <p className="mt-2 text-2xl font-semibold text-primary font-mono">{loading ? "..." : summary?.realized.maxWinStreak ?? 0}</p>
+                <p className="mt-2 text-2xl font-semibold text-primary font-mono">{loading ? "..." : displaySummary?.realized.maxWinStreak ?? 0}</p>
               </div>
               <div className="rounded-xl bg-surface-2 px-4 py-3">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-secondary font-sans">{t("stats.metrics.lossStreak")}</p>
-                <p className="mt-2 text-2xl font-semibold text-primary font-mono">{loading ? "..." : summary?.realized.maxLossStreak ?? 0}</p>
+                <p className="mt-2 text-2xl font-semibold text-primary font-mono">{loading ? "..." : displaySummary?.realized.maxLossStreak ?? 0}</p>
               </div>
             </div>
             <p className="mt-3 text-xs text-secondary font-sans">
-              {loading ? "..." : `${t("stats.metrics.worstRun")} ${summary?.realized.maxLossStreak ?? 0}`}
+              {loading ? "..." : `${t("stats.metrics.worstRun")} ${displaySummary?.realized.maxLossStreak ?? 0}`}
             </p>
           </article>
         </section>
@@ -328,12 +336,12 @@ function StatsPageContent() {
             </div>
 
             <div className="mt-3 grid grid-cols-2 gap-3 text-xs text-secondary font-mono">
-              <p>{t("stats.distribution.avg")}: {loading ? "..." : isMonetaryDistribution ? formatMoney(distribution?.average ?? 0) : formatNumber(distribution?.average ?? 0)}</p>
-              <p>{t("stats.distribution.median")}: {loading ? "..." : isMonetaryDistribution ? formatMoney(distribution?.median ?? 0) : formatNumber(distribution?.median ?? 0)}</p>
-              <p>{t("stats.distribution.min")}: {loading ? "..." : isMonetaryDistribution ? formatMoney(distribution?.min ?? 0) : formatNumber(distribution?.min ?? 0)}</p>
-              <p>{t("stats.distribution.max")}: {loading ? "..." : isMonetaryDistribution ? formatMoney(distribution?.max ?? 0) : formatNumber(distribution?.max ?? 0)}</p>
-              <p>{t("stats.distribution.samples")}: {loading ? "..." : distribution?.sampleCount ?? 0}</p>
-              <p>{t("stats.distribution.unit")}: {loading ? "..." : distribution?.unit ?? "-"}</p>
+              <p>{t("stats.distribution.avg")}: {loading ? "..." : isMonetaryDistribution ? formatMoney(displayDistribution?.average ?? 0) : formatNumber(displayDistribution?.average ?? 0)}</p>
+              <p>{t("stats.distribution.median")}: {loading ? "..." : isMonetaryDistribution ? formatMoney(displayDistribution?.median ?? 0) : formatNumber(displayDistribution?.median ?? 0)}</p>
+              <p>{t("stats.distribution.min")}: {loading ? "..." : isMonetaryDistribution ? formatMoney(displayDistribution?.min ?? 0) : formatNumber(displayDistribution?.min ?? 0)}</p>
+              <p>{t("stats.distribution.max")}: {loading ? "..." : isMonetaryDistribution ? formatMoney(displayDistribution?.max ?? 0) : formatNumber(displayDistribution?.max ?? 0)}</p>
+              <p>{t("stats.distribution.samples")}: {loading ? "..." : displayDistribution?.sampleCount ?? 0}</p>
+              <p>{t("stats.distribution.unit")}: {loading ? "..." : displayDistribution?.unit ?? "-"}</p>
             </div>
           </article>
         </section>
@@ -390,7 +398,7 @@ function StatsPageContent() {
                   />
                 </div>
                 <p className="mt-1 font-semibold text-primary font-mono">
-                  {loading ? "..." : `${summary?.realized.maxWinStreak ?? 0}W / ${summary?.realized.maxLossStreak ?? 0}L`}
+                  {loading ? "..." : `${displaySummary?.realized.maxWinStreak ?? 0}W / ${displaySummary?.realized.maxLossStreak ?? 0}L`}
                 </p>
               </div>
             </div>

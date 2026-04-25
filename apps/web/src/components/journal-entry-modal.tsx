@@ -14,6 +14,7 @@ import {
 import { useTranslation } from "@/lib/i18n/context";
 import type { Trade } from "@/types";
 
+
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 type EconomicEvent = {
@@ -113,7 +114,9 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isOpen || !accountId || !dateStr) return;
+    if (!isOpen || !dateStr) return;
+
+    if (!accountId) return;
 
     async function loadData() {
       setLoading(true);
@@ -259,6 +262,7 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
     >
       <div
         className="flex h-[95vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl bg-surface-1 shadow-2xl ring-1 ring-border"
+        data-tutorial="journal-modal"
         onClick={e => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
@@ -301,15 +305,17 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
               ) : (
                 <>
                   {/* Free notes */}
+                  <div data-tutorial="journal-notes">
                   <textarea
                     value={journal.notes}
                     onChange={e => setJournal({ ...journal, notes: e.target.value })}
                     className="w-full resize-none bg-transparent text-xl font-medium text-primary placeholder:text-secondary/40 outline-none leading-relaxed min-h-[120px]"
                     placeholder={t("journalModal.notesPlaceholder")}
                   />
+                  </div>
 
                   {/* ── Pre-Market ──────────────────────────────────────── */}
-                  <div className="space-y-6 rounded-2xl bg-surface-1 p-6 shadow-sm border border-border/50">
+                  <div data-tutorial="journal-premarket" className="space-y-6 rounded-2xl bg-surface-1 p-6 shadow-sm border border-border/50">
                     <h3 className="flex items-center gap-2 text-sm font-bold text-primary font-sans">
                       <span className="flex h-6 w-6 items-center justify-center rounded bg-surface-2 text-xs">🌅</span>
                       {t("journalModal.preMarket")}
@@ -468,7 +474,7 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
                   </div>
 
                   {/* ── Execution ───────────────────────────────────────── */}
-                  <div className="space-y-6 rounded-2xl bg-surface-1 p-6 shadow-sm border border-border/50">
+                  <div data-tutorial="journal-execution" className="space-y-6 rounded-2xl bg-surface-1 p-6 shadow-sm border border-border/50">
                     <h3 className="flex items-center gap-2 text-sm font-bold text-primary font-sans">
                       <span className="flex h-6 w-6 items-center justify-center rounded bg-surface-2 text-xs">🎯</span>
                       {t("journalModal.execution")}
@@ -514,7 +520,7 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
                   </div>
 
                   {/* ── Psychology ──────────────────────────────────────── */}
-                  <div className="space-y-6 rounded-2xl bg-surface-1 p-6 shadow-sm border border-border/50">
+                  <div data-tutorial="journal-psychology" className="space-y-6 rounded-2xl bg-surface-1 p-6 shadow-sm border border-border/50">
                     <h3 className="flex items-center gap-2 text-sm font-bold text-primary font-sans">
                       <span className="flex h-6 w-6 items-center justify-center rounded bg-surface-2 text-xs">🧠</span>
                       {t("journalModal.psychology")}
@@ -548,7 +554,7 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
                   </div>
 
                   {/* ── Lessons ─────────────────────────────────────────── */}
-                  <div className="space-y-4 rounded-2xl bg-brand-500/5 p-6 border border-brand-500/20">
+                  <div data-tutorial="journal-lessons" className="space-y-4 rounded-2xl bg-brand-500/5 p-6 border border-brand-500/20">
                     <h3 className="flex items-center gap-2 text-sm font-bold text-brand-600 font-sans">
                       <span className="flex h-6 w-6 items-center justify-center rounded bg-brand-500 text-white text-xs">💡</span>
                       {t("journalModal.lessons")}
@@ -566,7 +572,7 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
           </div>
 
           {/* Right: Trades sidebar */}
-          <div className="w-full md:w-80 shrink-0 border-t md:border-t-0 md:border-l border-border bg-surface-1 flex flex-col">
+          <div data-tutorial="journal-trades-sidebar" className="w-full md:w-80 shrink-0 border-t md:border-t-0 md:border-l border-border bg-surface-1 flex flex-col">
             <div className="p-5 sm:p-6 border-b border-border bg-surface-2/30">
               <h3 className="text-xs font-bold uppercase tracking-widest text-secondary mb-4 font-sans">{t("journalModal.actualResult")}</h3>
               <div className="flex items-end justify-between">
@@ -591,7 +597,7 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
                 </p>
               ) : (
                 trades.map(trade => (
-                  <Link
+                    <Link
                     key={trade.id}
                     href={`/trades/${trade.id}`}
                     onClick={onClose}

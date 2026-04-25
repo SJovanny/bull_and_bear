@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "@/lib/i18n/context";
+import { TutorialContextProvider } from "@/components/tutorial/tutorial-context";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-sans",
@@ -35,7 +36,9 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <LanguageProvider>
-          {children}
+          <TutorialContextProvider>
+            {children}
+          </TutorialContextProvider>
         </LanguageProvider>
       </body>
     </html>

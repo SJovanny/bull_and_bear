@@ -11,6 +11,7 @@ import { mentalStateLabelKeys } from "@/lib/journal-labels";
 import { useTutorialStatus } from "@/hooks/use-tutorial-status";
 import { TutorialProvider } from "@/components/tutorial/tutorial-provider";
 import { tutorialStepsMap } from "@/config/tutorial-steps";
+import { mockTrades, mockJournalEntries } from "@/config/tutorial-mock-data";
 import type { Trade } from "@/types";
 
 type JournalEntry = {
@@ -119,10 +120,15 @@ function JournalPageContent() {
     loadData();
   }, [loadData]);
 
+  // Inject mock data when tutorial hasn't been completed
+  const shouldUseMock = tutorialLoaded && tutorialsCompleted.journal !== true && !loading;
+  const displayTrades = shouldUseMock ? (mockTrades as Trade[]) : trades;
+  const displayJournals = shouldUseMock ? (mockJournalEntries as JournalEntry[]) : journals;
+
   const monthSummaries = useMemo(() => {
     const dayMap = new Map<string, DaySummary>();
 
-    trades.forEach((trade) => {
+    displayTrades.forEach((trade) => {
       const tradeDate = new Date(trade.openedAt);
       if (!isSameMonth(tradeDate, selectedMonth)) {
         return;
@@ -142,7 +148,7 @@ function JournalPageContent() {
       dayMap.set(key, current);
     });
 
-    journals.forEach((journal) => {
+    displayJournals.forEach((journal) => {
       const journalDate = new Date(journal.date);
       if (!isSameMonth(journalDate, selectedMonth)) {
         return;
@@ -162,7 +168,7 @@ function JournalPageContent() {
     });
 
     return Array.from(dayMap.values()).sort((a, b) => b.dateStr.localeCompare(a.dateStr));
-  }, [journals, selectedMonth, trades]);
+  }, [displayJournals, selectedMonth, displayTrades]);
 
   function handleOpenModal(dateKey?: string) {
     if (dateKey) {

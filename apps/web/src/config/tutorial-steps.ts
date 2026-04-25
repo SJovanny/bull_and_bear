@@ -10,7 +10,8 @@ export type TutorialPage =
   | "journal"
   | "stats"
   | "comptes"
-  | "profil";
+  | "profil"
+  | "tradeDetail";
 
 // ─── Dashboard ──────────────────────────────────────────────────────────────
 const dashboardSteps: Step[] = [
@@ -54,13 +55,28 @@ const calendarSteps: Step[] = [
     placement: "center",
   },
   {
+    target: '[data-tutorial="calendar-actions"]',
+    content: "tutorial.calendar.actions",
+    placement: "bottom",
+  },
+  {
     target: '[data-tutorial="calendar-grid"]',
     content: "tutorial.calendar.grid",
     placement: "bottom",
   },
   {
+    target: '[data-tutorial="calendar-grid"]',
+    content: "tutorial.calendar.colors",
+    placement: "bottom",
+  },
+  {
+    target: '[data-tutorial="calendar-grid"]',
+    content: "tutorial.calendar.dayClick",
+    placement: "bottom",
+  },
+  {
     target: '[data-tutorial="calendar-actions"]',
-    content: "tutorial.calendar.actions",
+    content: "tutorial.calendar.import",
     placement: "bottom",
   },
 ];
@@ -73,14 +89,24 @@ const journalSteps: Step[] = [
     placement: "center",
   },
   {
+    target: '[data-tutorial="journal-actions"]',
+    content: "tutorial.journal.newEntry",
+    placement: "bottom",
+  },
+  {
     target: '[data-tutorial="journal-list"]',
     content: "tutorial.journal.list",
     placement: "top",
   },
   {
-    target: '[data-tutorial="journal-actions"]',
-    content: "tutorial.journal.actions",
-    placement: "bottom",
+    target: '[data-tutorial="journal-list"]',
+    content: "tutorial.journal.entryContent",
+    placement: "top",
+  },
+  {
+    target: '[data-tutorial="journal-list"]',
+    content: "tutorial.journal.tradeReview",
+    placement: "top",
   },
 ];
 
@@ -97,13 +123,28 @@ const statsSteps: Step[] = [
     placement: "bottom",
   },
   {
+    target: '[data-tutorial="stats-metrics"]',
+    content: "tutorial.stats.metricsDetail",
+    placement: "bottom",
+  },
+  {
     target: '[data-tutorial="stats-breakdown"]',
     content: "tutorial.stats.breakdown",
     placement: "top",
   },
   {
+    target: '[data-tutorial="stats-breakdown"]',
+    content: "tutorial.stats.breakdownFilters",
+    placement: "top",
+  },
+  {
     target: '[data-tutorial="stats-distribution"]',
     content: "tutorial.stats.distribution",
+    placement: "top",
+  },
+  {
+    target: '[data-tutorial="stats-distribution"]',
+    content: "tutorial.stats.distributionModes",
     placement: "top",
   },
 ];
@@ -116,14 +157,24 @@ const comptesSteps: Step[] = [
     placement: "center",
   },
   {
+    target: '[data-tutorial="accounts-add"]',
+    content: "tutorial.comptes.add",
+    placement: "bottom",
+  },
+  {
     target: '[data-tutorial="accounts-list"]',
     content: "tutorial.comptes.list",
     placement: "top",
   },
   {
-    target: '[data-tutorial="accounts-add"]',
-    content: "tutorial.comptes.add",
-    placement: "bottom",
+    target: '[data-tutorial="accounts-list"]',
+    content: "tutorial.comptes.details",
+    placement: "top",
+  },
+  {
+    target: '[data-tutorial="accounts-list"]',
+    content: "tutorial.comptes.switch",
+    placement: "top",
   },
 ];
 
@@ -151,6 +202,65 @@ const profilSteps: Step[] = [
   },
 ];
 
+// ─── Trade Detail ───────────────────────────────────────────────────────────
+const tradeDetailSteps: Step[] = [
+  {
+    target: "body",
+    content: "tutorial.tradeDetail.welcome",
+    placement: "center",
+  },
+  {
+    target: '[data-tutorial="trade-hero"]',
+    content: "tutorial.tradeDetail.hero",
+    placement: "bottom",
+  },
+  {
+    target: '[data-tutorial="trade-hero"]',
+    content: "tutorial.tradeDetail.badges",
+    placement: "bottom",
+  },
+  {
+    target: '[data-tutorial="trade-execution"]',
+    content: "tutorial.tradeDetail.execution",
+    placement: "top",
+  },
+  {
+    target: '[data-tutorial="trade-chart"]',
+    content: "tutorial.tradeDetail.chart",
+    placement: "left",
+  },
+  {
+    target: '[data-tutorial="trade-context"]',
+    content: "tutorial.tradeDetail.context",
+    placement: "top",
+  },
+  {
+    target: '[data-tutorial="trade-confluences"]',
+    content: "tutorial.tradeDetail.confluences",
+    placement: "top",
+  },
+  {
+    target: '[data-tutorial="trade-psychology"]',
+    content: "tutorial.tradeDetail.psychology",
+    placement: "top",
+  },
+  {
+    target: '[data-tutorial="trade-psychology"]',
+    content: "tutorial.tradeDetail.rating",
+    placement: "top",
+  },
+  {
+    target: '[data-tutorial="trade-screenshots"]',
+    content: "tutorial.tradeDetail.screenshots",
+    placement: "top",
+  },
+  {
+    target: '[data-tutorial="trade-edit"]',
+    content: "tutorial.tradeDetail.edit",
+    placement: "bottom",
+  },
+];
+
 // ─── Exports ────────────────────────────────────────────────────────────────
 
 export const tutorialStepsMap: Record<TutorialPage, Step[]> = {
@@ -160,6 +270,7 @@ export const tutorialStepsMap: Record<TutorialPage, Step[]> = {
   stats: statsSteps,
   comptes: comptesSteps,
   profil: profilSteps,
+  tradeDetail: tradeDetailSteps,
 };
 
 export const tutorialPageLabels: Record<TutorialPage, { fr: string; en: string }> = {
@@ -169,6 +280,7 @@ export const tutorialPageLabels: Record<TutorialPage, { fr: string; en: string }
   stats: { fr: "Statistiques", en: "Statistics" },
   comptes: { fr: "Comptes", en: "Accounts" },
   profil: { fr: "Profil", en: "Profile" },
+  tradeDetail: { fr: "Détail du Trade", en: "Trade Detail" },
 };
 
 export const tutorialPageRoutes: Record<TutorialPage, string> = {
@@ -178,6 +290,7 @@ export const tutorialPageRoutes: Record<TutorialPage, string> = {
   stats: "/stats",
   comptes: "/comptes",
   profil: "/profil",
+  tradeDetail: "/journal",
 };
 
 export const ALL_TUTORIAL_PAGES: TutorialPage[] = [
@@ -187,4 +300,5 @@ export const ALL_TUTORIAL_PAGES: TutorialPage[] = [
   "stats",
   "comptes",
   "profil",
+  "tradeDetail",
 ];

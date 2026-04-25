@@ -8,6 +8,11 @@ import { DashboardShell } from "@/components/dashboard-shell";
 import { ImageLightbox } from "@/components/image-lightbox";
 import { TradeChart } from "@/components/trade-chart";
 import { TradeEntryModal } from "@/components/trade-entry-modal";
+import { TutorialProvider } from "@/components/tutorial/tutorial-provider";
+import { useTutorialContext } from "@/components/tutorial/tutorial-context";
+import { useTutorialStatus } from "@/hooks/use-tutorial-status";
+import { tutorialStepsMap } from "@/config/tutorial-steps";
+import { mockTradeDetail } from "@/config/tutorial-mock-data";
 import { useTranslation } from "@/lib/i18n/context";
 import { TranslationKeys } from "@/lib/i18n/types";
 
@@ -252,6 +257,8 @@ function ScreenshotGrid({ screenshots, onClickImage, t }: { screenshots: string[
 
 export default function TradeDetailPage() {
   const { t } = useTranslation();
+  const { tutorialsCompleted, loaded: tutorialLoaded } = useTutorialStatus();
+  const { isTutorialActive, activePage } = useTutorialContext();
 
   const params = useParams<{ id: string }>();
   const tradeId = params.id;
@@ -261,16 +268,20 @@ export default function TradeDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
 
+  // Use mock data when tutorial hasn't been completed
+  const shouldUseMock = tutorialLoaded && tutorialsCompleted.tradeDetail !== true && !loading;
+  const displayTrade: Trade | null = shouldUseMock ? (mockTradeDetail as Trade) : trade;
+
   // Lightbox state
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
   const screenshots = useMemo(() => {
-    if (!trade?.chartScreenshots || !Array.isArray(trade.chartScreenshots)) {
+    if (!displayTrade?.chartScreenshots || !Array.isArray(displayTrade.chartScreenshots)) {
       return [];
     }
-    return trade.chartScreenshots.filter((item) => typeof item === "string" && item.trim().length > 0);
-  }, [trade]);
+    return displayTrade.chartScreenshots.filter((item) => typeof item === "string" && item.trim().length > 0);
+  }, [displayTrade]);
 
   const loadTrade = useCallback(async () => {
     if (!tradeId) return;
@@ -294,7 +305,7 @@ export default function TradeDetailPage() {
     if (tradeId) loadTrade();
   }, [tradeId, loadTrade]);
 
-  const pnlValue = Number(trade?.netPnl ?? 0);
+  const pnlValue = Number(displayTrade?.netPnl ?? 0);
   const pnlColor = pnlValue > 0 ? "text-pnl-positive" : pnlValue < 0 ? "text-pnl-negative" : "text-pnl-neutral";
 
   return (
@@ -302,7 +313,7 @@ export default function TradeDetailPage() {
       title={t("tradeDetail.title")}
       subtitle={t("tradeDetail.subtitle")}
       actions={
-        <>
+        <div data-tutorial="trade-edit">
           <Link
             href="/journal"
             className="inline-flex h-10 items-center justify-center rounded-lg border border-border px-3 text-sm font-medium text-secondary hover:bg-surface-2 transition-colors"
@@ -312,11 +323,11 @@ export default function TradeDetailPage() {
           <button
             type="button"
             onClick={() => setIsEditOpen(true)}
-            className="inline-flex h-10 items-center justify-center rounded-lg border border-brand-500/30 bg-brand-500/5 px-3 text-sm font-medium text-brand-600 hover:bg-brand-500/10 transition-colors"
+            className="ml-2 inline-flex h-10 items-center justify-center rounded-lg border border-brand-500/30 bg-brand-500/5 px-3 text-sm font-medium text-brand-600 hover:bg-brand-500/10 transition-colors"
           >
             {t("tradeDetail.editTrade")}
           </button>
-        </>
+        </div>
       }
     >
       <div className="mx-auto max-w-7xl space-y-6">
@@ -326,32 +337,32 @@ export default function TradeDetailPage() {
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-500/30 border-t-brand-500" />
           </div>
         )}
-        {error && <p className="rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-700">{error}</p>}
-        {!loading && !error && !trade && <p className="text-sm text-secondary">{t("tradeDetail.notFound")}</p>}
+        {error && !shouldUseMock && <p className="rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-700">{error}</p>}
+        {!loading && !error && !displayTrade && <p className="text-sm text-secondary">{t("tradeDetail.notFound")}</p>}
 
-        {trade && (
+        {displayTrade && (
           <>
             {/* ====================================================== */}
             {/*  HERO BANNER                                            */}
             {/* ====================================================== */}
-            <section className="rounded-2xl border border-border bg-surface-1 p-6 shadow-sm sm:p-8">
+            <section data-tutorial="trade-hero" className="rounded-2xl border border-border bg-surface-1 p-6 shadow-sm sm:p-8">
               <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
                 {/* Left: Symbol + metadata badges */}
                 <div className="space-y-3">
                   <div className="flex flex-wrap items-center gap-3">
-                    <h2 className="text-3xl font-bold tracking-tight text-primary">{trade.symbol}</h2>
-                    {sideBadge(trade.side)}
-                    {statusBadge(trade.status)}
-                    {outcomeBadge(trade.tradeOutcome)}
+                    <h2 className="text-3xl font-bold tracking-tight text-primary">{displayTrade.symbol}</h2>
+                    {sideBadge(displayTrade.side)}
+                    {statusBadge(displayTrade.status)}
+                    {outcomeBadge(displayTrade.tradeOutcome)}
                   </div>
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-secondary">
-                    <span>{trade.assetClass}</span>
+                    <span>{displayTrade.assetClass}</span>
                     <span className="text-border">|</span>
-                    <span>{t("tradeDetail.openedOn")} {new Date(trade.openedAt).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
-                    {trade.closedAt && (
+                    <span>{t("tradeDetail.openedOn")} {new Date(displayTrade.openedAt).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
+                    {displayTrade.closedAt && (
                       <>
                         <span className="text-border">|</span>
-                        <span>{t("tradeDetail.closedOn")} {new Date(trade.closedAt).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
+                        <span>{t("tradeDetail.closedOn")} {new Date(displayTrade.closedAt).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
                       </>
                     )}
                   </div>
@@ -361,7 +372,7 @@ export default function TradeDetailPage() {
                 <div className="flex flex-col items-end">
                   <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-secondary">Net PnL</p>
                   <p className={`text-4xl font-bold font-mono tracking-tight ${pnlColor}`}>
-                    {formatPnl(trade.netPnl)}
+                    {formatPnl(displayTrade.netPnl)}
                   </p>
                 </div>
               </div>
@@ -370,7 +381,7 @@ export default function TradeDetailPage() {
             {/* ====================================================== */}
             {/*  EXECUTION                                              */}
             {/* ====================================================== */}
-            <section className="space-y-3">
+            <section data-tutorial="trade-execution" className="space-y-3">
               <SectionTitle>
                 <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 14l4-4m0 0l2-6 2 6m-4 0h4m2 4V4" /></svg>
                 {t("tradeDetail.execution")}
@@ -381,40 +392,40 @@ export default function TradeDetailPage() {
                 {/* Left column — compact info cards */}
                 <div className="grid grid-cols-2 gap-2 self-start">
                   <InfoCard label={t("tradeDetail.entryPrice")}>
-                    <InfoValue>{formatNumber(trade.entryPrice)}</InfoValue>
+                    <InfoValue>{formatNumber(displayTrade.entryPrice)}</InfoValue>
                   </InfoCard>
                   <InfoCard label={t("tradeDetail.exitPrice")}>
-                    <InfoValue>{formatNumber(trade.exitPrice)}</InfoValue>
+                    <InfoValue>{formatNumber(displayTrade.exitPrice)}</InfoValue>
                   </InfoCard>
                   <InfoCard label={t("tradeDetail.quantity")}>
-                    <InfoValue>{formatNumber(trade.quantity)}</InfoValue>
+                    <InfoValue>{formatNumber(displayTrade.quantity)}</InfoValue>
                   </InfoCard>
                   <InfoCard label={t("tradeDetail.fees")}>
-                    <InfoValue>{formatNumber(trade.fees)}</InfoValue>
+                    <InfoValue>{formatNumber(displayTrade.fees)}</InfoValue>
                   </InfoCard>
                   <InfoCard label={t("tradeDetail.stopLoss")}>
-                    <InfoValue>{formatNumber(trade.initialStopLoss)}</InfoValue>
+                    <InfoValue>{formatNumber(displayTrade.initialStopLoss)}</InfoValue>
                   </InfoCard>
                   <InfoCard label={t("tradeDetail.takeProfit")}>
-                    <InfoValue>{formatNumber(trade.initialTakeProfit)}</InfoValue>
+                    <InfoValue>{formatNumber(displayTrade.initialTakeProfit)}</InfoValue>
                   </InfoCard>
                   <InfoCard label={t("tradeDetail.riskAmount")}>
-                    <InfoValue>{formatNumber(trade.riskAmount)}</InfoValue>
+                    <InfoValue>{formatNumber(displayTrade.riskAmount)}</InfoValue>
                   </InfoCard>
                   <InfoCard label={t("tradeDetail.contractMultiplier")}>
-                    <InfoValue>{formatNumber(trade.contractMultiplier)}</InfoValue>
+                    <InfoValue>{formatNumber(displayTrade.contractMultiplier)}</InfoValue>
                   </InfoCard>
                 </div>
 
                 {/* Right column — TradingView chart */}
-                <div className="min-w-0">
+                <div data-tutorial="trade-chart" className="min-w-0">
                   <TradeChart
-                    symbol={trade.symbol}
-                    assetClass={trade.assetClass}
-                    interval={trade.entryTimeframe}
-                    side={trade.side}
-                    openedAt={trade.openedAt}
-                    closedAt={trade.closedAt}                    entryPrice={trade.entryPrice}                    exitPrice={trade.exitPrice}                  />
+                    symbol={displayTrade.symbol}
+                    assetClass={displayTrade.assetClass}
+                    interval={displayTrade.entryTimeframe}
+                    side={displayTrade.side}
+                    openedAt={displayTrade.openedAt}
+                    closedAt={displayTrade.closedAt}                    entryPrice={displayTrade.entryPrice}                    exitPrice={displayTrade.exitPrice}                  />
                 </div>
               </div>
             </section>
@@ -422,32 +433,32 @@ export default function TradeDetailPage() {
             {/* ====================================================== */}
             {/*  CONTEXTE & STRATEGIE                                   */}
             {/* ====================================================== */}
-            <section className="space-y-3">
+            <section data-tutorial="trade-context" className="space-y-3">
               <SectionTitle>
                 <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="8" r="6" /><path d="M8 5v3l2 2" /></svg>
                 {t("tradeDetail.contextStrategy")}
               </SectionTitle>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 <InfoCard label="Setup">
-                  <p className="text-base font-semibold text-primary">{plainText(trade.setupName)}</p>
+                  <p className="text-base font-semibold text-primary">{plainText(displayTrade.setupName)}</p>
                 </InfoCard>
                 <InfoCard label="Entry timeframe">
-                  <p className="text-base font-semibold text-primary">{plainText(trade.entryTimeframe)}</p>
+                  <p className="text-base font-semibold text-primary">{plainText(displayTrade.entryTimeframe)}</p>
                 </InfoCard>
                 <InfoCard label="HTF Bias">
-                  <p className="text-base font-semibold text-primary">{plainText(trade.higherTimeframeBias)}</p>
+                  <p className="text-base font-semibold text-primary">{plainText(displayTrade.higherTimeframeBias)}</p>
                 </InfoCard>
                 <InfoCard label="Strategy tag">
-                  <p className="text-base font-semibold text-primary">{plainText(trade.strategyTag)}</p>
+                  <p className="text-base font-semibold text-primary">{plainText(displayTrade.strategyTag)}</p>
                 </InfoCard>
               </div>
 
               {/* Confluences */}
-              <div className="rounded-xl border border-border bg-surface-1 p-4">
+              <div data-tutorial="trade-confluences" className="rounded-xl border border-border bg-surface-1 p-4">
                 <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-secondary">{t("tradeDetail.confluences")}</p>
-                {trade.confluences && trade.confluences.length > 0 ? (
+                {displayTrade.confluences && displayTrade.confluences.length > 0 ? (
                   <div className="mt-2 flex flex-wrap gap-2">
-                    {trade.confluences.map((c, i) => (
+                    {displayTrade.confluences.map((c, i) => (
                       <span
                         key={`${c}-${i}`}
                         className="inline-flex rounded-lg bg-brand-500/10 px-2.5 py-1 text-xs font-medium text-brand-600"
@@ -463,38 +474,38 @@ export default function TradeDetailPage() {
 
               {/* Entry / Exit reason */}
               <div className="grid gap-3 sm:grid-cols-2">
-                <TextBlock label={t("tradeDetail.entryReason")} value={trade.entryReason} />
-                <TextBlock label={t("tradeDetail.exitReason")} value={trade.exitReason} />
+                <TextBlock label={t("tradeDetail.entryReason")} value={displayTrade.entryReason} />
+                <TextBlock label={t("tradeDetail.exitReason")} value={displayTrade.exitReason} />
               </div>
             </section>
 
             {/* ====================================================== */}
             {/*  ANALYSE & PSYCHOLOGIE                                  */}
             {/* ====================================================== */}
-            <section className="space-y-3">
+            <section data-tutorial="trade-psychology" className="space-y-3">
               <SectionTitle>
                 <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M8 2a6 6 0 100 12A6 6 0 008 2z" /><path d="M5.5 9.5s1 1.5 2.5 1.5 2.5-1.5 2.5-1.5" /><circle cx="6" cy="6.5" r="0.5" fill="currentColor" /><circle cx="10" cy="6.5" r="0.5" fill="currentColor" /></svg>
                 {t("tradeDetail.analysisPsychology")}
               </SectionTitle>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 <InfoCard label={t("tradeDetail.executionRating")}>
-                  <ExecutionRatingBar rating={trade.executionRating} />
+                  <ExecutionRatingBar rating={displayTrade.executionRating} />
                 </InfoCard>
                 <InfoCard label={t("tradeDetail.planFollowed")}>
-                  <PlanFollowedIndicator followed={trade.planFollowed} t={t} />
+                  <PlanFollowedIndicator followed={displayTrade.planFollowed} t={t} />
                 </InfoCard>
                 <InfoCard label={t("tradeDetail.emotionalState")}>
-                  <p className="text-base font-semibold text-primary">{plainText(trade.emotionalState)}</p>
+                  <p className="text-base font-semibold text-primary">{plainText(displayTrade.emotionalState)}</p>
                 </InfoCard>
               </div>
-              <TextBlock label={t("tradeDetail.lessonLearned")} value={trade.lessonLearned} />
-              <TextBlock label={t("tradeDetail.notes")} value={trade.notes} />
+              <TextBlock label={t("tradeDetail.lessonLearned")} value={displayTrade.lessonLearned} />
+              <TextBlock label={t("tradeDetail.notes")} value={displayTrade.notes} />
             </section>
 
             {/* ====================================================== */}
             {/*  CHART SCREENSHOTS                                      */}
             {/* ====================================================== */}
-            <section className="space-y-3">
+            <section data-tutorial="trade-screenshots" className="space-y-3">
               <SectionTitle>
                 <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="12" height="10" rx="2" /><path d="M2 10l3-3 2 2 4-4 3 3" /></svg>
                 {t("tradeDetail.screenshots")}
@@ -561,6 +572,14 @@ export default function TradeDetailPage() {
           }}
           onClose={() => setIsEditOpen(false)}
           onSaved={loadTrade}
+        />
+      )}
+      {/* Tutorial — wait for trade data (real or mock) so DOM targets exist */}
+      {tutorialLoaded && !loading && displayTrade && (
+        <TutorialProvider
+          page="tradeDetail"
+          steps={tutorialStepsMap.tradeDetail}
+          tutorialCompleted={tutorialsCompleted.tradeDetail === true}
         />
       )}
     </DashboardShell>
