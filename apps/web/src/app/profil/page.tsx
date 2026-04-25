@@ -3,7 +3,11 @@
 import { useEffect, useState } from "react";
 
 import { DashboardShell } from "@/components/dashboard-shell";
+import { TutorialProvider } from "@/components/tutorial/tutorial-provider";
+import { TutorialSection } from "@/components/tutorial/tutorial-section";
+import { useTutorialStatus } from "@/hooks/use-tutorial-status";
 import { useTranslation } from "@/lib/i18n/context";
+import { tutorialStepsMap } from "@/config/tutorial-steps";
 
 type MePayload = {
   user?: {
@@ -22,6 +26,7 @@ export default function ProfilPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { t, locale } = useTranslation();
+  const { tutorialsCompleted, loaded: tutorialLoaded } = useTutorialStatus();
 
   useEffect(() => {
     async function loadProfile() {
@@ -53,6 +58,14 @@ export default function ProfilPage() {
   return (
     <DashboardShell title={t("profile.title")}>
       <div className="mx-auto flex max-w-5xl flex-col gap-4">
+        {tutorialLoaded && (
+          <TutorialProvider
+            page="profil"
+            steps={tutorialStepsMap.profil}
+            tutorialCompleted={tutorialsCompleted.profil === true}
+          />
+        )}
+
         {error ? (
           <section className="rounded-xl border border-pnl-negative/20 bg-pnl-negative/5 px-4 py-3 text-sm text-pnl-negative font-sans">
             {error}
@@ -60,7 +73,7 @@ export default function ProfilPage() {
         ) : null}
 
         <section className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
-          <article className="rounded-2xl border border-border bg-surface-1 p-6 shadow-sm">
+          <article className="rounded-2xl border border-border bg-surface-1 p-6 shadow-sm" data-tutorial="profile-identity">
             <p className="text-xs font-semibold uppercase tracking-[0.1em] text-secondary font-sans">{t("profile.identity")}</p>
             <div className="mt-4 space-y-4">
               <div>
@@ -84,7 +97,7 @@ export default function ProfilPage() {
             </div>
           </article>
 
-          <article className="rounded-2xl border border-border bg-surface-1 p-6 shadow-sm">
+          <article className="rounded-2xl border border-border bg-surface-1 p-6 shadow-sm" data-tutorial="profile-overview">
             <p className="text-xs font-semibold uppercase tracking-[0.1em] text-secondary font-sans">{t("profile.accountOverview")}</p>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <div className="rounded-xl bg-surface-2 px-4 py-4">
@@ -102,9 +115,11 @@ export default function ProfilPage() {
                 </p>
               </div>
             </div>
-
           </article>
         </section>
+
+        {/* Tutorial restart section */}
+        <TutorialSection tutorialsCompleted={tutorialsCompleted} />
       </div>
     </DashboardShell>
   );

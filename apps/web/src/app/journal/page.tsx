@@ -8,6 +8,9 @@ import { compactPnl, pnlColorClass } from "@/lib/format";
 import { useSelectedAccountId } from "@/hooks/use-selected-account-id";
 import { useTranslation } from "@/lib/i18n/context";
 import { mentalStateLabelKeys } from "@/lib/journal-labels";
+import { useTutorialStatus } from "@/hooks/use-tutorial-status";
+import { TutorialProvider } from "@/components/tutorial/tutorial-provider";
+import { tutorialStepsMap } from "@/config/tutorial-steps";
 import type { Trade } from "@/types";
 
 type JournalEntry = {
@@ -67,6 +70,7 @@ export default function JournalPage() {
 function JournalPageContent() {
   const selectedAccountId = useSelectedAccountId();
   const { t, locale } = useTranslation();
+  const { tutorialsCompleted, loaded: tutorialLoaded } = useTutorialStatus();
 
   const [trades, setTrades] = useState<Trade[]>([]);
   const [journals, setJournals] = useState<JournalEntry[]>([]);
@@ -182,12 +186,20 @@ function JournalPageContent() {
           type="button"
           onClick={() => handleOpenModal()}
           className="inline-flex h-10 items-center justify-center rounded-lg bg-brand-500 px-4 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 font-sans"
+          data-tutorial="journal-actions"
         >
           {t("journal.newEntry")}
         </button>
       }
     >
       <div className="mx-auto w-full max-w-5xl space-y-12">
+        {tutorialLoaded && (
+          <TutorialProvider
+            page="journal"
+            steps={tutorialStepsMap.journal}
+            tutorialCompleted={tutorialsCompleted.journal === true}
+          />
+        )}
         <div className="flex items-center justify-between gap-4 rounded-2xl border border-border bg-surface-1 px-4 py-3 shadow-sm">
           <button
             type="button"
@@ -239,7 +251,7 @@ function JournalPageContent() {
               <div className="h-px flex-1 bg-border/60" />
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" data-tutorial="journal-list">
               {monthSummaries.map((day) => {
                 const previewNote = day.journal?.notes
                   ? (day.journal.notes.length > 80 ? `${day.journal.notes.substring(0, 80)}...` : day.journal.notes)

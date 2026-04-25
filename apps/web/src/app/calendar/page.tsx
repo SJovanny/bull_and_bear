@@ -9,6 +9,9 @@ import { TradeImportModal } from "@/components/trade-import-modal";
 import { useSelectedAccountId } from "@/hooks/use-selected-account-id";
 import { useTranslation } from "@/lib/i18n/context";
 import { toDateKey } from "@/lib/format";
+import { useTutorialStatus } from "@/hooks/use-tutorial-status";
+import { TutorialProvider } from "@/components/tutorial/tutorial-provider";
+import { tutorialStepsMap } from "@/config/tutorial-steps";
 
 type Trade = {
   id: string;
@@ -103,6 +106,7 @@ function CalendarPageContent() {
   const [error, setError] = useState<string | null>(null);
   const selectedAccountId = useSelectedAccountId();
   const { t, locale } = useTranslation();
+  const { tutorialsCompleted, loaded: tutorialLoaded } = useTutorialStatus();
 
   const tradesEndpoint = useMemo(() => {
     if (!selectedAccountId) {
@@ -257,7 +261,7 @@ function CalendarPageContent() {
     <DashboardShell
       title={t("calendar.title")}
       actions={
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2" data-tutorial="calendar-actions">
           <button
             type="button"
             onClick={() => setIsImportModalOpen(true)}
@@ -287,6 +291,13 @@ function CalendarPageContent() {
       }
     >
       <div className="mx-auto w-full max-w-7xl">
+        {tutorialLoaded && (
+          <TutorialProvider
+            page="calendar"
+            steps={tutorialStepsMap.calendar}
+            tutorialCompleted={tutorialsCompleted.calendar === true}
+          />
+        )}
         <section className="rounded-2xl border border-border bg-surface-1 p-3 sm:p-6 shadow-sm">
           <div className="mb-5">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -324,7 +335,7 @@ function CalendarPageContent() {
             ))}
           </div>
 
-          <div className="mt-2 grid grid-cols-7 gap-2">
+          <div className="mt-2 grid grid-cols-7 gap-2" data-tutorial="calendar-grid">
             {calendarDays.map((day) => {
               const key = toDateKey(day);
               const tradeCount = tradesByDay.get(key)?.length ?? 0;

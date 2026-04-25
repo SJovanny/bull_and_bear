@@ -8,7 +8,10 @@ import { DashboardCharts } from "@/components/dashboard/charts";
 import { RecentTrades } from "@/components/dashboard/recent-trades";
 import { MiniCalendar } from "@/components/dashboard/mini-calendar";
 import { useSelectedAccountId } from "@/hooks/use-selected-account-id";
+import { useTutorialStatus } from "@/hooks/use-tutorial-status";
 import { useTranslation } from "@/lib/i18n/context";
+import { TutorialProvider } from "@/components/tutorial/tutorial-provider";
+import { tutorialStepsMap } from "@/config/tutorial-steps";
 import type { Account, DashboardPeriod, StatsCalendar, StatsEquity, StatsSummary, Trade } from "@/types";
 
 export default function DashboardPage() {
@@ -31,6 +34,7 @@ function DashboardContent() {
   const [period, setPeriod] = useState<DashboardPeriod>("30D");
   const selectedAccountId = useSelectedAccountId();
   const { t } = useTranslation();
+  const { tutorialsCompleted, loaded: tutorialLoaded } = useTutorialStatus();
   const selectedAccount = useMemo(
     () => accounts.find((account) => account.id === selectedAccountId) ?? null,
     [accounts, selectedAccountId],
@@ -120,7 +124,15 @@ function DashboardContent() {
   return (
     <DashboardShell title={t("dashboard.title")} >
       <div className="mx-auto flex max-w-[1440px] flex-col gap-4">
-        <section className="rounded-xl border border-border bg-surface-1 p-2 shadow-sm transition-shadow hover:shadow-md">
+        {tutorialLoaded && (
+          <TutorialProvider
+            page="dashboard"
+            steps={tutorialStepsMap.dashboard}
+            tutorialCompleted={tutorialsCompleted.dashboard === true}
+          />
+        )}
+
+        <section className="rounded-xl border border-border bg-surface-1 p-2 shadow-sm transition-shadow hover:shadow-md" data-tutorial="period-selector">
           <div className="flex flex-wrap items-center gap-2">
             {(["7D", "30D", "YTD", "ALL"] as DashboardPeriod[]).map((item) => (
               <button
@@ -145,35 +157,43 @@ function DashboardContent() {
           </section>
         ) : null}
 
-        <KpiCards
-          loading={loading}
-          totalNetPnl={summary?.realized.netPnl ?? 0}
-          winRate={summary?.realized.winRate ?? 0}
-          profitFactor={summary?.realized.profitFactor ?? 0}
-          totalTrades={summary?.activity.totalTrades ?? 0}
-          openTrades={summary?.activity.openTrades ?? 0}
-          closedTrades={summary?.activity.closedTrades ?? 0}
-          currency={selectedAccountCurrency}
-          currentBalance={summary?.currentBalance ?? null}
-          returnPercent={summary?.returnPercent ?? null}
-          maxDrawdownPercent={summary?.maxDrawdownPercent ?? null}
-        />
+        <div data-tutorial="kpi-cards">
+          <KpiCards
+            loading={loading}
+            totalNetPnl={summary?.realized.netPnl ?? 0}
+            winRate={summary?.realized.winRate ?? 0}
+            profitFactor={summary?.realized.profitFactor ?? 0}
+            totalTrades={summary?.activity.totalTrades ?? 0}
+            openTrades={summary?.activity.openTrades ?? 0}
+            closedTrades={summary?.activity.closedTrades ?? 0}
+            currency={selectedAccountCurrency}
+            currentBalance={summary?.currentBalance ?? null}
+            returnPercent={summary?.returnPercent ?? null}
+            maxDrawdownPercent={summary?.maxDrawdownPercent ?? null}
+          />
+        </div>
 
-        <DashboardCharts
-          totalTrades={summary?.activity.totalTrades ?? 0}
-          period={period}
-          totalNetPnl={equity?.totalNetPnl ?? 0}
-          cumulativeSeries={equity?.cumulativeSeries ?? []}
-          last14Days={equity?.recentDailySeries ?? []}
-          openTrades={summary?.activity.openTrades ?? 0}
-          closedTrades={summary?.activity.closedTrades ?? 0}
-          accountsCount={accounts.length}
-          initialBalance={equity?.initialBalance ?? null}
-        />
+        <div data-tutorial="charts">
+          <DashboardCharts
+            totalTrades={summary?.activity.totalTrades ?? 0}
+            period={period}
+            totalNetPnl={equity?.totalNetPnl ?? 0}
+            cumulativeSeries={equity?.cumulativeSeries ?? []}
+            last14Days={equity?.recentDailySeries ?? []}
+            openTrades={summary?.activity.openTrades ?? 0}
+            closedTrades={summary?.activity.closedTrades ?? 0}
+            accountsCount={accounts.length}
+            initialBalance={equity?.initialBalance ?? null}
+          />
+        </div>
 
         <section className="grid items-start gap-3 xl:grid-cols-[0.55fr_1.45fr]">
-          <RecentTrades loading={loading} trades={trades} />
-          <MiniCalendar days={calendar?.days ?? []} />
+          <div data-tutorial="recent-trades">
+            <RecentTrades loading={loading} trades={trades} />
+          </div>
+          <div data-tutorial="mini-calendar">
+            <MiniCalendar days={calendar?.days ?? []} />
+          </div>
         </section>
       </div>
     </DashboardShell>

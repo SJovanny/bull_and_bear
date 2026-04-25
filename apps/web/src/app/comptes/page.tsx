@@ -4,6 +4,9 @@ import { useState, useCallback, useEffect, useMemo } from "react";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { useTranslation } from "@/lib/i18n/context";
 import { formatNumber, pnlColorClass } from "@/lib/format";
+import { useTutorialStatus } from "@/hooks/use-tutorial-status";
+import { TutorialProvider } from "@/components/tutorial/tutorial-provider";
+import { tutorialStepsMap } from "@/config/tutorial-steps";
 
 type AccountType = "CASH" | "MARGIN" | "PROP" | "SIM";
 
@@ -47,6 +50,7 @@ export default function ComptesPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { t } = useTranslation();
+  const { tutorialsCompleted, loaded: tutorialLoaded } = useTutorialStatus();
 
   const canSubmit = useMemo(
     () => form.name.trim().length > 1 && form.currency.trim().length === 3,
@@ -217,6 +221,13 @@ export default function ComptesPage() {
   return (
     <DashboardShell title={t("accounts.title")} >
       <div className="mx-auto flex max-w-6xl flex-col gap-4">
+        {tutorialLoaded && (
+          <TutorialProvider
+            page="comptes"
+            steps={tutorialStepsMap.comptes}
+            tutorialCompleted={tutorialsCompleted.comptes === true}
+          />
+        )}
         {error ? (
           <section className="rounded-xl border border-pnl-negative/20 bg-pnl-negative/5 px-4 py-3 text-sm text-pnl-negative font-sans">
             {error}
@@ -240,13 +251,14 @@ export default function ComptesPage() {
               type="button"
               onClick={() => (showCreateForm && !editingAccountId ? closeForm() : openCreateForm())}
               className="inline-flex h-10 items-center justify-center rounded-xl bg-brand-500 px-4 text-sm font-semibold text-white transition hover:bg-brand-600"
+              data-tutorial="accounts-add"
             >
               {showCreateForm && !editingAccountId ? t("accounts.closeBtn") : t("accounts.addAccountBtn")}
             </button>
           </div>
         </section>
 
-        <section className="grid gap-4 xl:grid-cols-[1.25fr_0.75fr]">
+        <section className="grid gap-4 xl:grid-cols-[1.25fr_0.75fr]" data-tutorial="accounts-list">
           <article className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm">
             {accounts.length === 0 ? (
               <div className="flex min-h-64 flex-col items-center justify-center rounded-xl border border-dashed border-border bg-surface-2 px-6 text-center">

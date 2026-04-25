@@ -52,15 +52,16 @@ enum AssetClass {
 }
 
 model User {
-  id          String         @id @default(uuid())
-  email       String         @unique
-  displayName String?
-  timezone    String         @default("UTC")
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-  accounts    Account[]
-  trades      Trade[]
-  journals    DailyJournal[]
+  id                  String         @id @default(uuid())
+  email               String         @unique
+  displayName         String?
+  timezone            String         @default("UTC")
+  tutorialsCompleted  Json           @default("{}")
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  accounts            Account[]
+  trades              Trade[]
+  journals            DailyJournal[]
 }
 
 model Account {

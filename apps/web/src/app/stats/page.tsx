@@ -16,6 +16,9 @@ import type {
   StatsSummary,
   StatsTimeAnalysis,
 } from "@/types";
+import { useTutorialStatus } from "@/hooks/use-tutorial-status";
+import { TutorialProvider } from "@/components/tutorial/tutorial-provider";
+import { tutorialStepsMap } from "@/config/tutorial-steps";
 
 // We will pass the translation function (t) into these or translate them inline.
 const BREAKDOWN_KEYS = ["symbol", "setupName", "strategyTag", "assetClass", "side", "entryTimeframe", "planFollowed", "executionRating"] as const;
@@ -32,6 +35,7 @@ export default function StatsPage() {
 function StatsPageContent() {
   const selectedAccountId = useSelectedAccountId();
   const { t } = useTranslation();
+  const { tutorialsCompleted, loaded: tutorialLoaded } = useTutorialStatus();
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [summary, setSummary] = useState<StatsSummary | null>(null);
   const [breakdown, setBreakdown] = useState<StatsBreakdown | null>(null);
@@ -124,13 +128,20 @@ function StatsPageContent() {
   return (
     <DashboardShell title={t("stats.title")}>
       <div className="mx-auto flex max-w-[1440px] flex-col gap-4">
+        {tutorialLoaded && (
+          <TutorialProvider
+            page="stats"
+            steps={tutorialStepsMap.stats}
+            tutorialCompleted={tutorialsCompleted.stats === true}
+          />
+        )}
         {error ? (
           <section className="rounded-xl border border-pnl-negative/20 bg-pnl-negative/5 px-4 py-3 text-sm text-pnl-negative font-sans">
             {error}
           </section>
         ) : null}
 
-        <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-[1.25fr_1.25fr_1fr_1fr]">
+        <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-[1.25fr_1.25fr_1fr_1fr]" data-tutorial="stats-metrics">
           <article className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm">
             <div className="text-xs uppercase tracking-[0.1em] text-secondary font-sans">
               <MetricLabel label={t("stats.metrics.netPnl")} description={t("stats.metrics.netPnlDesc")} />
@@ -225,7 +236,7 @@ function StatsPageContent() {
         </section>
 
         <section className="grid gap-4 xl:grid-cols-[1.4fr_0.6fr]">
-          <article className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm">
+          <article className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm" data-tutorial="stats-breakdown">
             <div className="mb-4 flex items-center justify-between gap-3">
               <div>
                 <div className="text-sm font-semibold uppercase tracking-[0.08em] text-secondary font-sans">
@@ -277,7 +288,7 @@ function StatsPageContent() {
             </div>
           </article>
 
-          <article className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm">
+          <article className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm" data-tutorial="stats-distribution">
             <div className="mb-4 flex items-center justify-between gap-3">
               <div>
                 <div className="text-sm font-semibold uppercase tracking-[0.08em] text-secondary font-sans">
