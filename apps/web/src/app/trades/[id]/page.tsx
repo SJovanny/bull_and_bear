@@ -370,7 +370,7 @@ export default function TradeDetailPage() {
 
                 {/* Right: PnL big */}
                 <div className="flex flex-col items-end">
-                  <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-secondary">Net PnL</p>
+                  <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-secondary">{t("tradeModal.netPnlPreview")}</p>
                   <p className={`text-4xl font-bold font-mono tracking-tight ${pnlColor}`}>
                     {formatPnl(displayTrade.netPnl)}
                   </p>
@@ -439,16 +439,16 @@ export default function TradeDetailPage() {
                 {t("tradeDetail.contextStrategy")}
               </SectionTitle>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                <InfoCard label="Setup">
+                <InfoCard label={t("tradeModal.setupName")}>
                   <p className="text-base font-semibold text-primary">{plainText(displayTrade.setupName)}</p>
                 </InfoCard>
-                <InfoCard label="Entry timeframe">
+                <InfoCard label={t("tradeModal.entryTimeframe")}>
                   <p className="text-base font-semibold text-primary">{plainText(displayTrade.entryTimeframe)}</p>
                 </InfoCard>
-                <InfoCard label="HTF Bias">
+                <InfoCard label={t("tradeModal.htfTrend")}>
                   <p className="text-base font-semibold text-primary">{plainText(displayTrade.higherTimeframeBias)}</p>
                 </InfoCard>
-                <InfoCard label="Strategy tag">
+                <InfoCard label={t("tradeModal.strategyTag")}>
                   <p className="text-base font-semibold text-primary">{plainText(displayTrade.strategyTag)}</p>
                 </InfoCard>
               </div>
