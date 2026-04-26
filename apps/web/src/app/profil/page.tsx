@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { DashboardShell } from "@/components/dashboard-shell";
 import { TutorialProvider } from "@/components/tutorial/tutorial-provider";
@@ -9,6 +10,7 @@ import LoadingSpinner from "@/components/loading-spinner";
 import { useTutorialStatus } from "@/hooks/use-tutorial-status";
 import { useTranslation } from "@/lib/i18n/context";
 import { tutorialStepsMap } from "@/config/tutorial-steps";
+import { supabaseClient } from "@/lib/supabase/client";
 
 type MePayload = {
   user?: {
@@ -23,6 +25,7 @@ type MePayload = {
 };
 
 export default function ProfilPage() {
+  const router = useRouter();
   const [payload, setPayload] = useState<MePayload | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -30,8 +33,14 @@ export default function ProfilPage() {
   const [editDisplayName, setEditDisplayName] = useState("");
   const [editTimezone, setEditTimezone] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
   const { t, locale } = useTranslation();
   const { tutorialsCompleted, loaded: tutorialLoaded, markCompleted } = useTutorialStatus();
+
+  const confirmWord = t("profile.deleteTypePlaceholder");
 
   useEffect(() => {
     async function loadProfile() {
@@ -90,6 +99,45 @@ export default function ProfilPage() {
       setError(requestError instanceof Error ? requestError.message : "Unexpected error");
     } finally {
       setIsSaving(false);
+    }
+  }
+
+  async function handleExport() {
+    setIsExporting(true);
+    try {
+      const response = await fetch("/api/me/export");
+      if (!response.ok) throw new Error("Export failed");
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `bull-and-bear-export-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      setError("Export failed");
+    } finally {
+      setIsExporting(false);
+    }
+  }
+
+  async function handleDeleteAccount() {
+    setIsDeleting(true);
+    try {
+      const response = await fetch("/api/me", { method: "DELETE" });
+      if (!response.ok) {
+        const data = (await response.json()) as { error?: string };
+        throw new Error(data.error ?? "Deletion failed");
+      }
+      // Sign out client-side and redirect
+      sessionStorage.removeItem("bb-is-authenticated");
+      await supabaseClient.auth.signOut();
+      router.push("/");
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Deletion failed");
+      setIsDeleting(false);
+      setShowDeleteModal(false);
     }
   }
 
@@ -212,11 +260,82 @@ export default function ProfilPage() {
           </article>
         </section>
 
+        {/* ─── Data & Privacy ────────────────────────────────────── */}
+        <section className="grid gap-4 xl:grid-cols-2">
+          {/* Export data */}
+          <article className="rounded-2xl border border-border bg-surface-1 p-6 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-[0.1em] text-secondary font-sans">{t("profile.exportData")}</p>
+            <p className="mt-2 text-sm text-secondary font-sans">{t("profile.exportDataDesc")}</p>
+            <button
+              type="button"
+              onClick={() => void handleExport()}
+              disabled={isExporting}
+              className="mt-4 inline-flex h-10 items-center justify-center rounded-xl border border-border bg-surface-2 px-4 text-sm font-semibold text-primary transition hover:bg-white disabled:opacity-50"
+            >
+              {isExporting ? t("profile.exporting") : t("profile.exportBtn")}
+            </button>
+          </article>
+
+          {/* Delete account */}
+          <article className="rounded-2xl border border-pnl-negative/20 bg-pnl-negative/5 p-6 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-[0.1em] text-pnl-negative font-sans">{t("profile.deleteAccount")}</p>
+            <p className="mt-2 text-sm text-secondary font-sans">{t("profile.deleteAccountDesc")}</p>
+            <button
+              type="button"
+              onClick={() => { setShowDeleteModal(true); setDeleteConfirmText(""); }}
+              className="mt-4 inline-flex h-10 items-center justify-center rounded-xl border border-pnl-negative/30 bg-pnl-negative/10 px-4 text-sm font-semibold text-pnl-negative transition hover:bg-pnl-negative/20"
+            >
+              {t("profile.deleteBtn")}
+            </button>
+          </article>
+        </section>
+
         {/* Tutorial restart section */}
         <TutorialSection tutorialsCompleted={tutorialsCompleted} />
           </>
         )}
       </div>
+
+      {/* ─── Delete Account Modal ──────────────────────────────── */}
+      {showDeleteModal ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="mx-4 w-full max-w-md rounded-2xl border border-pnl-negative/20 bg-surface-1 p-6 shadow-xl">
+            <h2 className="text-lg font-bold text-pnl-negative font-sans">{t("profile.deleteModalTitle")}</h2>
+            <p className="mt-3 text-sm text-secondary font-sans">{t("profile.deleteModalDesc")}</p>
+
+            <div className="mt-4">
+              <label className="text-xs font-semibold text-secondary font-sans">
+                {t("profile.deleteModalConfirm")}
+              </label>
+              <input
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                placeholder={confirmWord}
+                className="mt-1 h-10 w-full rounded-xl border border-pnl-negative/30 bg-surface-2 px-3 text-sm text-primary outline-none transition focus:ring-2 focus:ring-pnl-negative/50"
+              />
+            </div>
+
+            <div className="mt-6 flex gap-3">
+              <button
+                type="button"
+                onClick={() => void handleDeleteAccount()}
+                disabled={deleteConfirmText !== confirmWord || isDeleting}
+                className="inline-flex h-10 flex-1 items-center justify-center rounded-xl bg-pnl-negative px-4 text-sm font-semibold text-white transition hover:bg-pnl-negative/90 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {isDeleting ? t("profile.deleting") : t("profile.deleteModalConfirmBtn")}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowDeleteModal(false)}
+                disabled={isDeleting}
+                className="inline-flex h-10 flex-1 items-center justify-center rounded-xl border border-border bg-surface-1 px-4 text-sm font-semibold text-primary transition hover:bg-surface-2 disabled:opacity-50"
+              >
+                {t("profile.deleteModalCancelBtn")}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </DashboardShell>
   );
 }

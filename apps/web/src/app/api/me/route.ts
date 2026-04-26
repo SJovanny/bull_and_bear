@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import { safeErrorResponse, safeParseJson, withAuth } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export const GET = withAuth(async (_request, { user }) => {
   const accounts = await prisma.account.findMany({
@@ -37,4 +38,22 @@ export const PATCH = withAuth(async (request, { user }) => {
   });
 
   return Response.json({ user: updated });
+});
+
+// ─── DELETE /api/me ─ Right to erasure (GDPR Art. 17) ────────────────────────
+
+export const DELETE = withAuth(async (_request, { user }) => {
+  // 1. Delete the user row in our DB (cascades to accounts, trades, journals)
+  await prisma.user.delete({ where: { id: user.id } });
+
+  // 2. Delete the user from Supabase Auth
+  try {
+    const supabaseAdmin = createSupabaseAdminClient();
+    await supabaseAdmin.auth.admin.deleteUser(user.id);
+  } catch (err) {
+    // DB data is already gone — log but don't block the response
+    console.error("[DELETE /api/me] Supabase auth deletion failed:", err);
+  }
+
+  return Response.json({ deleted: true });
 });

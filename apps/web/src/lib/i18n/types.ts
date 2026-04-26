@@ -274,6 +274,20 @@ export type TranslationKeys = {
   "profile.accountOverview": string;
   "profile.tradingAccounts": string;
   "profile.memberSince": string;
+  "profile.exportData": string;
+  "profile.exportDataDesc": string;
+  "profile.exportBtn": string;
+  "profile.exporting": string;
+  "profile.deleteAccount": string;
+  "profile.deleteAccountDesc": string;
+  "profile.deleteBtn": string;
+  "profile.deleteModalTitle": string;
+  "profile.deleteModalDesc": string;
+  "profile.deleteModalConfirm": string;
+  "profile.deleteModalConfirmBtn": string;
+  "profile.deleteModalCancelBtn": string;
+  "profile.deleting": string;
+  "profile.deleteTypePlaceholder": string;
 
   // ─── Accounts ───────────────────────────────────────────────
   "accounts.title": string;
