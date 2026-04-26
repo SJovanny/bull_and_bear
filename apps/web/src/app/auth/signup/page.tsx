@@ -1,11 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Image from "next/image";
 
 import { supabaseClient } from "@/lib/supabase/client";
 import { useTranslation } from "@/lib/i18n/context";
+
+function computePasswordStrength(password: string): { score: number; label: string; color: string } {
+  let score = 0;
+  if (password.length >= 8) score += 1;
+  if (password.length >= 12) score += 1;
+  if (/[a-z]/.test(password) && /[A-Z]/.test(password)) score += 1;
+  if (/\d/.test(password)) score += 1;
+  if (/[^a-zA-Z0-9]/.test(password)) score += 1;
+
+  if (score <= 1) return { score, label: "Weak", color: "bg-rose-500" };
+  if (score <= 2) return { score, label: "Fair", color: "bg-amber-500" };
+  if (score <= 3) return { score, label: "Good", color: "bg-cyan-500" };
+  return { score, label: "Strong", color: "bg-emerald-500" };
+}
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
@@ -14,6 +28,7 @@ export default function SignupPage() {
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const { t } = useTranslation();
+  const strength = useMemo(() => computePasswordStrength(password), [password]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -103,6 +118,21 @@ export default function SignupPage() {
                 className="h-11 rounded-xl border border-white/10 bg-white/[0.03] px-3 text-sm text-white outline-none ring-cyan-500/50 transition focus:border-cyan-500/50 focus:bg-white/[0.08] focus:ring-2 placeholder:text-white/30"
                 required
               />
+              {password.length > 0 ? (
+                <div className="flex items-center gap-2">
+                  <div className="flex h-1.5 flex-1 gap-1">
+                    {[1, 2, 3, 4, 5].map((level) => (
+                      <div
+                        key={level}
+                        className={`h-full flex-1 rounded-full transition ${
+                          level <= strength.score ? strength.color : "bg-white/10"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-[10px] font-semibold tracking-wide text-slate-400">{strength.label}</span>
+                </div>
+              ) : null}
             </label>
 
             {error ? (
