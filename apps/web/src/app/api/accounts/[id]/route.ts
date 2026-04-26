@@ -57,21 +57,30 @@ export const PATCH = withAuth(async (request, { user, params }) => {
   }
 });
 
-export const DELETE = withAuth(async (_request, { user, params }) => {
+export const DELETE = withAuth(async (request, { user, params }) => {
   const { id } = params;
+  const { searchParams } = new URL(request.url);
+  const permanent = searchParams.get("permanent") === "true";
 
   const existing = await prisma.account.findFirst({
     where: { id, userId: user.id, isArchived: false },
-    select: { id: true },
+    select: { id: true, _count: { select: { trades: true } } },
   });
 
   if (!existing) {
     return safeErrorResponse("Account not found", 404);
   }
 
-  await prisma.account.delete({
-    where: { id },
-  });
+  if (permanent) {
+    // Hard delete — cascades to trades via Prisma schema
+    await prisma.account.delete({ where: { id } });
+  } else {
+    // Soft delete (archive) — trades are preserved
+    await prisma.account.update({
+      where: { id },
+      data: { isArchived: true },
+    });
+  }
 
   return new Response(null, { status: 204 });
 });

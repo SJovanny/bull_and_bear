@@ -8,6 +8,7 @@ export const GET = withAuth(async (_request, { user }) => {
   const accounts = await prisma.account.findMany({
     where: { userId: user.id, isArchived: false },
     orderBy: { createdAt: "asc" },
+    include: { _count: { select: { trades: true } } },
   });
 
   return Response.json({ accounts });

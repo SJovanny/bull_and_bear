@@ -19,6 +19,7 @@ type TradingAccount = {
   accountType: AccountType;
   initialBalance?: string | null;
   createdAt?: string;
+  _count?: { trades: number };
 };
 
 const accountTypeOptions: AccountType[] = ["CASH", "MARGIN", "PROP", "SIM"];
@@ -189,10 +190,12 @@ export default function ComptesPage() {
     }
   }
 
-  async function handleDelete(account: TradingAccount) {
-    const confirmed = window.confirm(
-      t("accounts.deleteConfirm").replace("{name}", account.name)
-    );
+  async function handleArchive(account: TradingAccount) {
+    const tradeCount = account._count?.trades ?? 0;
+    const msg = tradeCount > 0
+      ? t("accounts.deleteConfirm").replace("{name}", account.name) + `\n\n${tradeCount} trade(s) will be preserved but hidden.`
+      : t("accounts.deleteConfirm").replace("{name}", account.name);
+    const confirmed = window.confirm(msg);
     if (!confirmed) {
       return;
     }
@@ -206,7 +209,7 @@ export default function ComptesPage() {
 
       if (!response.ok) {
         const data = (await response.json()) as { error?: string };
-        throw new Error(data.error ?? "Could not delete account");
+        throw new Error(data.error ?? "Could not archive account");
       }
 
       setAccounts((current) => current.filter((item) => item.id !== account.id));
@@ -343,7 +346,7 @@ export default function ComptesPage() {
                         </button>
                         <button
                           type="button"
-                          onClick={() => void handleDelete(account)}
+                          onClick={() => void handleArchive(account)}
                           disabled={isDeletingId === account.id}
                           className="inline-flex h-9 items-center justify-center rounded-lg border border-pnl-negative/20 bg-pnl-negative/5 px-3 text-sm font-semibold text-pnl-negative transition hover:bg-pnl-negative/10 disabled:opacity-50"
                         >
