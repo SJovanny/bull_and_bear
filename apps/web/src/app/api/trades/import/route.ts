@@ -87,63 +87,69 @@ export const POST = withAuth(async (request, { user }) => {
   const existingSourceIds = new Set(existingBySourceId.map((trade) => trade.importSourceTradeId).filter((value): value is string => Boolean(value)));
   const existingFingerprints = new Set(existingByFingerprint.map((trade) => trade.importFingerprint).filter((value): value is string => Boolean(value)));
 
-  let imported = 0;
   let skipped = preview.rows.length - validRows.length;
 
-  for (const row of validRows) {
+  // Filter out rows that already exist (by source ID or fingerprint)
+  const rowsToInsert = validRows.filter((row) => {
     if (row.importSourceTradeId && existingSourceIds.has(row.importSourceTradeId)) {
       skipped += 1;
-      continue;
+      return false;
     }
-
     if (existingFingerprints.has(row.importFingerprint)) {
       skipped += 1;
-      continue;
+      return false;
     }
+    return true;
+  });
 
-    try {
-      await prisma.trade.create({
-        data: {
-          userId: user.id,
-          accountId,
-          importSource: row.importSource,
-          importSourceTradeId: row.importSourceTradeId,
-          importFingerprint: row.importFingerprint,
-          importedAt: new Date(),
-          assetClass: row.assetClass,
-          symbol: row.symbol,
-          side: row.side as TradeSide,
-          quantity: row.quantity,
-          entryPrice: row.entryPrice,
-          exitPrice: row.exitPrice,
-          fees: row.fees,
-          contractMultiplier: row.contractMultiplier,
-          openedAt: row.openedAt,
-          closedAt: row.closedAt,
-          status: row.status as TradeStatus,
-          tradeOutcome: computeTradeOutcome(row.netPnl) as TradeOutcome,
-          netPnl: row.netPnl,
-          notes: row.notes,
-        },
-      });
-      imported += 1;
-      if (row.importSourceTradeId) {
-        existingSourceIds.add(row.importSourceTradeId);
-      }
-      existingFingerprints.add(row.importFingerprint);
-    } catch (error) {
-      if (isUniqueConstraintError(error)) {
-        skipped += 1;
-        continue;
-      }
-
-      return safeErrorResponse("Could not import trades", 500, error);
-    }
+  if (rowsToInsert.length === 0) {
+    return Response.json({ imported: 0, skipped, errors: preview.errors });
   }
 
-  return Response.json({
-    imported,
-    skipped,
-    errors: preview.errors,
-  });
+  // Wrap all inserts in a transaction so a partial import can never occur.
+  try {
+    const imported = await prisma.$transaction(async (tx) => {
+      let count = 0;
+      for (const row of rowsToInsert) {
+        try {
+          await tx.trade.create({
+            data: {
+              userId: user.id,
+              accountId,
+              importSource: row.importSource,
+              importSourceTradeId: row.importSourceTradeId,
+              importFingerprint: row.importFingerprint,
+              importedAt: new Date(),
+              assetClass: row.assetClass,
+              symbol: row.symbol,
+              side: row.side as TradeSide,
+              quantity: row.quantity,
+              entryPrice: row.entryPrice,
+              exitPrice: row.exitPrice,
+              fees: row.fees,
+              contractMultiplier: row.contractMultiplier,
+              openedAt: row.openedAt,
+              closedAt: row.closedAt,
+              status: row.status as TradeStatus,
+              tradeOutcome: computeTradeOutcome(row.netPnl) as TradeOutcome,
+              netPnl: row.netPnl,
+              notes: row.notes,
+            },
+          });
+          count += 1;
+        } catch (error) {
+          if (isUniqueConstraintError(error)) {
+            skipped += 1;
+            continue;
+          }
+          throw error; // re-throw to roll back the transaction
+        }
+      }
+      return count;
+    });
+
+    return Response.json({ imported, skipped, errors: preview.errors });
+  } catch (error) {
+    return safeErrorResponse("Could not import trades", 500, error);
+  }
 });
