@@ -177,6 +177,7 @@ export const fr: TranslationKeys = {
   "calendar.title": "Calendrier",
   "calendar.description": "Visualisez vos jours de trading et PnL sur le mois.",
   "calendar.importTrades": "Importer des trades",
+  "calendar.exportCsv": "Exporter CSV",
   "calendar.prevMonth": "Mois précédent",
   "calendar.nextMonth": "Mois suivant",
   "calendar.date": "Date",

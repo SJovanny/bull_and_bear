@@ -277,6 +277,18 @@ function CalendarPageContent() {
           </button>
           <button
             type="button"
+            onClick={() => {
+              if (selectedAccountId) {
+                window.location.href = `/api/trades/export?accountId=${encodeURIComponent(selectedAccountId)}`;
+              }
+            }}
+            disabled={!selectedAccountId}
+            className="inline-flex h-10 items-center justify-center rounded-lg border border-brand-500/30 bg-brand-500/5 px-3 text-sm font-medium text-brand-600 hover:bg-brand-500/10 transition-colors font-sans disabled:opacity-50"
+          >
+            {t("calendar.exportCsv")}
+          </button>
+          <button
+            type="button"
             onClick={() =>
               setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1))
             }

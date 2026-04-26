@@ -177,6 +177,7 @@ export type TranslationKeys = {
   "calendar.title": string;
   "calendar.description": string;
   "calendar.importTrades": string;
+  "calendar.exportCsv": string;
   "calendar.prevMonth": string;
   "calendar.nextMonth": string;
   "calendar.date": string;
