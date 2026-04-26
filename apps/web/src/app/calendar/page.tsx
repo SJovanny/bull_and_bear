@@ -108,7 +108,7 @@ function CalendarPageContent() {
   const [error, setError] = useState<string | null>(null);
   const selectedAccountId = useSelectedAccountId();
   const { t, locale } = useTranslation();
-  const { tutorialsCompleted, loaded: tutorialLoaded } = useTutorialStatus();
+  const { tutorialsCompleted, loaded: tutorialLoaded, markCompleted } = useTutorialStatus();
 
   // Inject mock data when tutorial hasn't been completed and no real trades
   const shouldUseMock = tutorialLoaded && tutorialsCompleted.calendar !== true && !loading;
@@ -302,6 +302,7 @@ function CalendarPageContent() {
             page="calendar"
             steps={tutorialStepsMap.calendar}
             tutorialCompleted={tutorialsCompleted.calendar === true}
+            onCompleted={() => markCompleted("calendar")}
           />
         )}
         <section className="rounded-2xl border border-border bg-surface-1 p-3 sm:p-6 shadow-sm">

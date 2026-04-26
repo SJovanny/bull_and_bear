@@ -52,7 +52,7 @@ export default function ComptesPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { t } = useTranslation();
-  const { tutorialsCompleted, loaded: tutorialLoaded } = useTutorialStatus();
+  const { tutorialsCompleted, loaded: tutorialLoaded, markCompleted } = useTutorialStatus();
 
   const canSubmit = useMemo(
     () => form.name.trim().length > 1 && form.currency.trim().length === 3,
@@ -231,6 +231,7 @@ export default function ComptesPage() {
             page="comptes"
             steps={tutorialStepsMap.comptes}
             tutorialCompleted={tutorialsCompleted.comptes === true}
+            onCompleted={() => markCompleted("comptes")}
           />
         )}
         {error ? (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 type TutorialsCompleted = Record<string, boolean>;
 
@@ -26,5 +26,9 @@ export function useTutorialStatus() {
     load();
   }, []);
 
-  return { tutorialsCompleted, loaded };
+  const markCompleted = useCallback((page: string) => {
+    setTutorialsCompleted((prev) => ({ ...prev, [page]: true }));
+  }, []);
+
+  return { tutorialsCompleted, loaded, markCompleted };
 }

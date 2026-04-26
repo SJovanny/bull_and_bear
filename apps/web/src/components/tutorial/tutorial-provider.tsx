@@ -21,9 +21,10 @@ type TutorialProviderProps = {
   page: TutorialPage;
   steps: Step[];
   tutorialCompleted: boolean;
+  onCompleted?: () => void;
 };
 
-export function TutorialProvider({ page, steps, tutorialCompleted }: TutorialProviderProps) {
+export function TutorialProvider({ page, steps, tutorialCompleted, onCompleted }: TutorialProviderProps) {
   const [run, setRun] = useState(false);
   const { t } = useTranslation();
   const { setActivePage } = useTutorialContext();
@@ -51,6 +52,7 @@ export function TutorialProvider({ page, steps, tutorialCompleted }: TutorialPro
       if (status === "finished" || status === "skipped") {
         setRun(false);
         setActivePage(null);
+        onCompleted?.();
         try {
           await fetch("/api/me/tutorial", {
             method: "PATCH",
@@ -62,7 +64,7 @@ export function TutorialProvider({ page, steps, tutorialCompleted }: TutorialPro
         }
       }
     },
-    [page, setActivePage],
+    [page, setActivePage, onCompleted],
   );
 
   // Translate step content using i18n keys

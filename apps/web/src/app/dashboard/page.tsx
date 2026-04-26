@@ -36,7 +36,7 @@ function DashboardContent() {
   const [period, setPeriod] = useState<DashboardPeriod>("30D");
   const selectedAccountId = useSelectedAccountId();
   const { t } = useTranslation();
-  const { tutorialsCompleted, loaded: tutorialLoaded } = useTutorialStatus();
+  const { tutorialsCompleted, loaded: tutorialLoaded, markCompleted } = useTutorialStatus();
   const selectedAccount = useMemo(
     () => accounts.find((account) => account.id === selectedAccountId) ?? null,
     [accounts, selectedAccountId],
@@ -138,6 +138,7 @@ function DashboardContent() {
             page="dashboard"
             steps={tutorialStepsMap.dashboard}
             tutorialCompleted={tutorialsCompleted.dashboard === true}
+            onCompleted={() => markCompleted("dashboard")}
           />
         )}
 

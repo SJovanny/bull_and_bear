@@ -71,7 +71,7 @@ export default function JournalPage() {
 function JournalPageContent() {
   const selectedAccountId = useSelectedAccountId();
   const { t, locale } = useTranslation();
-  const { tutorialsCompleted, loaded: tutorialLoaded } = useTutorialStatus();
+  const { tutorialsCompleted, loaded: tutorialLoaded, markCompleted } = useTutorialStatus();
 
   const [trades, setTrades] = useState<Trade[]>([]);
   const [journals, setJournals] = useState<JournalEntry[]>([]);
@@ -204,6 +204,7 @@ function JournalPageContent() {
             page="journal"
             steps={tutorialStepsMap.journal}
             tutorialCompleted={tutorialsCompleted.journal === true}
+            onCompleted={() => markCompleted("journal")}
           />
         )}
         <div className="flex items-center justify-between gap-4 rounded-2xl border border-border bg-surface-1 px-4 py-3 shadow-sm">

@@ -27,7 +27,7 @@ export default function ProfilPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { t, locale } = useTranslation();
-  const { tutorialsCompleted, loaded: tutorialLoaded } = useTutorialStatus();
+  const { tutorialsCompleted, loaded: tutorialLoaded, markCompleted } = useTutorialStatus();
 
   useEffect(() => {
     async function loadProfile() {
@@ -64,6 +64,7 @@ export default function ProfilPage() {
             page="profil"
             steps={tutorialStepsMap.profil}
             tutorialCompleted={tutorialsCompleted.profil === true}
+            onCompleted={() => markCompleted("profil")}
           />
         )}
 

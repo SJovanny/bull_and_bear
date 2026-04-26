@@ -37,7 +37,7 @@ export default function StatsPage() {
 function StatsPageContent() {
   const selectedAccountId = useSelectedAccountId();
   const { t } = useTranslation();
-  const { tutorialsCompleted, loaded: tutorialLoaded } = useTutorialStatus();
+  const { tutorialsCompleted, loaded: tutorialLoaded, markCompleted } = useTutorialStatus();
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [summary, setSummary] = useState<StatsSummary | null>(null);
   const [breakdown, setBreakdown] = useState<StatsBreakdown | null>(null);
@@ -142,6 +142,7 @@ function StatsPageContent() {
             page="stats"
             steps={tutorialStepsMap.stats}
             tutorialCompleted={tutorialsCompleted.stats === true}
+            onCompleted={() => markCompleted("stats")}
           />
         )}
         {error ? (
