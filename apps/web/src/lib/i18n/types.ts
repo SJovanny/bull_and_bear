@@ -318,6 +318,10 @@ export type TranslationKeys = {
   "accounts.orChoose": string;
   "accounts.onExisting": string;
   "accounts.deleteConfirm": string;
+  "accounts.deleteModalTitle": string;
+  "accounts.deleteModalDesc": string;
+  "accounts.deleteModalTradeCount": string;
+  "accounts.deleteModalConfirmBtn": string;
   "accounts.deleteSuccess": string;
   "accounts.createSuccess": string;
   "accounts.updateSuccess": string;

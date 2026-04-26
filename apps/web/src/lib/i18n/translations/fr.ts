@@ -318,7 +318,11 @@ export const fr: TranslationKeys = {
   "accounts.orChoose": "Éditer ",
   "accounts.onExisting": "sur un compte existant.",
   "accounts.deleteConfirm": "Supprimer définitivement le compte '{name}' ? Tous ses trades et notes seront aussi supprimés.",
-  "accounts.deleteSuccess": "Compte de trading et toutes ses données supprimés.",
+  "accounts.deleteModalTitle": "Archiver le compte",
+  "accounts.deleteModalDesc": "Le compte « {name} » sera archivé. Ses trades et notes seront conservés mais masqués.",
+  "accounts.deleteModalTradeCount": "{count} trade(s) seront conservés mais masqués.",
+  "accounts.deleteModalConfirmBtn": "Archiver",
+  "accounts.deleteSuccess": "Compte archivé avec succès.",
   "accounts.createSuccess": "Compte de trading créé avec succès.",
   "accounts.updateSuccess": "Compte mis à jour avec succès.",
 

@@ -50,6 +50,7 @@ export default function ComptesPage() {
   const [form, setForm] = useState(initialForm);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
+  const [archiveTarget, setArchiveTarget] = useState<TradingAccount | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { t } = useTranslation();
@@ -190,16 +191,11 @@ export default function ComptesPage() {
     }
   }
 
-  async function handleArchive(account: TradingAccount) {
-    const tradeCount = account._count?.trades ?? 0;
-    const msg = tradeCount > 0
-      ? t("accounts.deleteConfirm").replace("{name}", account.name) + `\n\n${tradeCount} trade(s) will be preserved but hidden.`
-      : t("accounts.deleteConfirm").replace("{name}", account.name);
-    const confirmed = window.confirm(msg);
-    if (!confirmed) {
-      return;
-    }
+  async function confirmArchive() {
+    if (!archiveTarget) return;
 
+    const account = archiveTarget;
+    setArchiveTarget(null);
     setIsDeletingId(account.id);
     setError(null);
     setMessage(null);
@@ -346,7 +342,7 @@ export default function ComptesPage() {
                         </button>
                         <button
                           type="button"
-                          onClick={() => void handleArchive(account)}
+                          onClick={() => setArchiveTarget(account)}
                           disabled={isDeletingId === account.id}
                           className="inline-flex h-9 items-center justify-center rounded-lg border border-pnl-negative/20 bg-pnl-negative/5 px-3 text-sm font-semibold text-pnl-negative transition hover:bg-pnl-negative/10 disabled:opacity-50"
                         >
@@ -465,6 +461,67 @@ export default function ComptesPage() {
           </>
         )}
       </div>
+
+      {/* Archive confirmation modal */}
+      {archiveTarget ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-3"
+          onClick={(event) => {
+            if (event.target === event.currentTarget) {
+              setArchiveTarget(null);
+            }
+          }}
+          aria-hidden="true"
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={t("accounts.deleteModalTitle")}
+            className="w-full max-w-md rounded-2xl border border-border bg-surface-1 p-6 shadow-2xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-pnl-negative/10">
+                <svg className="h-5 w-5 text-pnl-negative" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-primary font-sans">
+                  {t("accounts.deleteModalTitle")}
+                </h3>
+              </div>
+            </div>
+
+            <p className="mt-4 text-sm text-secondary font-sans">
+              {t("accounts.deleteModalDesc").replace("{name}", archiveTarget.name)}
+            </p>
+
+            {(archiveTarget._count?.trades ?? 0) > 0 ? (
+              <p className="mt-2 rounded-lg bg-amber-500/10 border border-amber-500/20 px-3 py-2 text-sm font-medium text-amber-600 font-sans">
+                {t("accounts.deleteModalTradeCount").replace("{count}", String(archiveTarget._count?.trades ?? 0))}
+              </p>
+            ) : null}
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setArchiveTarget(null)}
+                className="inline-flex h-10 items-center justify-center rounded-xl border border-border bg-surface-1 px-4 text-sm font-semibold text-primary transition hover:bg-surface-2"
+              >
+                {t("accounts.formCancelBtn")}
+              </button>
+              <button
+                type="button"
+                onClick={() => void confirmArchive()}
+                className="inline-flex h-10 items-center justify-center rounded-xl bg-pnl-negative px-4 text-sm font-semibold text-white transition hover:bg-pnl-negative/90"
+              >
+                {t("accounts.deleteModalConfirmBtn")}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </DashboardShell>
   );
 }

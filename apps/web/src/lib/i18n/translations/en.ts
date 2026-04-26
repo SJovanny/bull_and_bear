@@ -318,7 +318,11 @@ export const en: TranslationKeys = {
   "accounts.orChoose": "Edit ",
   "accounts.onExisting": "on an existing account.",
   "accounts.deleteConfirm": "Delete trading account '{name}' permanently? This will also delete all related trades and journals.",
-  "accounts.deleteSuccess": "Trading account and all related data deleted successfully.",
+  "accounts.deleteModalTitle": "Archive account",
+  "accounts.deleteModalDesc": "The account \"{name}\" will be archived. Its trades and notes will be preserved but hidden.",
+  "accounts.deleteModalTradeCount": "{count} trade(s) will be preserved but hidden.",
+  "accounts.deleteModalConfirmBtn": "Archive",
+  "accounts.deleteSuccess": "Account archived successfully.",
   "accounts.createSuccess": "Trading account created successfully.",
   "accounts.updateSuccess": "Trading account updated successfully.",
 
