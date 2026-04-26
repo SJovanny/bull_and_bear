@@ -154,4 +154,5 @@ model DailyJournal {
 
   @@unique([accountId, date])
   @@index([userId, date])
+  @@index([accountId])
 }
