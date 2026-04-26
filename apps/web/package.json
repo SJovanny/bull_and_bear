@@ -25,7 +25,6 @@
     "audit:fix": "npm audit fix --omit=dev"
   },
   "dependencies": {
-    "@fontsource-variable/plus-jakarta-sans": "^5.2.8",
     "@fontsource/jetbrains-mono": "^5.2.8",
     "@prisma/client": "^6.11.1",
     "@supabase/ssr": "^0.9.0",
@@ -35,7 +34,6 @@
     "file-type": "^22.0.1",
     "lightweight-charts": "^5.1.0",
     "next": "^16.1.6",
-    "nodejs-xlsx": "^1.0.2",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-joyride": "^3.0.2",
