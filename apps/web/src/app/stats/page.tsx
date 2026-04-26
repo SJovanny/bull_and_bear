@@ -56,8 +56,9 @@ function StatsPageContent() {
     return `accountId=${encodeURIComponent(selectedAccountId)}&period=ALL`;
   }, [selectedAccountId]);
 
+  // Load accounts, summary, and time analysis (don't depend on breakdownBy or distributionMetric)
   useEffect(() => {
-    async function loadStats() {
+    async function loadBase() {
       if (!baseQuery) {
         return;
       }
@@ -66,30 +67,22 @@ function StatsPageContent() {
       setError(null);
 
       try {
-        const [accountsResponse, summaryResponse, breakdownResponse, distributionResponse, timeAnalysisResponse] = await Promise.all([
+        const [accountsResponse, summaryResponse, timeAnalysisResponse] = await Promise.all([
           fetch("/api/accounts"),
           fetch(`/api/stats/summary?${baseQuery}`),
-          fetch(`/api/stats/breakdown?${baseQuery}&by=${breakdownBy}`),
-          fetch(`/api/stats/distribution?${baseQuery}&metric=${distributionMetric}`),
           fetch(`/api/stats/time-analysis?${baseQuery}`),
         ]);
 
         const accountPayload = (await accountsResponse.json()) as { accounts?: Account[]; error?: string };
         const summaryPayload = (await summaryResponse.json()) as StatsSummary & { error?: string };
-        const breakdownPayload = (await breakdownResponse.json()) as StatsBreakdown & { error?: string };
-        const distributionPayload = (await distributionResponse.json()) as StatsDistribution & { error?: string };
         const timeAnalysisPayload = (await timeAnalysisResponse.json()) as StatsTimeAnalysis & { error?: string };
 
         if (!accountsResponse.ok) throw new Error(accountPayload.error ?? "Could not load accounts");
         if (!summaryResponse.ok) throw new Error(summaryPayload.error ?? "Could not load summary");
-        if (!breakdownResponse.ok) throw new Error(breakdownPayload.error ?? "Could not load breakdown");
-        if (!distributionResponse.ok) throw new Error(distributionPayload.error ?? "Could not load distribution");
         if (!timeAnalysisResponse.ok) throw new Error(timeAnalysisPayload.error ?? "Could not load time analysis");
 
         setAccounts(accountPayload.accounts ?? []);
         setSummary(summaryPayload);
-        setBreakdown(breakdownPayload);
-        setDistribution(distributionPayload);
         setTimeAnalysis(timeAnalysisPayload);
       } catch (requestError) {
         setError(requestError instanceof Error ? requestError.message : "Unexpected error");
@@ -98,8 +91,40 @@ function StatsPageContent() {
       }
     }
 
-    loadStats();
-  }, [baseQuery, breakdownBy, distributionMetric]);
+    loadBase();
+  }, [baseQuery]);
+
+  // Breakdown — only refetch when breakdownBy changes
+  useEffect(() => {
+    async function loadBreakdown() {
+      if (!baseQuery) return;
+      try {
+        const response = await fetch(`/api/stats/breakdown?${baseQuery}&by=${breakdownBy}`);
+        const payload = (await response.json()) as StatsBreakdown & { error?: string };
+        if (!response.ok) throw new Error(payload.error ?? "Could not load breakdown");
+        setBreakdown(payload);
+      } catch (requestError) {
+        setError(requestError instanceof Error ? requestError.message : "Unexpected error");
+      }
+    }
+    loadBreakdown();
+  }, [baseQuery, breakdownBy]);
+
+  // Distribution — only refetch when distributionMetric changes
+  useEffect(() => {
+    async function loadDistribution() {
+      if (!baseQuery) return;
+      try {
+        const response = await fetch(`/api/stats/distribution?${baseQuery}&metric=${distributionMetric}`);
+        const payload = (await response.json()) as StatsDistribution & { error?: string };
+        if (!response.ok) throw new Error(payload.error ?? "Could not load distribution");
+        setDistribution(payload);
+      } catch (requestError) {
+        setError(requestError instanceof Error ? requestError.message : "Unexpected error");
+      }
+    }
+    loadDistribution();
+  }, [baseQuery, distributionMetric]);
 
   // Inject mock data when tutorial hasn't been completed and no real data
   const shouldUseMock = tutorialLoaded && tutorialsCompleted.stats !== true && !loading;

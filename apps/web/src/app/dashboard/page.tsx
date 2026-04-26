@@ -63,8 +63,20 @@ function DashboardContent() {
       try {
         const now = new Date();
         const month = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}`;
-        const [accountsResponse, tradesResponse, summaryResponse, equityResponse, calendarResponse] = await Promise.all([
-          fetch("/api/accounts"),
+
+        // Accounts, trades, and calendar don't depend on period — only
+        // refetch them when the selected account changes (not on period toggle).
+        const accountPromise = accounts.length > 0
+          ? Promise.resolve(null)
+          : fetch("/api/accounts").then(async (r) => {
+              const p = (await r.json()) as { accounts?: Account[]; error?: string };
+              if (r.status === 401) { router.replace("/?authError=unauthorized&next=/dashboard"); return null; }
+              if (!r.ok) throw new Error(p.error ?? "Could not load accounts");
+              return p.accounts ?? [];
+            });
+
+        const [newAccounts, tradesResponse, summaryResponse, equityResponse, calendarResponse] = await Promise.all([
+          accountPromise,
           fetch(`/api/trades?accountId=${encodeURIComponent(selectedAccountId)}`),
           fetch(`/api/stats/summary?${accountScopedBase}`),
           fetch(`/api/stats/equity?${accountScopedBase}&groupBy=day`),
@@ -72,7 +84,6 @@ function DashboardContent() {
         ]);
 
         if (
-          accountsResponse.status === 401 ||
           tradesResponse.status === 401 ||
           summaryResponse.status === 401 ||
           equityResponse.status === 401 ||
@@ -82,15 +93,10 @@ function DashboardContent() {
           return;
         }
 
-        const accountPayload = (await accountsResponse.json()) as { accounts?: Account[]; error?: string };
         const tradePayload = (await tradesResponse.json()) as { trades?: Trade[]; error?: string };
         const summaryPayload = (await summaryResponse.json()) as StatsSummary & { error?: string };
         const equityPayload = (await equityResponse.json()) as StatsEquity & { error?: string };
         const calendarPayload = (await calendarResponse.json()) as StatsCalendar & { error?: string };
-
-        if (!accountsResponse.ok) {
-          throw new Error(accountPayload.error ?? "Could not load accounts");
-        }
 
         if (!tradesResponse.ok) {
           throw new Error(tradePayload.error ?? "Could not load trades");
@@ -108,7 +114,9 @@ function DashboardContent() {
           throw new Error(calendarPayload.error ?? "Could not load calendar");
         }
 
-        setAccounts(accountPayload.accounts ?? []);
+        if (newAccounts) {
+          setAccounts(newAccounts);
+        }
         setTrades(tradePayload.trades ?? []);
         setSummary(summaryPayload);
         setEquity(equityPayload);
