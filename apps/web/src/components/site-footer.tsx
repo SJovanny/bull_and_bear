@@ -54,12 +54,12 @@ export function SiteFooter() {
             </h3>
             <ul className="mt-4 flex flex-col gap-3">
               <li>
-                <Link href="#" className="text-sm text-slate-400 transition hover:text-cyan-400">
+                <Link href="/legal/privacy-policy" className="text-sm text-slate-400 transition hover:text-cyan-400">
                   {t("footer.links.privacy")}
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-sm text-slate-400 transition hover:text-cyan-400">
+                <Link href="/legal/terms" className="text-sm text-slate-400 transition hover:text-cyan-400">
                   {t("footer.links.terms")}
                 </Link>
               </li>
