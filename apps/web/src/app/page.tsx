@@ -19,11 +19,23 @@ export default function LandingPage() {
 
   useEffect(() => {
     async function checkAuth() {
+      // Check sessionStorage first to avoid a network round-trip on every landing visit
+      const cached = sessionStorage.getItem("bb-is-authenticated");
+      if (cached !== null) {
+        setIsAuthenticated(cached === "true");
+        setChecked(true);
+        return;
+      }
+
       try {
         const res = await fetch("/api/me");
         if (res.ok) {
           const data = await res.json();
-          setIsAuthenticated(Boolean(data.user));
+          const authed = Boolean(data.user);
+          setIsAuthenticated(authed);
+          sessionStorage.setItem("bb-is-authenticated", String(authed));
+        } else {
+          sessionStorage.setItem("bb-is-authenticated", "false");
         }
       } catch {
         // ignore

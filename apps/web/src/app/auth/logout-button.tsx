@@ -19,6 +19,7 @@ export function LogoutButton({ isSidebarContext = false, isCollapsed = false, la
 
   async function handleLogout() {
     setLoading(true);
+    sessionStorage.removeItem("bb-is-authenticated");
     await supabaseClient.auth.signOut();
     router.push("/");
     router.refresh();
