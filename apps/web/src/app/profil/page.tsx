@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { TutorialProvider } from "@/components/tutorial/tutorial-provider";
 import { TutorialSection } from "@/components/tutorial/tutorial-section";
+import LoadingSpinner from "@/components/loading-spinner";
 import { useTutorialStatus } from "@/hooks/use-tutorial-status";
 import { useTranslation } from "@/lib/i18n/context";
 import { tutorialStepsMap } from "@/config/tutorial-steps";
@@ -72,6 +73,10 @@ export default function ProfilPage() {
           </section>
         ) : null}
 
+        {loading ? (
+          <LoadingSpinner />
+        ) : (
+          <>
         <section className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
           <article className="rounded-2xl border border-border bg-surface-1 p-6 shadow-sm" data-tutorial="profile-identity">
             <p className="text-xs font-semibold uppercase tracking-[0.1em] text-secondary font-sans">{t("profile.identity")}</p>
@@ -120,6 +125,8 @@ export default function ProfilPage() {
 
         {/* Tutorial restart section */}
         <TutorialSection tutorialsCompleted={tutorialsCompleted} />
+          </>
+        )}
       </div>
     </DashboardShell>
   );

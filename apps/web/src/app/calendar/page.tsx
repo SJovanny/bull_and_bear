@@ -6,6 +6,7 @@ import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { TradeEntryModal } from "@/components/trade-entry-modal";
 import { TradeImportModal } from "@/components/trade-import-modal";
+import LoadingSpinner from "@/components/loading-spinner";
 import { useSelectedAccountId } from "@/hooks/use-selected-account-id";
 import { useTranslation } from "@/lib/i18n/context";
 import { toDateKey } from "@/lib/format";
@@ -330,7 +331,7 @@ function CalendarPageContent() {
           </div>
 
           {error ? <p className="mb-3 rounded-lg bg-pnl-negative/10 px-3 py-2 text-sm text-pnl-negative font-sans">{error}</p> : null}
-          {loading ? <p className="mb-3 text-sm text-secondary font-sans">{t("calendar.loading")}</p> : null}
+          {loading && !shouldUseMock ? <LoadingSpinner /> : null}
 
           <div className="grid grid-cols-7 gap-2 text-center text-xs font-semibold uppercase tracking-[0.08em] text-secondary font-sans">
             {[t("calendar.days.mon"), t("calendar.days.tue"), t("calendar.days.wed"), t("calendar.days.thu"), t("calendar.days.fri"), t("calendar.days.sat"), t("calendar.days.sun")].map((label) => (

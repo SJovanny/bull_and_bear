@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { DashboardShell } from "@/components/dashboard-shell";
+import LoadingSpinner from "@/components/loading-spinner";
 import { useTranslation } from "@/lib/i18n/context";
 import { formatNumber, pnlColorClass } from "@/lib/format";
 import { useTutorialStatus } from "@/hooks/use-tutorial-status";
@@ -42,6 +43,7 @@ export default function ComptesPage() {
   const [accounts, setAccounts] = useState<TradingAccount[]>([]);
   const [balances, setBalances] = useState<AccountBalance[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingAccountId, setEditingAccountId] = useState<string | null>(null);
   const [form, setForm] = useState(initialForm);
@@ -76,6 +78,7 @@ export default function ComptesPage() {
   }
 
   async function loadAccounts() {
+    setLoading(true);
     try {
       const [accountsResponse, balancesResponse] = await Promise.all([
         fetch("/api/accounts"),
@@ -95,6 +98,8 @@ export default function ComptesPage() {
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : "Unexpected error");
       setLoaded(true);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -240,6 +245,10 @@ export default function ComptesPage() {
           </section>
         ) : null}
 
+        {loading ? (
+          <LoadingSpinner />
+        ) : (
+          <>
         <section className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
@@ -449,6 +458,8 @@ export default function ComptesPage() {
             )}
           </article>
         </section>
+          </>
+        )}
       </div>
     </DashboardShell>
   );

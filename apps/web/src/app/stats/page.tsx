@@ -4,6 +4,7 @@ import { Suspense, useEffect, useMemo, useState } from "react";
 
 import { DashboardShell } from "@/components/dashboard-shell";
 import { MetricLabel } from "@/components/metric-label";
+import LoadingSpinner from "@/components/loading-spinner";
 import { useSelectedAccountId } from "@/hooks/use-selected-account-id";
 import { useTranslation } from "@/lib/i18n/context";
 import { formatNumber, pnlColorClass } from "@/lib/format";
@@ -149,6 +150,10 @@ function StatsPageContent() {
           </section>
         ) : null}
 
+        {loading && !shouldUseMock ? (
+          <LoadingSpinner />
+        ) : (
+          <>
         <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-[1.25fr_1.25fr_1fr_1fr]" data-tutorial="stats-metrics">
           <article className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm">
             <div className="text-xs uppercase tracking-[0.1em] text-secondary font-sans">
@@ -421,6 +426,8 @@ function StatsPageContent() {
             </div>
           </article>
         </section>
+          </>
+        )}
       </div>
     </DashboardShell>
   );

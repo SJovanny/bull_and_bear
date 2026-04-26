@@ -7,6 +7,7 @@ import { KpiCards } from "@/components/dashboard/kpi-cards";
 import { DashboardCharts } from "@/components/dashboard/charts";
 import { RecentTrades } from "@/components/dashboard/recent-trades";
 import { MiniCalendar } from "@/components/dashboard/mini-calendar";
+import LoadingSpinner from "@/components/loading-spinner";
 import { useSelectedAccountId } from "@/hooks/use-selected-account-id";
 import { useTutorialStatus } from "@/hooks/use-tutorial-status";
 import { useTranslation } from "@/lib/i18n/context";
@@ -165,8 +166,12 @@ function DashboardContent() {
           </section>
         ) : null}
 
-        <div data-tutorial="kpi-cards">
-          <KpiCards
+        {loading && !shouldUseMock ? (
+          <LoadingSpinner />
+        ) : (
+          <>
+            <div data-tutorial="kpi-cards">
+              <KpiCards
             loading={loading && !shouldUseMock}
             totalNetPnl={displaySummary?.realized.netPnl ?? 0}
             winRate={displaySummary?.realized.winRate ?? 0}
@@ -203,6 +208,8 @@ function DashboardContent() {
             <MiniCalendar days={displayCalendar?.days ?? []} />
           </div>
         </section>
+          </>
+        )}
       </div>
     </DashboardShell>
   );
