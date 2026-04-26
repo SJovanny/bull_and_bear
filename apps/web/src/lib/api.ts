@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getCurrentAppUser } from "@/lib/auth/current-user";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { hasActiveAccess } from "@/lib/stripe";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -77,16 +78,24 @@ export async function verifyAccountOwnership(
 
 // ─── Authenticated Route Wrapper ────────────────────────────────────────────
 
+type WithAuthOptions = {
+  /** Skip the subscription/trial paywall check (for billing, GDPR, profile routes) */
+  skipSubscriptionCheck?: boolean;
+};
+
 /**
  * Wraps an API route handler with:
  * 1. Rate limiting (in-memory sliding window)
- * 2. Authentication check
- * 3. Centralised error handling (no internal leaks)
+ * 2. CSRF origin check for mutating requests
+ * 3. Authentication check
+ * 4. Subscription / trial paywall check (optional)
+ * 5. Centralised error handling (no internal leaks)
  *
  * Usage:
  *   export const GET = withAuth(async (request, { user, params }) => { ... });
+ *   export const GET = withAuth(async (request, { user }) => { ... }, { skipSubscriptionCheck: true });
  */
-export function withAuth(handler: AuthenticatedHandler) {
+export function withAuth(handler: AuthenticatedHandler, options?: WithAuthOptions) {
   return async (
     request: Request,
     context?: { params?: Promise<Record<string, string>> },
@@ -134,10 +143,20 @@ export function withAuth(handler: AuthenticatedHandler) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
       }
 
-      // 4. Resolve dynamic params
+      // 4. Subscription / trial paywall check
+      if (!options?.skipSubscriptionCheck) {
+        if (!hasActiveAccess(user.subscriptionStatus, user.trialEndsAt)) {
+          return NextResponse.json(
+            { error: "Subscription required", code: "SUBSCRIPTION_REQUIRED" },
+            { status: 402 },
+          );
+        }
+      }
+
+      // 5. Resolve dynamic params
       const params = context?.params ? await context.params : {};
 
-      // 5. Execute handler
+      // 6. Execute handler
       return await handler(request, { user, params });
     } catch (error) {
       return safeErrorResponse("An unexpected error occurred", 500, error);

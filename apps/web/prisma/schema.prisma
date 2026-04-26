@@ -57,6 +57,13 @@ model User {
   displayName         String?
   timezone            String         @default("UTC")
   tutorialsCompleted  Json           @default("{}")
+  // ─── Stripe / Subscription ───────────────────────────────────
+  stripeCustomerId    String?        @unique
+  subscriptionId      String?        @unique
+  subscriptionStatus  String         @default("trialing")
+  trialEndsAt         DateTime?
+  currentPeriodEnd    DateTime?
+  // ─────────────────────────────────────────────────────────────
   createdAt           DateTime       @default(now())
   updatedAt           DateTime       @updatedAt
   accounts            Account[]

@@ -288,6 +288,49 @@ export type TranslationKeys = {
   "profile.deleteModalCancelBtn": string;
   "profile.deleting": string;
   "profile.deleteTypePlaceholder": string;
+  "profile.billing": string;
+  "profile.billingStatus": string;
+  "profile.billingActive": string;
+  "profile.billingTrial": string;
+  "profile.billingTrialExpired": string;
+  "profile.billingPastDue": string;
+  "profile.billingCanceled": string;
+  "profile.billingExpired": string;
+  "profile.manageBilling": string;
+  "profile.upgradePlan": string;
+
+  // ─── Paywall ────────────────────────────────────────────────
+  "paywall.title": string;
+  "paywall.trialExpiring": string;
+  "paywall.trialExpired": string;
+  "paywall.description": string;
+  "paywall.cta": string;
+  "paywall.dataNote": string;
+
+  // ─── Pricing ────────────────────────────────────────────────
+  "pricing.backToDashboard": string;
+  "pricing.eyebrow": string;
+  "pricing.title": string;
+  "pricing.subtitle": string;
+  "pricing.trialBanner": string;
+  "pricing.monthly": string;
+  "pricing.yearly": string;
+  "pricing.yearlyBadge": string;
+  "pricing.cardDesc": string;
+  "pricing.perMonth": string;
+  "pricing.billedYearly": string;
+  "pricing.feat.accounts": string;
+  "pricing.feat.trades": string;
+  "pricing.feat.journal": string;
+  "pricing.feat.stats": string;
+  "pricing.feat.import": string;
+  "pricing.feat.export": string;
+  "pricing.feat.support": string;
+  "pricing.subscribeBtn": string;
+  "pricing.resubscribeBtn": string;
+  "pricing.manageBtn": string;
+  "pricing.loading": string;
+  "pricing.footer": string;
 
   // ─── Accounts ───────────────────────────────────────────────
   "accounts.title": string;

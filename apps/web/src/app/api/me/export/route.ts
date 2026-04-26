@@ -48,4 +48,4 @@ export const GET = withAuth(async (_request, { user }) => {
       "Content-Disposition": `attachment; filename="bull-and-bear-export-${new Date().toISOString().slice(0, 10)}.json"`,
     },
   });
-});
+}, { skipSubscriptionCheck: true });

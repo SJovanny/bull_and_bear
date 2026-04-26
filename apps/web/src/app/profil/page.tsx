@@ -8,6 +8,7 @@ import { TutorialProvider } from "@/components/tutorial/tutorial-provider";
 import { TutorialSection } from "@/components/tutorial/tutorial-section";
 import LoadingSpinner from "@/components/loading-spinner";
 import { useTutorialStatus } from "@/hooks/use-tutorial-status";
+import { useSubscription } from "@/hooks/use-subscription";
 import { useTranslation } from "@/lib/i18n/context";
 import { tutorialStepsMap } from "@/config/tutorial-steps";
 import { supabaseClient } from "@/lib/supabase/client";
@@ -39,6 +40,7 @@ export default function ProfilPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const { t, locale } = useTranslation();
   const { tutorialsCompleted, loaded: tutorialLoaded, markCompleted } = useTutorialStatus();
+  const { status: subStatus, trialDaysLeft, hasAccess, hasStripeAccount, openPortal } = useSubscription();
 
   const confirmWord = t("profile.deleteTypePlaceholder");
 
@@ -142,7 +144,7 @@ export default function ProfilPage() {
   }
 
   return (
-    <DashboardShell title={t("profile.title")}>
+    <DashboardShell title={t("profile.title")} skipSubscriptionCheck>
       <div className="mx-auto flex max-w-5xl flex-col gap-4">
         {tutorialLoaded && (
           <TutorialProvider
@@ -256,6 +258,42 @@ export default function ProfilPage() {
                       : "-"}
                 </p>
               </div>
+            </div>
+          </article>
+        </section>
+
+        {/* ─── Billing / Subscription ────────────────────────────── */}
+        <section>
+          <article className="rounded-2xl border border-border bg-surface-1 p-6 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-[0.1em] text-secondary font-sans">{t("profile.billing")}</p>
+            <div className="mt-4 flex items-center gap-4">
+              <div className="flex-1">
+                <p className="text-sm text-secondary font-sans">{t("profile.billingStatus")}</p>
+                <p className="mt-1 text-lg font-semibold text-primary font-sans">
+                  {subStatus === "active" && t("profile.billingActive")}
+                  {subStatus === "trialing" && hasAccess && t("profile.billingTrial").replace("{days}", String(trialDaysLeft))}
+                  {subStatus === "trialing" && !hasAccess && t("profile.billingTrialExpired")}
+                  {subStatus === "past_due" && t("profile.billingPastDue")}
+                  {subStatus === "canceled" && t("profile.billingCanceled")}
+                  {subStatus === "expired" && t("profile.billingExpired")}
+                </p>
+              </div>
+              {hasStripeAccount ? (
+                <button
+                  type="button"
+                  onClick={() => void openPortal()}
+                  className="inline-flex h-10 items-center justify-center rounded-xl border border-border bg-surface-2 px-4 text-sm font-semibold text-primary transition hover:bg-white"
+                >
+                  {t("profile.manageBilling")}
+                </button>
+              ) : (
+                <a
+                  href="/pricing"
+                  className="inline-flex h-10 items-center justify-center rounded-xl bg-brand-500 px-4 text-sm font-semibold text-white transition hover:bg-brand-600"
+                >
+                  {t("profile.upgradePlan")}
+                </a>
+              )}
             </div>
           </article>
         </section>

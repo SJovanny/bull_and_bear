@@ -11,7 +11,7 @@ export const GET = withAuth(async (_request, { user }) => {
   });
 
   return Response.json({ user, accounts });
-});
+}, { skipSubscriptionCheck: true });
 
 const profileUpdateSchema = z.object({
   displayName: z.string().max(100).optional(),
@@ -38,7 +38,7 @@ export const PATCH = withAuth(async (request, { user }) => {
   });
 
   return Response.json({ user: updated });
-});
+}, { skipSubscriptionCheck: true });
 
 // ─── DELETE /api/me ─ Right to erasure (GDPR Art. 17) ────────────────────────
 
@@ -56,4 +56,4 @@ export const DELETE = withAuth(async (_request, { user }) => {
   }
 
   return Response.json({ deleted: true });
-});
+}, { skipSubscriptionCheck: true });
