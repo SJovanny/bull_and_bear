@@ -115,16 +115,29 @@ export function withAuth(handler: AuthenticatedHandler) {
         );
       }
 
-      // 2. Authentication
+      // 2. CSRF origin check for mutating requests
+      const mutatingMethods = new Set(["POST", "PUT", "PATCH", "DELETE"]);
+      if (mutatingMethods.has(request.method)) {
+        const origin = request.headers.get("origin");
+        const requestUrl = new URL(request.url);
+        if (!origin || new URL(origin).host !== requestUrl.host) {
+          return NextResponse.json(
+            { error: "Forbidden – origin mismatch" },
+            { status: 403 },
+          );
+        }
+      }
+
+      // 3. Authentication
       const user = await getCurrentAppUser();
       if (!user) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
       }
 
-      // 3. Resolve dynamic params
+      // 4. Resolve dynamic params
       const params = context?.params ? await context.params : {};
 
-      // 4. Execute handler
+      // 5. Execute handler
       return await handler(request, { user, params });
     } catch (error) {
       return safeErrorResponse("An unexpected error occurred", 500, error);
