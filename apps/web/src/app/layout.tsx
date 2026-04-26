@@ -30,9 +30,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    {/* Default lang="fr" — reflects the primary audience. The i18n provider
-        handles runtime translation; a per-user lang attribute would require
-        middleware or a client-side effect (future improvement). */}
+    // Default lang="fr" — reflects the primary audience. The i18n provider
+    // handles runtime translation; a per-user lang attribute would require
+    // middleware or a client-side effect (future improvement).
     <html lang="fr" suppressHydrationWarning>
       <body
         className={`${plusJakartaSans.variable} ${jetBrainsMono.variable} font-sans antialiased`}
