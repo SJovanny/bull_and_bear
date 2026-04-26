@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { safeErrorResponse, verifyAccountOwnership, withAuth } from "@/lib/api";
+import { safeErrorResponse, safeParseJson, verifyAccountOwnership, withAuth } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 
 const economicEventSchema = z.object({
@@ -66,7 +66,9 @@ export const GET = withAuth(async (request, { user }) => {
 });
 
 export const POST = withAuth(async (request, { user }) => {
-  const body = await request.json();
+  const { data: body, error } = await safeParseJson(request);
+  if (error) return error;
+
   const parsedBody = journalBodySchema.safeParse(body);
 
   if (!parsedBody.success) {

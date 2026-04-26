@@ -19,6 +19,28 @@ export type AuthenticatedHandler = (
   ctx: AuthenticatedContext & { params: Record<string, string> },
 ) => Promise<Response>;
 
+// ─── Safe JSON Body Parsing ─────────────────────────────────────────────────
+
+/**
+ * Safely parses the JSON body of a request.
+ * Returns `{ data }` on success or `{ error: Response }` on malformed JSON.
+ */
+export async function safeParseJson<T = unknown>(
+  request: Request,
+): Promise<{ data: T; error?: never } | { data?: never; error: Response }> {
+  try {
+    const data = (await request.json()) as T;
+    return { data };
+  } catch {
+    return {
+      error: NextResponse.json(
+        { error: "Invalid JSON body" },
+        { status: 400 },
+      ),
+    };
+  }
+}
+
 // ─── Safe Error Response ────────────────────────────────────────────────────
 
 /**

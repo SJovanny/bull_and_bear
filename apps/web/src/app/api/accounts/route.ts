@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
 
-import { safeErrorResponse, withAuth } from "@/lib/api";
+import { safeErrorResponse, safeParseJson, withAuth } from "@/lib/api";
 import { accountCreateSchema } from "@/lib/api-schemas";
 import { prisma } from "@/lib/prisma";
 
@@ -14,7 +14,9 @@ export const GET = withAuth(async (_request, { user }) => {
 });
 
 export const POST = withAuth(async (request, { user }) => {
-  const body = await request.json();
+  const { data: body, error } = await safeParseJson(request);
+  if (error) return error;
+
   const parsedBody = accountCreateSchema.safeParse(body);
 
   if (!parsedBody.success) {

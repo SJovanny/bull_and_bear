@@ -1,13 +1,15 @@
 import { TradeOutcome, TradeSide, TradeStatus } from "@prisma/client";
 
-import { safeErrorResponse, verifyAccountOwnership, withAuth } from "@/lib/api";
+import { safeErrorResponse, safeParseJson, verifyAccountOwnership, withAuth } from "@/lib/api";
 import { tradeImportPreviewSchema } from "@/lib/api-schemas";
 import { prisma } from "@/lib/prisma";
 import { computeTradeOutcome } from "@/lib/trade-calc";
 import { parseImportedTrades } from "@/lib/trade-import";
 
 export const POST = withAuth(async (request, { user }) => {
-  const body = await request.json();
+  const { data: body, error } = await safeParseJson(request);
+  if (error) return error;
+
   const parsedBody = tradeImportPreviewSchema.safeParse(body);
 
   if (!parsedBody.success) {

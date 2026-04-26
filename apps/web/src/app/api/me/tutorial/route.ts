@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { withAuth } from "@/lib/api";
+import { safeParseJson, withAuth } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 
 // ─── GET /api/me/tutorial ───────────────────────────────────────────────────
@@ -18,7 +18,9 @@ export const GET = withAuth(async (_request, { user }) => {
 // ─── PATCH /api/me/tutorial ─────────────────────────────────────────────────
 // Mark a tutorial as completed, or reset one/all tutorials
 export const PATCH = withAuth(async (request, { user }) => {
-  const body = await request.json();
+  const { data: body, error } = await safeParseJson(request);
+  if (error) return error;
+
   const { action, page } = body as { action: "complete" | "reset" | "resetAll"; page?: string };
 
   const dbUser = await prisma.user.findUnique({

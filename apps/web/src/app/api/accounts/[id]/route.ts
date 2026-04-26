@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
 
-import { safeErrorResponse, withAuth } from "@/lib/api";
+import { safeErrorResponse, safeParseJson, withAuth } from "@/lib/api";
 import { accountUpdateSchema } from "@/lib/api-schemas";
 import { prisma } from "@/lib/prisma";
 
@@ -16,7 +16,9 @@ export const PATCH = withAuth(async (request, { user, params }) => {
     return safeErrorResponse("Account not found", 404);
   }
 
-  const body = await request.json();
+  const { data: body, error } = await safeParseJson(request);
+  if (error) return error;
+
   const parsedBody = accountUpdateSchema.safeParse(body);
 
   if (!parsedBody.success) {
