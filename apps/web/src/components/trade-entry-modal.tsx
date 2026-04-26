@@ -67,6 +67,17 @@ const emotionOptions = [
   "ENTHOUSIASTE",
 ];
 
+const emotionLabelKeys: Record<string, keyof TranslationKeys> = {
+  CONFIANT: "tradeModal.emotion.confident",
+  CALME: "tradeModal.emotion.calm",
+  ANXIEUX: "tradeModal.emotion.anxious",
+  STRESSE: "tradeModal.emotion.stressed",
+  FOMO: "tradeModal.emotion.fomo",
+  REVENGE: "tradeModal.emotion.revenge",
+  NEUTRE: "tradeModal.emotion.neutral",
+  ENTHOUSIASTE: "tradeModal.emotion.enthusiastic",
+};
+
 const symbolSuggestionsByAssetClass: Record<AssetClass, string[]> = {
   STOCK: [...SYMBOL_SUGGESTIONS.STOCK],
   FUTURES: [...SYMBOL_SUGGESTIONS.FUTURES],
@@ -582,7 +593,7 @@ export function TradeEntryModal({
     event.preventDefault();
 
     if (!canSubmit) {
-      setError("Veuillez remplir tous les champs obligatoires (marqués d'un *) pour enregistrer.");
+      setError(t("tradeModal.requiredFieldsError"));
       return;
     }
 
@@ -672,7 +683,7 @@ export function TradeEntryModal({
       <div
         role="dialog"
         aria-modal="true"
-        aria-label={mode === "edit" ? "Modifier le trade" : "Ajouter un trade"}
+        aria-label={mode === "edit" ? t("tradeModal.editTradeAria") : t("tradeModal.addTradeAria")}
         className="flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl"
         onClick={(event) => event.stopPropagation()}
       >
@@ -753,7 +764,7 @@ export function TradeEntryModal({
                 </label>
 
                 <label className="flex flex-col gap-2">
-                  <span className="text-sm font-medium text-slate-700">Asset class <span className="text-red-500">*</span></span>
+                  <span className="text-sm font-medium text-slate-700">{t("tradeModal.assetClass")} <span className="text-red-500">*</span></span>
                   <select
                     value={assetClass}
                     onChange={(event) => setAssetClass(event.target.value as AssetClass)}
@@ -783,8 +794,8 @@ export function TradeEntryModal({
                     ))}
                   </datalist>
                   <p className="text-xs text-slate-500">
-                    Suggestions {assetClass}: {symbolSuggestions.join(", ")}
-                    {assetClass === "CRYPTO" ? " - privilegie les paires USD pour le graphique." : ""}
+                    {t("tradeModal.suggestions")} {assetClass}: {symbolSuggestions.join(", ")}
+                    {assetClass === "CRYPTO" ? ` - ${t("tradeModal.cryptoHint")}` : ""}
                   </p>
                 </label>
 
@@ -827,7 +838,7 @@ export function TradeEntryModal({
                   />
                   {assetClass === "FOREX" && (
                     <p className="text-xs text-slate-500">
-                      1 lot = 100,000 | 0.1 = mini | 0.01 = micro
+                      {t("tradeModal.forexLotHint")}
                     </p>
                   )}
                 </label>
@@ -911,7 +922,7 @@ export function TradeEntryModal({
                       className="h-11 rounded-xl border border-slate-300 px-3 text-sm outline-none ring-sky-500 transition focus:ring-2"
                     />
                     <p className="text-xs text-slate-500">
-                      Suggestions: NQ=20, ES=50, CL=1000, GC=100, options=100.
+                      {t("tradeModal.multiplierHint")}
                     </p>
                   </label>
                 ) : null}
@@ -921,7 +932,7 @@ export function TradeEntryModal({
             {currentStep === 3 ? (
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="flex flex-col gap-2 sm:col-span-2">
-                  <span className="text-sm font-medium text-slate-700">Position status *</span>
+                  <span className="text-sm font-medium text-slate-700">{t("tradeModal.positionStatus")} *</span>
                   <div className="grid h-11 grid-cols-2 rounded-xl border border-slate-300 p-1">
                     <button
                       type="button"
@@ -930,7 +941,7 @@ export function TradeEntryModal({
                         positionStatus === "OPEN" ? "bg-slate-900 text-white" : "text-slate-700"
                       }`}
                     >
-                      OPEN
+                      {t("tradeModal.open")}
                     </button>
                     <button
                       type="button"
@@ -939,7 +950,7 @@ export function TradeEntryModal({
                         positionStatus === "CLOSED" ? "bg-slate-900 text-white" : "text-slate-700"
                       }`}
                     >
-                      CLOSED
+                      {t("tradeModal.closed")}
                     </button>
                   </div>
                 </div>
@@ -993,7 +1004,7 @@ export function TradeEntryModal({
                 </label>
 
                 <div className="sm:col-span-2 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Net PnL</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">{t("tradeModal.netPnlPreview")}</p>
                   <p
                     className={`mt-2 text-3xl font-black tabular-nums ${
                       previewNetPnl == null
@@ -1006,15 +1017,15 @@ export function TradeEntryModal({
                     }`}
                   >
                     {previewNetPnl == null
-                      ? "Renseigne manuellement a la cloture"
+                      ? t("tradeModal.fillManually")
                       : formatPreviewNetPnl(previewNetPnl)}
                   </p>
                   <p className="mt-1 text-sm text-slate-600">
-                    Trade status: {previewOutcome ?? "N/A"} {previewOutcome ? "(from PnL)" : ""}
+                    {t("tradeModal.tradeStatus")}: {previewOutcome ?? "N/A"} {previewOutcome ? t("tradeModal.fromPnl") : ""}
                   </p>
                   {previewPipInfo ? (
                     <p className="mt-1 text-xs text-slate-500 font-medium">
-                      {previewPipInfo.unit === "pips" ? "Pip value" : "Value/pt"}: {formatPreviewNetPnl(previewPipInfo.unitValue)} | Move:{" "}
+                      {previewPipInfo.unit === "pips" ? t("tradeModal.pipValue") : t("tradeModal.valuePt")}: {formatPreviewNetPnl(previewPipInfo.unitValue)} | {t("tradeModal.move")}:{" "}
                       {previewPipInfo.unitsMove > 0 ? "+" : ""}
                       {previewPipInfo.unitsMove.toFixed(1)} {previewPipInfo.unit}
                     </p>
@@ -1026,23 +1037,23 @@ export function TradeEntryModal({
             {currentStep === 4 ? (
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="flex flex-col gap-2">
-                  <span className="text-sm font-medium text-slate-700">Setup name</span>
+                  <span className="text-sm font-medium text-slate-700">{t("tradeModal.setupName")}</span>
                   <input
                     value={setupName}
                     onChange={(event) => setSetupName(event.target.value)}
-                    placeholder="Opening range breakout"
+                    placeholder={t("tradeModal.setupPlaceholder")}
                     className="h-11 rounded-xl border border-slate-300 px-3 text-sm outline-none ring-sky-500 transition focus:ring-2"
                   />
                 </label>
 
                 <label className="flex flex-col gap-2">
-                  <span className="text-sm font-medium text-slate-700">Entry timeframe</span>
+                  <span className="text-sm font-medium text-slate-700">{t("tradeModal.entryTimeframe")}</span>
                   <select
                     value={entryTimeframe}
                     onChange={(event) => setEntryTimeframe(event.target.value)}
                     className="h-11 rounded-xl border border-slate-300 px-3 text-sm outline-none ring-sky-500 transition focus:ring-2"
                   >
-                    <option value="">Select timeframe</option>
+                    <option value="">{t("tradeModal.selectTimeframe")}</option>
                     {timeframeOptions.map((item) => (
                       <option key={item} value={item}>
                         {item}
@@ -1052,13 +1063,13 @@ export function TradeEntryModal({
                 </label>
 
                 <label className="flex flex-col gap-2">
-                  <span className="text-sm font-medium text-slate-700">HTF trend</span>
+                  <span className="text-sm font-medium text-slate-700">{t("tradeModal.htfTrend")}</span>
                   <select
                     value={higherTimeframeBias}
                     onChange={(event) => setHigherTimeframeBias(event.target.value)}
                     className="h-11 rounded-xl border border-slate-300 px-3 text-sm outline-none ring-sky-500 transition focus:ring-2"
                   >
-                    <option value="">Select trend</option>
+                    <option value="">{t("tradeModal.selectTrend")}</option>
                     {htfTrendOptions.map((item) => (
                       <option key={item} value={item}>
                         {item}
@@ -1068,11 +1079,11 @@ export function TradeEntryModal({
                 </label>
 
                 <label className="flex flex-col gap-2">
-                  <span className="text-sm font-medium text-slate-700">Strategy tag</span>
+                  <span className="text-sm font-medium text-slate-700">{t("tradeModal.strategyTag")}</span>
                   <input
                     value={strategyTag}
                     onChange={(event) => setStrategyTag(event.target.value)}
-                    placeholder="London session"
+                    placeholder={t("tradeModal.strategyPlaceholder")}
                     className="h-11 rounded-xl border border-slate-300 px-3 text-sm outline-none ring-sky-500 transition focus:ring-2"
                   />
                 </label>
@@ -1111,10 +1122,10 @@ export function TradeEntryModal({
                     onChange={(event) => setEmotionalState(event.target.value)}
                     className="h-11 rounded-xl border border-slate-300 px-3 text-sm outline-none ring-sky-500 transition focus:ring-2"
                   >
-                    <option value="">Select emotion</option>
+                    <option value="">{t("tradeModal.selectEmotion")}</option>
                     {emotionOptions.map((item) => (
                       <option key={item} value={item}>
-                        {item}
+                        {emotionLabelKeys[item] ? t(emotionLabelKeys[item]) : item}
                       </option>
                     ))}
                   </select>
@@ -1159,24 +1170,24 @@ export function TradeEntryModal({
                 </div>
 
                 <div className="sm:col-span-2">
-                  <span className="text-sm font-medium text-slate-700">{t("tradeDetail.screenshots")} (avant / pendant / apres)</span>
+                  <span className="text-sm font-medium text-slate-700">{t("tradeDetail.screenshots")} {t("tradeModal.screenshotHint")}</span>
                   <div className="mt-2 grid gap-3 sm:grid-cols-3">
                     {[
                       {
                         slot: "before" as ScreenshotSlot,
-                        label: "Avant",
+                        label: t("tradeModal.screenshotBefore"),
                         file: screenshotBefore,
                         preview: screenshotPreviewUrls.before ?? existingScreenshotUrls[0] ?? null,
                       },
                       {
                         slot: "during" as ScreenshotSlot,
-                        label: "Pendant",
+                        label: t("tradeModal.screenshotDuring"),
                         file: screenshotDuring,
                         preview: screenshotPreviewUrls.during ?? existingScreenshotUrls[1] ?? null,
                       },
                       {
                         slot: "after" as ScreenshotSlot,
-                        label: "Apres",
+                        label: t("tradeModal.screenshotAfter"),
                         file: screenshotAfter,
                         preview: screenshotPreviewUrls.after ?? existingScreenshotUrls[2] ?? null,
                       },
@@ -1211,7 +1222,7 @@ export function TradeEntryModal({
                                 setSlotFile(item.slot, file);
                               }}
                             />
-                            <p className="text-xs text-slate-600">Drag and drop or click to upload</p>
+                            <p className="text-xs text-slate-600">{t("tradeModal.dragDrop")}</p>
                             {item.preview ? (
                               // eslint-disable-next-line @next/next/no-img-element
                               <img
@@ -1221,11 +1232,11 @@ export function TradeEntryModal({
                               />
                             ) : (
                               <div className="mt-2 flex h-24 items-center justify-center rounded-lg border border-slate-200 bg-white text-[11px] font-medium text-slate-400">
-                                Placeholder {item.label}
+                                {t("tradeModal.placeholder")} {item.label}
                               </div>
                             )}
                             <p className="mt-2 truncate text-xs font-semibold text-slate-800">
-                              {item.file ? item.file.name : item.preview ? `Existing ${item.label}` : `${item.label} screenshot`}
+                              {item.file ? item.file.name : item.preview ? `${t("tradeModal.existingScreenshot")} ${item.label}` : `${item.label} ${t("tradeModal.screenshot")}`}
                             </p>
                           </label>
                         </div>
@@ -1234,7 +1245,7 @@ export function TradeEntryModal({
                   </div>
                   {existingScreenshotUrls.length > 0 ? (
                     <p className="mt-2 text-xs text-slate-500">
-                      {existingScreenshotUrls.length} existing screenshot(s) kept unless replaced.
+                      {existingScreenshotUrls.length} {t("tradeModal.existingScreenshotsKept")}
                     </p>
                   ) : null}
                 </div>
@@ -1297,7 +1308,7 @@ export function TradeEntryModal({
 
           <div className="flex flex-col gap-3 border-t border-slate-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="text-xs text-slate-500">
-              {t("tradeModal.step")} {currentStep}/5 · {currentStep <= 3 ? "Essentiel d'abord" : "Contexte optionnel"}
+              {t("tradeModal.step")} {currentStep}/5 · {currentStep <= 3 ? t("tradeModal.essentialFirst") : t("tradeModal.optionalContext")}
             </div>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
               <button
