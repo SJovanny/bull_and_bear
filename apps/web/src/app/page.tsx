@@ -53,16 +53,16 @@ export default function LandingPage() {
     <main className="min-h-screen overflow-x-hidden bg-[#08111d] text-white">
       <div className="relative isolate min-h-screen bg-[linear-gradient(180deg,#08111d_0%,#0b1522_42%,#0a1320_100%)]">
 
-        <section className="relative flex min-h-screen flex-col px-4 pb-8 pt-0 sm:px-6 lg:px-10">
+          <section className="relative flex min-h-screen flex-col px-4 pb-8 sm:px-6 lg:px-10">
           <div className="mx-auto flex w-full max-w-[1380px] flex-1 flex-col">
-            <header className="animate-fade-up relative z-50 flex w-full flex-row items-center justify-between py-5">
+            <header className="animate-fade-up relative z-50 flex w-full flex-row items-center justify-between py-0">
               <Link href="/" className="flex shrink-0 items-center">
                 <Image
                   src="/BB_logo.png"
                   alt="Bull &amp; Bear"
                   width={800}
                   height={800}
-                  className="h-30 w-30 object-contain sm:h-56 sm:w-56 md:h-[16rem] md:w-[16rem]"
+                  className="h-24 w-24 object-contain sm:h-40 sm:w-40 md:h-48 md:w-48"
                   priority
                 />
               </Link>
