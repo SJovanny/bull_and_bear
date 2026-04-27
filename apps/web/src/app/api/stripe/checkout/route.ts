@@ -20,40 +20,42 @@ export const POST = withAuth(async (request, { user }) => {
   const priceId = interval === "month" ? STRIPE_PRICE_MONTHLY : STRIPE_PRICE_YEARLY;
   const appUrl = requireEnv("NEXT_PUBLIC_APP_URL", process.env.NEXT_PUBLIC_APP_URL);
 
-  // Get or create Stripe customer
-  let customerId = user.stripeCustomerId ?? undefined;
-  if (!customerId) {
-    const customer = await stripe.customers.create({
-      email: user.email,
-      name: user.displayName ?? undefined,
-      metadata: { userId: user.id },
+  try {
+    // Get or create Stripe customer
+    let customerId = user.stripeCustomerId ?? undefined;
+    if (!customerId) {
+      const customer = await stripe.customers.create({
+        email: user.email,
+        name: user.displayName ?? undefined,
+        metadata: { userId: user.id },
+      });
+      customerId = customer.id;
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { stripeCustomerId: customerId },
+      });
+    }
+
+    const session = await stripe.checkout.sessions.create({
+      customer: customerId,
+      mode: "subscription",
+      line_items: [{ price: priceId, quantity: 1 }],
+      subscription_data:
+        user.subscriptionStatus === "trialing" && user.trialEndsAt
+          ? {
+              trial_end: Math.floor(user.trialEndsAt.getTime() / 1000),
+              metadata: { userId: user.id },
+            }
+          : { metadata: { userId: user.id } },
+      success_url: `${appUrl}/dashboard?checkout=success`,
+      cancel_url: `${appUrl}/pricing?checkout=canceled`,
+      allow_promotion_codes: true,
+      billing_address_collection: "auto",
     });
-    customerId = customer.id;
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { stripeCustomerId: customerId },
-    });
+
+    return Response.json({ url: session.url });
+  } catch (err) {
+    console.error("[checkout] Stripe error:", err);
+    return safeErrorResponse("Checkout failed", 500);
   }
-
-  const session = await stripe.checkout.sessions.create({
-    customer: customerId,
-    mode: "subscription",
-    line_items: [{ price: priceId, quantity: 1 }],
-    // 14-day trial only for users who haven't had one before
-    subscription_data:
-      user.subscriptionStatus === "trialing" && user.trialEndsAt
-        ? {
-            trial_end: Math.floor(user.trialEndsAt.getTime() / 1000),
-            metadata: { userId: user.id },
-          }
-        : { metadata: { userId: user.id } },
-    success_url: `${appUrl}/dashboard?checkout=success`,
-    cancel_url: `${appUrl}/pricing?checkout=canceled`,
-    allow_promotion_codes: true,
-    billing_address_collection: "auto",
-    tax_id_collection: { enabled: true },
-    automatic_tax: { enabled: true },
-  });
-
-  return Response.json({ url: session.url });
 }, { skipSubscriptionCheck: true });

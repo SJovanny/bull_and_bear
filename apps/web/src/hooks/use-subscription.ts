@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 type SubscriptionInfo = {
-  status: string;
+  subscriptionStatus: string;
   trialEndsAt: string | null;
   currentPeriodEnd: string | null;
   stripeCustomerId: string | null;
@@ -42,8 +42,8 @@ export function useSubscription(): SubscriptionState {
 
   const now = new Date();
   const trialEnd = info?.trialEndsAt ? new Date(info.trialEndsAt) : null;
-  const isTrialing = info?.status === "trialing" && trialEnd && trialEnd > now;
-  const isActive = info?.status === "active";
+  const isTrialing = info?.subscriptionStatus === "trialing" && trialEnd && trialEnd > now;
+  const isActive = info?.subscriptionStatus === "active";
   const hasAccess = isTrialing || isActive || false;
 
   const trialDaysLeft =
@@ -72,7 +72,7 @@ export function useSubscription(): SubscriptionState {
   return {
     loading,
     hasAccess,
-    status: info?.status ?? "trialing",
+    status: info?.subscriptionStatus ?? "trialing",
     trialDaysLeft,
     hasStripeAccount: !!info?.stripeCustomerId,
     checkout,
