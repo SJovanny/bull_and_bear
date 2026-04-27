@@ -55,6 +55,7 @@ export default function ComptesPage() {
   const [error, setError] = useState<string | null>(null);
   const { t } = useTranslation();
   const { tutorialsCompleted, loaded: tutorialLoaded, markCompleted } = useTutorialStatus();
+  const maxAccountsReached = accounts.length >= 5;
 
   const canSubmit = useMemo(
     () => form.name.trim().length > 1 && form.currency.trim().length === 3,
@@ -259,12 +260,18 @@ export default function ComptesPage() {
             <button
               type="button"
               onClick={() => (showCreateForm && !editingAccountId ? closeForm() : openCreateForm())}
-              className="inline-flex h-10 items-center justify-center rounded-xl bg-brand-500 px-4 text-sm font-semibold text-white transition hover:bg-brand-600"
+              disabled={maxAccountsReached && !showCreateForm}
+              className="inline-flex h-10 items-center justify-center rounded-xl bg-brand-500 px-4 text-sm font-semibold text-white transition hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed"
               data-tutorial="accounts-add"
+              title={maxAccountsReached ? t("accounts.maxReached") : undefined}
             >
               {showCreateForm && !editingAccountId ? t("accounts.closeBtn") : t("accounts.addAccountBtn")}
             </button>
           </div>
+
+          {maxAccountsReached && !showCreateForm && (
+            <p className="mt-1 text-xs text-amber-400">{t("accounts.maxReached")}</p>
+          )}
         </section>
 
         <section className="grid gap-4 xl:grid-cols-[1.25fr_0.75fr]" data-tutorial="accounts-list">

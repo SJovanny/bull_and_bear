@@ -374,6 +374,7 @@ export const fr: TranslationKeys = {
   "accounts.description": "Accédez à tous vos comptes de trading. Modifiez ou supprimez-les à tout moment.",
   "accounts.closeBtn": "Fermer",
   "accounts.addAccountBtn": "Ajouter un compte",
+  "accounts.maxReached": "Vous avez atteint le maximum de 5 comptes.",
   "accounts.noAccounts": "Aucun compte de trading",
   "accounts.createFirstAccount": "Créez votre premier compte de trading pour séparer vos statistiques, trades et journaux.",
   "accounts.addFirstAccountBtn": "Créer votre premier compte",

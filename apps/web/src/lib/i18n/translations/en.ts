@@ -374,6 +374,7 @@ export const en: TranslationKeys = {
   "accounts.description": "See every trading account already created under your user, then edit or delete them anytime.",
   "accounts.closeBtn": "Close",
   "accounts.addAccountBtn": "Add account",
+  "accounts.maxReached": "You have reached the maximum of 5 accounts.",
   "accounts.noAccounts": "No trading accounts yet",
   "accounts.createFirstAccount": "Create your first trading account to start separating your stats, trades and journal by account.",
   "accounts.addFirstAccountBtn": "Add your first account",

@@ -374,6 +374,7 @@ export type TranslationKeys = {
   "accounts.description": string;
   "accounts.closeBtn": string;
   "accounts.addAccountBtn": string;
+  "accounts.maxReached": string;
   "accounts.noAccounts": string;
   "accounts.createFirstAccount": string;
   "accounts.addFirstAccountBtn": string;

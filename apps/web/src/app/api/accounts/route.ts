@@ -24,6 +24,14 @@ export const POST = withAuth(async (request, { user }) => {
     return safeErrorResponse("Invalid request body", 400);
   }
 
+  // Enforce max 5 accounts per user
+  const accountCount = await prisma.account.count({
+    where: { userId: user.id, isArchived: false },
+  });
+  if (accountCount >= 5) {
+    return safeErrorResponse("Maximum of 5 accounts reached", 403);
+  }
+
   const { name, broker, currency, accountType, initialBalance } = parsedBody.data;
 
   try {
