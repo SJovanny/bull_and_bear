@@ -131,6 +131,16 @@ export type TranslationKeys = {
   "dashboard.greeting.afternoon": string;
   "dashboard.greeting.evening": string;
 
+  // ─── Dashboard Period ─────────────────────────────────────────
+  "dashboard.period.7D": string;
+  "dashboard.period.30D": string;
+  "dashboard.period.YTD": string;
+  "dashboard.period.ALL": string;
+  "dashboard.period.7D.tooltip": string;
+  "dashboard.period.30D.tooltip": string;
+  "dashboard.period.YTD.tooltip": string;
+  "dashboard.period.ALL.tooltip": string;
+
   // ─── KPI Cards ──────────────────────────────────────────────
   "kpi.netPnl": string;
   "kpi.winRate": string;
@@ -141,6 +151,20 @@ export type TranslationKeys = {
   "kpi.avgWin": string;
   "kpi.avgLoss": string;
   "kpi.expectancy": string;
+  "kpi.accountBalance": string;
+  "kpi.accountBalance.tooltip": string;
+  "kpi.netPnl.tooltip": string;
+  "kpi.winRate.tooltip": string;
+  "kpi.profitFactor.tooltip": string;
+  "kpi.totalTrades.tooltip": string;
+  "kpi.openClosed": string;
+  "kpi.openClosed.tooltip": string;
+  "kpi.profit": string;
+  "kpi.loss": string;
+  "kpi.rate": string;
+  "kpi.target": string;
+  "kpi.closed": string;
+  "kpi.open": string;
 
   // ─── Charts ─────────────────────────────────────────────────
   "charts.cumulativePnl": string;

@@ -2,6 +2,7 @@
 
 import { MetricLabel } from "@/components/metric-label";
 import { formatNumber, pnlColorClass } from "@/lib/format";
+import { useTranslation } from "@/lib/i18n/context";
 
 type KpiCardsProps = {
   loading: boolean;
@@ -30,6 +31,7 @@ export function KpiCards({
   returnPercent,
   maxDrawdownPercent,
 }: KpiCardsProps) {
+  const { t } = useTranslation();
   const hasBalance = currentBalance !== null;
   const featuredValueClassName = "mt-3 text-[clamp(1.15rem,1.45vw,1.55rem)] font-black tabular-nums leading-tight tracking-tight font-mono";
   const valueClassName = "mt-3 text-[clamp(1.35rem,1.9vw,1.9rem)] font-black tabular-nums leading-tight tracking-tight font-mono";
@@ -43,8 +45,8 @@ export function KpiCards({
           <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-brand-500 to-transparent opacity-50 transition-opacity group-hover:opacity-100" />
           <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-secondary font-sans">
             <MetricLabel
-              label="Account Balance"
-              description="Current account value: initial balance plus total net PnL from all closed trades."
+              label={t("kpi.accountBalance")}
+              description={t("kpi.accountBalance.tooltip")}
             />
           </div>
           <p className={`${featuredValueClassName} break-words text-primary`}>
@@ -86,8 +88,8 @@ export function KpiCards({
         <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-brand-500 to-transparent opacity-50 transition-opacity group-hover:opacity-100" />
         <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-secondary font-sans">
           <MetricLabel
-            label="Net PnL"
-            description="Total net profit or loss on closed trades for the selected period."
+            label={t("kpi.netPnl")}
+            description={t("kpi.netPnl.tooltip")}
           />
         </div>
         <p className={`${featuredValueClassName} break-words ${pnlColorClass(totalNetPnl)}`}>
@@ -110,7 +112,7 @@ export function KpiCards({
           }`}
         >
           <span>{totalNetPnl >= 0 ? "▲" : "▼"}</span>
-          <span>{totalNetPnl >= 0 ? "Profit" : "Loss"}</span>
+          <span>{totalNetPnl >= 0 ? t("kpi.profit") : t("kpi.loss")}</span>
         </div>
       </article>
 
@@ -118,8 +120,8 @@ export function KpiCards({
       <article className="relative rounded-2xl border border-border bg-surface-1 p-5 shadow-sm transition-all hover:shadow-md">
         <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-secondary font-sans">
           <MetricLabel
-            label="Win Rate"
-            description="Percentage of closed trades that finished positive."
+            label={t("kpi.winRate")}
+            description={t("kpi.winRate.tooltip")}
           />
         </div>
         <div className="mt-2 flex items-center justify-center">
@@ -142,7 +144,7 @@ export function KpiCards({
               <p className="text-2xl font-black tabular-nums leading-none text-primary font-mono">
                 {loading ? "—" : `${formatNumber(winRate, 1)}%`}
               </p>
-              <p className="text-[9px] font-semibold uppercase tracking-wider text-secondary font-sans">rate</p>
+              <p className="text-[9px] font-semibold uppercase tracking-wider text-secondary font-sans">{t("kpi.rate")}</p>
             </div>
           </div>
         </div>
@@ -152,8 +154,8 @@ export function KpiCards({
       <article className="relative rounded-2xl border border-border bg-surface-1 p-5 shadow-sm transition-all hover:shadow-md">
         <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-secondary font-sans">
           <MetricLabel
-            label="Profit Factor"
-            description="Gross profits divided by gross losses. Above 1 means gains outweigh losses overall."
+            label={t("kpi.profitFactor")}
+            description={t("kpi.profitFactor.tooltip")}
           />
         </div>
         <p className={`${valueClassName} ${profitFactor >= 1 ? "text-pnl-positive" : "text-pnl-negative"}`}>
@@ -167,15 +169,15 @@ export function KpiCards({
             style={{ width: `${Math.min((profitFactor / 3) * 100, 100)}%` }}
           />
         </div>
-        <p className="mt-1.5 text-[10px] font-medium text-secondary font-sans">Target ≥ 1.5</p>
+        <p className="mt-1.5 text-[10px] font-medium text-secondary font-sans">{t("kpi.target")} ≥ 1.5</p>
       </article>
 
       {/* Total Trades */}
       <article className="relative rounded-2xl border border-border bg-surface-1 p-5 shadow-sm transition-all hover:shadow-md">
         <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-secondary font-sans">
           <MetricLabel
-            label="Total Trades"
-            description="All trades opened in the selected range, including open and closed positions."
+            label={t("kpi.totalTrades")}
+            description={t("kpi.totalTrades.tooltip")}
           />
         </div>
         <p className={`${valueClassName} text-primary`}>
@@ -184,11 +186,11 @@ export function KpiCards({
         <div className="mt-4 flex items-center gap-3">
           <span className="flex items-center gap-1.5 text-[10px] font-semibold text-secondary font-sans">
             <span className="h-2 w-2 rounded-full bg-pnl-positive" />
-            {closedTrades} closed
+            {closedTrades} {t("kpi.closed")}
           </span>
           <span className="flex items-center gap-1.5 text-[10px] font-semibold text-secondary font-sans">
             <span className="h-2 w-2 rounded-full bg-amber-400" />
-            {openTrades} open
+            {openTrades} {t("kpi.open")}
           </span>
         </div>
       </article>
@@ -197,8 +199,8 @@ export function KpiCards({
       <article className="relative rounded-2xl border border-border bg-surface-1 p-5 shadow-sm transition-all hover:shadow-md">
         <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-secondary font-sans">
           <MetricLabel
-            label="Open / Closed"
-            description="Current split between active positions and trades already closed in the selected period."
+            label={t("kpi.openClosed")}
+            description={t("kpi.openClosed.tooltip")}
           />
         </div>
         <div className="mt-3 flex items-end gap-3">
@@ -206,14 +208,14 @@ export function KpiCards({
             <p className={`${splitValueClassName} text-amber-500`}>
               {loading ? "—" : openTrades}
             </p>
-            <p className="mt-1 text-[9px] font-bold uppercase tracking-widest text-secondary font-sans">Open</p>
+            <p className="mt-1 text-[9px] font-bold uppercase tracking-widest text-secondary font-sans">{t("kpi.open")}</p>
           </div>
           <span className="mb-5 text-xl font-light text-border">/</span>
           <div>
             <p className={`${splitValueClassName} text-primary`}>
               {loading ? "—" : closedTrades}
             </p>
-            <p className="mt-1 text-[9px] font-bold uppercase tracking-widest text-secondary font-sans">Closed</p>
+            <p className="mt-1 text-[9px] font-bold uppercase tracking-widest text-secondary font-sans">{t("kpi.closed")}</p>
           </div>
         </div>
         <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-surface-2">

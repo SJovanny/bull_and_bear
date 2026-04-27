@@ -156,6 +156,7 @@ function DashboardContent() {
               <button
                 key={item}
                 type="button"
+                title={t(`dashboard.period.${item}.tooltip`)}
                 onClick={() => setPeriod(item)}
                 className={`inline-flex h-9 items-center justify-center rounded-md px-3 font-sans text-xs font-semibold tracking-[0.08em] transition ${
                   period === item
@@ -163,7 +164,7 @@ function DashboardContent() {
                     : "bg-surface-1 text-secondary hover:bg-surface-2 hover:text-primary"
                 }`}
               >
-                {item}
+                {t(`dashboard.period.${item}`)}
               </button>
             ))}
           </div>

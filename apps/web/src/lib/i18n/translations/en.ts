@@ -131,6 +131,16 @@ export const en: TranslationKeys = {
   "dashboard.greeting.afternoon": "Good afternoon",
   "dashboard.greeting.evening": "Good evening",
 
+  // ─── Dashboard Period ───────────────────────────────────────
+  "dashboard.period.7D": "7D",
+  "dashboard.period.30D": "30D",
+  "dashboard.period.YTD": "YTD",
+  "dashboard.period.ALL": "ALL",
+  "dashboard.period.7D.tooltip": "Last 7 days",
+  "dashboard.period.30D.tooltip": "Last 30 days",
+  "dashboard.period.YTD.tooltip": "Year to date",
+  "dashboard.period.ALL.tooltip": "All time",
+
   // ─── KPI Cards ──────────────────────────────────────────────
   "kpi.netPnl": "Net PnL",
   "kpi.winRate": "Win Rate",
@@ -141,6 +151,20 @@ export const en: TranslationKeys = {
   "kpi.avgWin": "Avg Win",
   "kpi.avgLoss": "Avg Loss",
   "kpi.expectancy": "Expectancy",
+  "kpi.accountBalance": "Account Balance",
+  "kpi.accountBalance.tooltip": "Current account value: initial balance plus total net PnL from all closed trades.",
+  "kpi.netPnl.tooltip": "Total net profit or loss on closed trades for the selected period.",
+  "kpi.winRate.tooltip": "Percentage of closed trades that finished positive.",
+  "kpi.profitFactor.tooltip": "Gross profits divided by gross losses. Above 1 means gains outweigh losses overall.",
+  "kpi.totalTrades.tooltip": "All trades opened in the selected range, including open and closed positions.",
+  "kpi.openClosed": "Open / Closed",
+  "kpi.openClosed.tooltip": "Current split between active positions and trades already closed in the selected period.",
+  "kpi.profit": "Profit",
+  "kpi.loss": "Loss",
+  "kpi.rate": "rate",
+  "kpi.target": "Target",
+  "kpi.closed": "closed",
+  "kpi.open": "open",
 
   // ─── Charts ─────────────────────────────────────────────────
   "charts.cumulativePnl": "Cumulative PnL",
