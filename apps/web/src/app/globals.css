@@ -200,3 +200,8 @@ button:not(:disabled) {
 button:disabled {
   cursor: not-allowed;
 }
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

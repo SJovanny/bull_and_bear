@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { formatNumber, pnlColorClass } from "@/lib/format";
 import { DailyPnlHistogram } from "./daily-pnl-histogram";
 import { useTranslation } from "@/lib/i18n/context";
@@ -22,50 +22,137 @@ function formatCurrency(value: number, fractionDigits = 2) {
   return `${value > 0 ? "+" : ""}${formatNumber(value, fractionDigits)}`;
 }
 
-function buildLineChart(series: EquityPoint[], mode: "dollar" | "percent") {
+// ─── Smooth cubic bezier path builder ────────────────────────────────────────
+
+function buildSmoothPath(positions: { x: number; y: number }[]): string {
+  if (positions.length === 0) return "";
+  if (positions.length === 1) return `M ${positions[0].x},${positions[0].y}`;
+
+  let d = `M ${positions[0].x},${positions[0].y}`;
+
+  for (let i = 0; i < positions.length - 1; i++) {
+    const p0 = positions[Math.max(0, i - 1)];
+    const p1 = positions[i];
+    const p2 = positions[i + 1];
+    const p3 = positions[Math.min(positions.length - 1, i + 2)];
+
+    const tension = 0.3;
+    const cp1x = p1.x + (p2.x - p0.x) * tension;
+    const cp1y = p1.y + (p2.y - p0.y) * tension;
+    const cp2x = p2.x - (p3.x - p1.x) * tension;
+    const cp2y = p2.y - (p3.y - p1.y) * tension;
+
+    d += ` C ${cp1x},${cp1y} ${cp2x},${cp2y} ${p2.x},${p2.y}`;
+  }
+
+  return d;
+}
+
+function buildAreaPath(positions: { x: number; y: number }[], zeroY: number): string {
+  if (positions.length === 0) return "";
+  const linePath = buildSmoothPath(positions);
+  const lastX = positions[positions.length - 1].x;
+  const firstX = positions[0].x;
+  return `${linePath} L ${lastX},${zeroY} L ${firstX},${zeroY} Z`;
+}
+
+// ─── Nice tick calculation ───────────────────────────────────────────────────
+
+function niceNum(val: number, round: boolean): number {
+  const exp = Math.floor(Math.log10(val));
+  const frac = val / Math.pow(10, exp);
+  let nice: number;
+  if (round) {
+    nice = frac < 1.5 ? 1 : frac < 3 ? 2 : frac < 7 ? 5 : 10;
+  } else {
+    nice = frac <= 1 ? 1 : frac <= 2 ? 2 : frac <= 5 ? 5 : 10;
+  }
+  return nice * Math.pow(10, exp);
+}
+
+function computeTicks(minVal: number, maxVal: number, targetCount = 5): number[] {
+  if (maxVal === minVal) return [minVal];
+  const range = niceNum(maxVal - minVal, false);
+  const step = niceNum(range / (targetCount - 1), true);
+  const start = Math.floor(minVal / step) * step;
+  const ticks: number[] = [];
+  for (let t = start; t <= maxVal + step * 0.5; t += step) {
+    ticks.push(parseFloat(t.toFixed(10)));
+  }
+  return ticks;
+}
+
+// ─── Chart data builder ─────────────────────────────────────────────────────
+
+type ChartData = {
+  linePath: string;
+  areaPath: string;
+  min: number;
+  max: number;
+  ticks: number[];
+  zeroY: number;
+  pointPositions: { x: number; y: number; point: EquityPoint }[];
+};
+
+function buildLineChart(series: EquityPoint[], mode: "dollar" | "percent"): ChartData {
   if (series.length === 0) {
     return {
-      points: "",
+      linePath: "",
+      areaPath: "",
       min: 0,
       max: 1,
-      ticks: [0, 0.33, 0.66, 1],
-      pointPositions: [] as { x: number; y: number; point: EquityPoint }[],
+      ticks: [0],
+      zeroY: 100,
+      pointPositions: [],
     };
   }
 
   const values = series.map((point) =>
     mode === "percent" && point.cumulativePercent !== null ? point.cumulativePercent : point.cumulativePnl,
   );
-  const minValue = Math.min(...values);
-  const maxValue = Math.max(...values);
-  const spread = maxValue - minValue;
-  const padding = Math.max(spread * 0.2, Math.max(Math.abs(maxValue), Math.abs(minValue), 1) * 0.08);
-  const min = Math.min(0, minValue - padding * 0.35, maxValue === minValue ? minValue - 1 : minValue - padding * 0.35);
-  const max = maxValue + padding;
+  const rawMin = Math.min(...values, 0);
+  const rawMax = Math.max(...values, 0);
+  const spread = rawMax - rawMin;
+  const padding = Math.max(spread * 0.15, 1);
+  const min = rawMin - padding * 0.5;
+  const max = rawMax + padding * 0.5;
   const range = max - min || 1;
 
+  const ticks = computeTicks(min, max, 5);
+  const tickMin = Math.min(...ticks, min);
+  const tickMax = Math.max(...ticks, max);
+  const fullRange = tickMax - tickMin || 1;
+
+  const toY = (v: number) => 100 - ((v - tickMin) / fullRange) * 100;
+  const zeroY = toY(0);
+
   const pointPositions = series.map((point, index) => {
+    const val = mode === "percent" && point.cumulativePercent !== null ? point.cumulativePercent : point.cumulativePnl;
     const x = series.length === 1 ? 50 : (index / (series.length - 1)) * 100;
-    const y = 100 - ((point.cumulativePnl - min) / range) * 100;
+    const y = toY(val);
     return { x, y, point };
   });
 
+  const linePath = buildSmoothPath(pointPositions);
+  const areaPath = buildAreaPath(pointPositions, zeroY);
+
   return {
-    points: pointPositions.map(({ x, y }) => `${x},${y}`).join(" "),
-    min,
-    max,
-    ticks: Array.from({ length: 4 }, (_, index) => max - (index * (max - min)) / 3),
+    linePath,
+    areaPath,
+    min: tickMin,
+    max: tickMax,
+    ticks,
+    zeroY,
     pointPositions,
   };
 }
 
 function xLabelInterval(length: number) {
-  if (length <= 7) {
-    return 1;
-  }
-
+  if (length <= 7) return 1;
   return Math.ceil(length / 6);
 }
+
+// ─── Component ──────────────────────────────────────────────────────────────
 
 export function DashboardCharts({
   totalTrades,
@@ -78,26 +165,59 @@ export function DashboardCharts({
   accountsCount,
   initialBalance,
 }: ChartsProps) {
-  const [hoveredDate, setHoveredDate] = useState<string | null>(null);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const hasBalance = initialBalance !== null && initialBalance > 0;
   const [equityMode, setEquityMode] = useState<"dollar" | "percent">("dollar");
   const activeMode = hasBalance ? equityMode : "dollar";
   const { t } = useTranslation();
 
   const chart = useMemo(() => buildLineChart(cumulativeSeries, activeMode), [cumulativeSeries, activeMode]);
-  const hoveredPoint = chart.pointPositions.find(({ point }) => point.key === hoveredDate) ?? null;
+  const hoveredPos = hoveredIndex !== null ? chart.pointPositions[hoveredIndex] ?? null : null;
   const latestPoint = cumulativeSeries[cumulativeSeries.length - 1] ?? null;
   const labelEvery = xLabelInterval(cumulativeSeries.length);
 
   const displayValue = activeMode === "percent" && latestPoint?.cumulativePercent !== null
     ? latestPoint?.cumulativePercent ?? 0
     : totalNetPnl;
-  const lineColor = displayValue >= 0 ? "var(--color-pnl-positive)" : "var(--color-pnl-negative)";
-  const lineGlow = displayValue >= 0 ? "rgba(16, 185, 129, 0.18)" : "rgba(239, 68, 68, 0.18)";
+
+  const isPositive = displayValue >= 0;
+  const lineColor = isPositive ? "#10b981" : "#ef4444";
+  const gradientId = isPositive ? "equity-grad-pos" : "equity-grad-neg";
+
+  // Determine hovered point for the header display
+  const headerPoint = hoveredPos ?? (chart.pointPositions.length > 0 ? chart.pointPositions[chart.pointPositions.length - 1] : null);
+  const headerValue = headerPoint
+    ? (activeMode === "percent" && headerPoint.point.cumulativePercent !== null
+      ? headerPoint.point.cumulativePercent
+      : headerPoint.point.cumulativePnl)
+    : displayValue;
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (chart.pointPositions.length === 0) return;
+      const rect = e.currentTarget.getBoundingClientRect();
+      const xPct = ((e.clientX - rect.left) / rect.width) * 100;
+      // Find closest point
+      let closest = 0;
+      let closestDist = Infinity;
+      for (let i = 0; i < chart.pointPositions.length; i++) {
+        const dist = Math.abs(chart.pointPositions[i].x - xPct);
+        if (dist < closestDist) {
+          closestDist = dist;
+          closest = i;
+        }
+      }
+      setHoveredIndex(closest);
+    },
+    [chart.pointPositions],
+  );
+
+  const handleMouseLeave = useCallback(() => setHoveredIndex(null), []);
 
   return (
     <section className="grid gap-3 xl:grid-cols-2">
       <article className="rounded-2xl border border-border bg-surface-1 p-4 shadow-sm transition-all hover:shadow-md">
+        {/* Header */}
         <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
           <div>
             <h2 className="text-sm font-semibold uppercase tracking-[0.08em] text-secondary font-sans">
@@ -132,24 +252,37 @@ export function DashboardCharts({
           </div>
         </div>
 
+        {/* Chart area */}
         <div className="rounded-2xl border border-border bg-surface-2 p-4">
+          {/* Value display */}
           <div className="mb-4 flex flex-wrap items-center gap-x-6 gap-y-3">
             <div className="flex items-center gap-2.5">
               <span
                 className="h-2.5 w-2.5 rounded-full"
-                style={{ backgroundColor: lineColor, boxShadow: `0 0 0 4px ${lineGlow}` }}
+                style={{ backgroundColor: lineColor, boxShadow: `0 0 0 4px ${lineColor}30` }}
               />
               <div className="flex items-baseline gap-2">
                 <span className="text-sm text-secondary font-sans">{t("charts.cumulative")}</span>
-                <span className={`text-2xl font-black font-mono ${pnlColorClass(displayValue)}`}>
+                <span className={`text-2xl font-black font-mono ${pnlColorClass(headerValue)}`}>
                   {activeMode === "percent"
-                    ? `${formatCurrency(displayValue, 1)}%`
-                    : formatCurrency(displayValue)}
+                    ? `${formatCurrency(headerValue, 1)}%`
+                    : formatCurrency(headerValue)}
                 </span>
               </div>
             </div>
 
-            {latestPoint ? (
+            {hoveredPos ? (
+              <div className="flex items-center gap-2.5">
+                <span className="h-2.5 w-2.5 rounded-full bg-brand-500" />
+                <div className="flex items-baseline gap-2">
+                  <span className="text-sm text-secondary font-sans">{hoveredPos.point.label}</span>
+                  <span className={`text-lg font-bold font-mono ${pnlColorClass(hoveredPos.point.pnl)}`}>
+                    {formatCurrency(hoveredPos.point.pnl)}
+                  </span>
+                  <span className="text-xs text-secondary font-mono">({hoveredPos.point.tradeCount} {t("charts.trades")})</span>
+                </div>
+              </div>
+            ) : latestPoint ? (
               <div className="flex items-center gap-2.5">
                 <span className="h-2.5 w-2.5 rounded-full bg-brand-500" />
                 <div className="flex items-baseline gap-2">
@@ -169,111 +302,150 @@ export function DashboardCharts({
             </div>
           ) : (
             <div className="grid grid-cols-[auto_1fr] gap-3 sm:gap-4">
-              <div className="flex h-64 flex-col justify-between pb-8 pt-1 text-right text-[11px] font-medium text-secondary font-mono sm:text-xs">
-                {chart.ticks.map((tick) => (
-                  <span key={tick}>{activeMode === "percent" ? `${formatNumber(tick, 1)}%` : formatNumber(tick)}</span>
+              {/* Y-axis labels */}
+              <div className="relative h-64 w-12 pb-8 pt-1 text-right text-[11px] font-medium text-secondary font-mono sm:text-xs">
+                {chart.ticks.map((tick, i) => (
+                  <span
+                    key={i}
+                    className="absolute right-0 -translate-y-1/2 whitespace-nowrap"
+                    style={{
+                      top: `${((chart.max - tick) / (chart.max - chart.min || 1)) * (100 - 12.5)}%`,
+                    }}
+                  >
+                    {activeMode === "percent" ? `${formatNumber(tick, 1)}%` : formatNumber(tick)}
+                  </span>
                 ))}
               </div>
 
-              <div className="relative h-64">
-                {hoveredPoint ? (
+              {/* Chart SVG */}
+              <div
+                className="relative h-64 cursor-crosshair"
+                onMouseMove={handleMouseMove}
+                onMouseLeave={handleMouseLeave}
+              >
+                {/* Tooltip */}
+                {hoveredPos ? (
                   <div
-                    className="pointer-events-none absolute z-10 -translate-x-1/2 rounded-xl border border-border bg-surface-1 px-3 py-2 text-xs shadow-md"
+                    className="pointer-events-none absolute z-20 rounded-xl border border-border bg-surface-1/95 px-3.5 py-2.5 text-xs shadow-xl backdrop-blur-sm transition-all duration-100"
                     style={{
-                      left: `${hoveredPoint.x}%`,
-                      top: `calc(${Math.max(hoveredPoint.y - 16, 0)}% - 0.5rem)`,
+                      left: `${hoveredPos.x}%`,
+                      top: `calc(${Math.min(Math.max(hoveredPos.y - 12, 0), 60)}% - 0.5rem)`,
+                      transform: hoveredPos.x > 75 ? "translateX(-100%)" : hoveredPos.x < 25 ? "translateX(0)" : "translateX(-50%)",
                     }}
                   >
-                      <p className="font-semibold text-primary font-sans">{hoveredPoint.point.label}</p>
-                     <p className="mt-1 text-secondary font-sans">
-                       {t("charts.daily")}: <span className={pnlColorClass(hoveredPoint.point.pnl)}>{formatCurrency(hoveredPoint.point.pnl)}</span>
-                     </p>
-                     <p className="text-secondary font-sans">
-                       {t("charts.cumulative")}: <span className={pnlColorClass(hoveredPoint.point.cumulativePnl)}>{formatCurrency(hoveredPoint.point.cumulativePnl)}</span>
-                     </p>
-                     {hoveredPoint.point.cumulativePercent !== null ? (
-                       <p className="text-secondary font-sans">
-                         {t("charts.return")}: <span className={pnlColorClass(hoveredPoint.point.cumulativePercent)}>{hoveredPoint.point.cumulativePercent > 0 ? "+" : ""}{formatNumber(hoveredPoint.point.cumulativePercent, 1)}%</span>
-                       </p>
-                     ) : null}
-                     <p className="text-secondary font-mono">{t("charts.trades")}: {hoveredPoint.point.tradeCount}</p>
-                   </div>
-                 ) : null}
+                    <p className="font-semibold text-primary font-sans">{hoveredPos.point.label}</p>
+                    <div className="mt-1.5 space-y-0.5">
+                      <p className="text-secondary font-sans">
+                        {t("charts.daily")}: <span className={`font-semibold ${pnlColorClass(hoveredPos.point.pnl)}`}>{formatCurrency(hoveredPos.point.pnl)}</span>
+                      </p>
+                      <p className="text-secondary font-sans">
+                        {t("charts.cumulative")}: <span className={`font-semibold ${pnlColorClass(hoveredPos.point.cumulativePnl)}`}>{formatCurrency(hoveredPos.point.cumulativePnl)}</span>
+                      </p>
+                      {hoveredPos.point.cumulativePercent !== null ? (
+                        <p className="text-secondary font-sans">
+                          {t("charts.return")}: <span className={`font-semibold ${pnlColorClass(hoveredPos.point.cumulativePercent)}`}>{hoveredPos.point.cumulativePercent > 0 ? "+" : ""}{formatNumber(hoveredPos.point.cumulativePercent, 1)}%</span>
+                        </p>
+                      ) : null}
+                      <p className="text-secondary font-mono">{t("charts.trades")}: {hoveredPos.point.tradeCount}</p>
+                    </div>
+                  </div>
+                ) : null}
 
                 <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 h-[calc(100%-2rem)] w-full overflow-visible">
-                  {chart.ticks.map((tick) => {
-                    const y = 100 - ((tick - chart.min) / ((chart.max - chart.min) || 1)) * 100;
+                  <defs>
+                    {/* Gradient fill */}
+                    <linearGradient id="equity-grad-pos" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#10b981" stopOpacity="0.25" />
+                      <stop offset="100%" stopColor="#10b981" stopOpacity="0.02" />
+                    </linearGradient>
+                    <linearGradient id="equity-grad-neg" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#ef4444" stopOpacity="0.02" />
+                      <stop offset="100%" stopColor="#ef4444" stopOpacity="0.25" />
+                    </linearGradient>
+                    {/* Glow filter for the line */}
+                    <filter id="line-glow" x="-20%" y="-20%" width="140%" height="140%">
+                      <feGaussianBlur in="SourceGraphic" stdDeviation="1.2" result="blur" />
+                      <feMerge>
+                        <feMergeNode in="blur" />
+                        <feMergeNode in="SourceGraphic" />
+                      </feMerge>
+                    </filter>
+                  </defs>
 
+                  {/* Grid lines */}
+                  {chart.ticks.map((tick, i) => {
+                    const y = 100 - ((tick - chart.min) / ((chart.max - chart.min) || 1)) * 100;
                     return (
                       <line
-                        key={tick}
-                        x1="0"
-                        y1={y}
-                        x2="100"
-                        y2={y}
-                        stroke="rgba(100, 116, 139, 0.18)"
-                        strokeWidth="0.45"
+                        key={i}
+                        x1="0" y1={y} x2="100" y2={y}
+                        stroke="rgba(100, 116, 139, 0.12)"
+                        strokeWidth="0.3"
                       />
                     );
                   })}
 
-                  <polyline
-                    points={chart.points}
-                    fill="none"
-                    stroke={lineGlow}
-                    strokeWidth="2.6"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+                  {/* Zero line (prominent) */}
+                  {chart.min < 0 && chart.max > 0 && (
+                    <line
+                      x1="0" y1={chart.zeroY} x2="100" y2={chart.zeroY}
+                      stroke="rgba(148, 163, 184, 0.35)"
+                      strokeWidth="0.4"
+                      strokeDasharray="2 1.5"
+                    />
+                  )}
+
+                  {/* Gradient area fill */}
+                  <path
+                    d={chart.areaPath}
+                    fill={`url(#${gradientId})`}
+                    className="animate-[fadeIn_0.6s_ease-out]"
                   />
-                  <polyline
-                    points={chart.points}
+
+                  {/* Smooth line with glow */}
+                  <path
+                    d={chart.linePath}
                     fill="none"
                     stroke={lineColor}
-                    strokeWidth="1.45"
+                    strokeWidth="1.4"
                     strokeLinecap="round"
                     strokeLinejoin="round"
+                    filter="url(#line-glow)"
+                    vectorEffect="non-scaling-stroke"
+                    className="animate-[drawLine_1s_ease-out]"
                   />
 
-                  {chart.pointPositions.map(({ x, y, point }) => (
-                    <g key={point.key}>
-                      {hoveredDate === point.key ? (
-                        <>
-                          <line
-                            x1={x}
-                            y1="0"
-                            x2={x}
-                            y2="100"
-                            stroke="rgba(59, 130, 246, 0.28)"
-                            strokeWidth="0.35"
-                            strokeDasharray="1.2 1.4"
-                          />
-                          <circle cx={x} cy={y} r="2.25" fill="rgba(59, 130, 246, 0.12)" />
-                        </>
-                      ) : null}
-                      <circle cx={x} cy={y} r="1.2" fill="var(--color-surface-1)" stroke={lineColor} strokeWidth="0.7" />
-                      <circle cx={x} cy={y} r="0.3" fill={lineColor} />
-                    </g>
-                  ))}
+                  {/* Hover crosshair */}
+                  {hoveredPos ? (
+                    <line
+                      x1={hoveredPos.x} y1="0"
+                      x2={hoveredPos.x} y2="100"
+                      stroke="rgba(148, 163, 184, 0.3)"
+                      strokeWidth="0.3"
+                      strokeDasharray="1 1"
+                    />
+                  ) : null}
+
+                  {/* Data points */}
+                  {chart.pointPositions.map(({ x, y, point }, i) => {
+                    const isHovered = hoveredIndex === i;
+                    return (
+                      <g key={point.key}>
+                        {isHovered ? (
+                          <>
+                            <circle cx={x} cy={y} r="3" fill={`${lineColor}20`} />
+                            <circle cx={x} cy={y} r="2" fill="var(--color-surface-1)" stroke={lineColor} strokeWidth="0.8" />
+                            <circle cx={x} cy={y} r="0.8" fill={lineColor} />
+                          </>
+                        ) : (
+                          <circle cx={x} cy={y} r="0.9" fill="var(--color-surface-1)" stroke={lineColor} strokeWidth="0.5" opacity="0.7" />
+                        )}
+                      </g>
+                    );
+                  })}
                 </svg>
 
-                <div className="absolute inset-0 bottom-8">
-                  {chart.pointPositions.map(({ x, point }) => (
-                    <button
-                      key={point.key}
-                      type="button"
-                      aria-label={`Show PnL data for ${point.label}`}
-                      className="absolute top-0 h-full w-8 -translate-x-1/2 bg-transparent outline-none"
-                      style={{ left: `${x}%` }}
-                      onMouseEnter={() => setHoveredDate(point.key)}
-                      onMouseLeave={() => setHoveredDate((current) => (current === point.key ? null : current))}
-                      onFocus={() => setHoveredDate(point.key)}
-                      onBlur={() => setHoveredDate((current) => (current === point.key ? null : current))}
-                    >
-                      <span className="sr-only">{point.label}</span>
-                    </button>
-                  ))}
-                </div>
-
+                {/* X-axis labels */}
                 <div className="absolute inset-x-0 bottom-0 flex h-8 items-end justify-between gap-2 text-[11px] font-medium text-secondary font-mono sm:text-xs">
                   {cumulativeSeries.map((point, index) => {
                     const shouldShow =
@@ -284,7 +456,7 @@ export function DashboardCharts({
                     return (
                       <span
                         key={point.key}
-                        className={`min-w-0 flex-1 text-center ${shouldShow ? "opacity-100" : "opacity-0"}`}
+                        className={`min-w-0 flex-1 text-center transition-opacity ${shouldShow ? "opacity-100" : "opacity-0"}`}
                       >
                         {point.label}
                       </span>
