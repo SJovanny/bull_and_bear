@@ -143,8 +143,8 @@ export function withAuth(handler: AuthenticatedHandler, options?: WithAuthOption
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
       }
 
-      // 4. Subscription / trial paywall check
-      if (!options?.skipSubscriptionCheck) {
+      // 4. Subscription / trial paywall check (admins bypass)
+      if (!options?.skipSubscriptionCheck && !user.isAdmin) {
         if (!hasActiveAccess(user.subscriptionStatus, user.trialEndsAt)) {
           return NextResponse.json(
             { error: "Subscription required", code: "SUBSCRIPTION_REQUIRED" },

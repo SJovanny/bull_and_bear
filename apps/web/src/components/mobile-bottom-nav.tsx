@@ -10,6 +10,7 @@ import {
   IconStats, 
   IconAccounts,
   IconProfile,
+  IconSupport,
 } from "./icons";
 import { ThemeToggle } from "./theme-toggle";
 import { LanguageSwitcher } from "./language-switcher";
@@ -53,6 +54,14 @@ export function MobileBottomNav() {
                 <IconAccounts className="mr-3 h-5 w-5 text-secondary" />
                 {t("nav.accounts")}
               </Link>
+              <a
+                href="mailto:bullandbear.journal@gmail.com"
+                onClick={() => setShowMore(false)}
+                className="flex w-full items-center rounded-lg px-4 py-3 text-sm font-medium text-primary hover:bg-surface-2"
+              >
+                <IconSupport className="mr-3 h-5 w-5 text-secondary" />
+                {t("nav.support")}
+              </a>
             </div>
             
             <div className="border-t border-border"></div>

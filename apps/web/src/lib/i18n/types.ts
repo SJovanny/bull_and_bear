@@ -110,6 +110,7 @@ export type TranslationKeys = {
   "nav.more": string;
   "nav.collapse": string;
   "nav.expand": string;
+  "nav.support": string;
 
   // ─── Theme ──────────────────────────────────────────────────
   "theme.dark": string;

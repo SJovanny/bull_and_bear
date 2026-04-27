@@ -110,6 +110,7 @@ export const fr: TranslationKeys = {
   "nav.more": "Plus",
   "nav.collapse": "Réduire",
   "nav.expand": "Développer",
+  "nav.support": "Support",
 
   // ─── Theme ──────────────────────────────────────────────────
   "theme.dark": "Mode sombre",

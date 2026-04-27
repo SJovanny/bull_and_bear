@@ -66,6 +66,7 @@ model User {
   displayName         String?
   timezone            String             @default("UTC")
   tutorialsCompleted  Json               @default("{}")
+  isAdmin             Boolean            @default(false)
   // ─── Stripe / Subscription ───────────────────────────────────
   stripeCustomerId    String?            @unique
   subscriptionId      String?            @unique

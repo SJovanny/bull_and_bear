@@ -7,6 +7,7 @@ type SubscriptionInfo = {
   trialEndsAt: string | null;
   currentPeriodEnd: string | null;
   stripeCustomerId: string | null;
+  isAdmin: boolean;
 };
 
 type SubscriptionState = {
@@ -58,9 +59,10 @@ export function useSubscription(): SubscriptionState {
 
   const now = new Date();
   const trialEnd = info?.trialEndsAt ? new Date(info.trialEndsAt) : null;
+  const isAdmin = info?.isAdmin ?? false;
   const isTrialing = info?.subscriptionStatus === "TRIALING" && trialEnd && trialEnd > now;
   const isActive = info?.subscriptionStatus === "ACTIVE";
-  const hasAccess = isTrialing || isActive || false;
+  const hasAccess = isAdmin || isTrialing || isActive || false;
 
   const trialDaysLeft =
     isTrialing && trialEnd
