@@ -42,7 +42,7 @@ export default function PricingPage() {
       <header className="border-b border-white/10 px-6 py-4">
         <div className="mx-auto flex max-w-4xl items-center justify-between">
           <Link href="/" className="inline-flex items-center gap-2">
-            <Image src="/BB_logo.png" alt="Bull & Bear" width={32} height={32} className="h-8 w-8 object-contain" />
+            <Image src="/BB_logo.png" alt="Bull & Bear" width={64} height={64} className="h-16 w-16 object-contain" />
             <span className="font-semibold text-white">Bull &amp; Bear</span>
           </Link>
           <Link href="/dashboard" className="text-sm text-slate-400 transition hover:text-cyan-400">
