@@ -36,17 +36,22 @@ export const POST = withAuth(async (request, { user }) => {
       });
     }
 
+    // Give a 14-day free trial to new users who haven't subscribed yet
+    const isNewUser = !user.subscriptionId && user.subscriptionStatus === "inactive";
+    const hasExistingTrial = user.subscriptionStatus === "trialing" && user.trialEndsAt;
+
+    let subscriptionData: Record<string, unknown> = { metadata: { userId: user.id } };
+    if (isNewUser) {
+      subscriptionData.trial_period_days = 14;
+    } else if (hasExistingTrial) {
+      subscriptionData.trial_end = Math.floor(user.trialEndsAt!.getTime() / 1000);
+    }
+
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       mode: "subscription",
       line_items: [{ price: priceId, quantity: 1 }],
-      subscription_data:
-        user.subscriptionStatus === "trialing" && user.trialEndsAt
-          ? {
-              trial_end: Math.floor(user.trialEndsAt.getTime() / 1000),
-              metadata: { userId: user.id },
-            }
-          : { metadata: { userId: user.id } },
+      subscription_data: subscriptionData,
       success_url: `${appUrl}/dashboard?checkout=success`,
       cancel_url: `${appUrl}/pricing?checkout=canceled`,
       allow_promotion_codes: true,

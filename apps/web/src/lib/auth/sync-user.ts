@@ -9,8 +9,6 @@ export async function syncUserFromAuth(user: SupabaseUser) {
     throw new Error("Authenticated user is missing an email.");
   }
 
-  const trialEndsAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000); // 14 days from now
-
   return prisma.user.upsert({
     where: { id: user.id },
     update: {
@@ -23,8 +21,8 @@ export async function syncUserFromAuth(user: SupabaseUser) {
       email: user.email,
       displayName:
         user.user_metadata?.full_name ?? user.user_metadata?.name ?? user.email.split("@")[0],
-      subscriptionStatus: "trialing",
-      trialEndsAt,
+      subscriptionStatus: "inactive",
+      trialEndsAt: null,
     },
   });
 }

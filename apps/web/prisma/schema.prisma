@@ -60,7 +60,7 @@ model User {
   // ─── Stripe / Subscription ───────────────────────────────────
   stripeCustomerId    String?        @unique
   subscriptionId      String?        @unique
-  subscriptionStatus  String         @default("trialing")
+  subscriptionStatus  String         @default("inactive")
   trialEndsAt         DateTime?
   currentPeriodEnd    DateTime?
   // ─────────────────────────────────────────────────────────────

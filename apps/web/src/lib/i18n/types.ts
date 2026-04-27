@@ -331,6 +331,17 @@ export type TranslationKeys = {
   "paywall.cta": string;
   "paywall.dataNote": string;
 
+  // ─── Trial Prompt ────────────────────────────────────────────
+  "trialPrompt.title": string;
+  "trialPrompt.subtitle": string;
+  "trialPrompt.monthly": string;
+  "trialPrompt.yearly": string;
+  "trialPrompt.monthlyPrice": string;
+  "trialPrompt.yearlyPrice": string;
+  "trialPrompt.yearlySave": string;
+  "trialPrompt.cta": string;
+  "trialPrompt.freeTrial": string;
+
   // ─── Pricing ────────────────────────────────────────────────
   "pricing.backToDashboard": string;
   "pricing.eyebrow": string;

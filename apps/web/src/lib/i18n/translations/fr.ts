@@ -331,6 +331,17 @@ export const fr: TranslationKeys = {
   "paywall.cta": "Voir les tarifs",
   "paywall.dataNote": "Vos données sont conservées. Vous retrouverez tout après votre abonnement.",
 
+  // ─── Trial Prompt ────────────────────────────────────────────
+  "trialPrompt.title": "Bienvenue sur Bull & Bear",
+  "trialPrompt.subtitle": "Commencez votre essai gratuit pour découvrir l'application. Aucune carte bancaire requise.",
+  "trialPrompt.monthly": "Mensuel",
+  "trialPrompt.yearly": "Annuel",
+  "trialPrompt.monthlyPrice": "5€ / mois",
+  "trialPrompt.yearlyPrice": "45€ / an",
+  "trialPrompt.yearlySave": "Économisez 25%",
+  "trialPrompt.cta": "Commencer l'essai gratuit",
+  "trialPrompt.freeTrial": "Essai gratuit de 14 jours inclus",
+
   // ─── Pricing ────────────────────────────────────────────────
   "pricing.backToDashboard": "← Retour au dashboard",
   "pricing.eyebrow": "Tarifs simples, sans surprise",
