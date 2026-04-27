@@ -699,4 +699,32 @@ export type TranslationKeys = {
   "tutorial.tradeDetail.rating": string;
   "tutorial.tradeDetail.screenshots": string;
   "tutorial.tradeDetail.edit": string;
+
+  // ─── FAQ ────────────────────────────────────────────────────────
+  "faq.title": string;
+  "faq.subtitle": string;
+  "faq.contact.title": string;
+  "faq.contact.description": string;
+  "faq.contact.copy": string;
+  "faq.contact.copied": string;
+  "faq.q1": string;
+  "faq.a1": string;
+  "faq.q2": string;
+  "faq.a2": string;
+  "faq.q3": string;
+  "faq.a3": string;
+  "faq.q4": string;
+  "faq.a4": string;
+  "faq.q5": string;
+  "faq.a5": string;
+  "faq.q6": string;
+  "faq.a6": string;
+  "faq.q7": string;
+  "faq.a7": string;
+  "faq.q8": string;
+  "faq.a8": string;
+  "faq.q9": string;
+  "faq.a9": string;
+  "faq.q10": string;
+  "faq.a10": string;
 };

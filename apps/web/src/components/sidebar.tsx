@@ -29,6 +29,7 @@ export function Sidebar() {
     { href: "/stats", label: t("nav.stats"), icon: IconStats },
     { href: "/profil", label: t("nav.profile"), icon: IconProfile },
     { href: "/comptes", label: t("nav.accounts"), icon: IconAccounts },
+    { href: "/faq", label: t("nav.support"), icon: IconSupport },
   ];
 
   return (
@@ -93,18 +94,6 @@ export function Sidebar() {
       </nav>
 
       <div className="flex flex-col gap-2 border-t border-slate-800 p-3">
-        <a
-          href="mailto:bullandbear.journal@gmail.com"
-          className="group relative flex items-center rounded-lg px-3 py-2.5 text-sm font-medium text-slate-400 transition-colors hover:bg-white/5 hover:text-slate-200"
-        >
-          <IconSupport className={`h-5 w-5 shrink-0 ${isSidebarCollapsed ? "mx-auto" : "mr-3"}`} />
-          {!isSidebarCollapsed && <span>{t("nav.support")}</span>}
-          {isSidebarCollapsed && (
-            <div className="absolute left-full ml-4 hidden whitespace-nowrap rounded bg-slate-800 px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:block group-hover:opacity-100 z-50">
-              {t("nav.support")}
-            </div>
-          )}
-        </a>
         <LanguageSwitcher isCollapsed={isSidebarCollapsed} />
         <ThemeToggle isCollapsed={isSidebarCollapsed} />
         <div className={`${isSidebarCollapsed ? "mx-auto" : "w-full"}`}>
