@@ -134,6 +134,13 @@ export function TradeImportModal({ isOpen, accountId, onClose, onImported }: Tra
       return;
     }
 
+    // 5 MB client-side limit to prevent browser memory issues
+    const MAX_FILE_SIZE = 5 * 1024 * 1024;
+    if (file.size > MAX_FILE_SIZE) {
+      setError(t("importModal.fileTooLarge"));
+      return;
+    }
+
     setFileName(file.name);
     setIsReading(true);
 

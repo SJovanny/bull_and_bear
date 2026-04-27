@@ -592,6 +592,7 @@ export const en: TranslationKeys = {
   "importModal.selectAccount": "Select an account before importing.",
   "importModal.addFileFirst": "Add a file before previewing.",
   "importModal.readError": "Unable to read the file.",
+  "importModal.fileTooLarge": "File is too large (max 5 MB).",
 
   // ─── Trade Detail ───────────────────────────────────────────
   "tradeDetail.title": "Trade Detail",

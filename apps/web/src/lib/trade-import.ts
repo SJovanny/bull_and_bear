@@ -358,6 +358,19 @@ function readCell(cells: string[], index: number | undefined) {
   return index == null ? "" : (cells[index] ?? "").trim();
 }
 
+/**
+ * Strips leading characters that could trigger formula injection in
+ * spreadsheet applications (=, +, -, @, tab, carriage-return).
+ * Only use on text fields (symbol, notes), NOT on numeric values.
+ */
+function sanitizeTextCell(value: string): string {
+  let v = value;
+  while (v.length > 0 && /^[=+\-@\t\r]/.test(v)) {
+    v = v.slice(1).trimStart();
+  }
+  return v;
+}
+
 function parseCTraderDirection(value: string): "LONG" | "SHORT" | null {
   const direction = value.toLowerCase();
   if (direction === "buy" || direction === "acheter") return "LONG";
@@ -386,7 +399,7 @@ function parseCTraderCsv(fileContent: string): TradeImportPreview {
 
     try {
       const cells = splitCsvLine(lines[index]);
-      const symbol = readCell(cells, headerMap.symbol);
+      const symbol = sanitizeTextCell(readCell(cells, headerMap.symbol));
       const direction = readCell(cells, headerMap.openingDirection).toLowerCase();
       const closedAt = parseDate(readCell(cells, headerMap.closingTime), "closing time", headerMap.closingTimezoneOffset);
       const openingTimeRaw = readCell(cells, headerMap.openingTime);
@@ -400,7 +413,7 @@ function parseCTraderCsv(fileContent: string): TradeImportPreview {
       const commissions = parseSignedNumber(readCell(cells, headerMap.commissions) || "0", "commissions");
       const swap = parseSignedNumber(readCell(cells, headerMap.swap) || "0", "swap");
       const sourceTradeId = readCell(cells, headerMap.id) || null;
-      const notes = readCell(cells, headerMap.comment) || null;
+      const notes = sanitizeTextCell(readCell(cells, headerMap.comment)) || null;
       const side = parseCTraderDirection(direction);
 
       if (!side) {
@@ -489,7 +502,7 @@ function parseCTraderXlsx(fileContent: string): TradeImportPreview {
     }
 
     try {
-      const symbol = readCell(cells, headerMap.symbol);
+      const symbol = sanitizeTextCell(readCell(cells, headerMap.symbol));
       const direction = readCell(cells, headerMap.openingDirection).toLowerCase();
       const closedAt = parseDate(readCell(cells, headerMap.closingTime), "closing time", headerMap.closingTimezoneOffset);
       const openingTimeRaw = readCell(cells, headerMap.openingTime);
@@ -503,7 +516,7 @@ function parseCTraderXlsx(fileContent: string): TradeImportPreview {
       const commissions = parseSignedNumber(readCell(cells, headerMap.commissions) || "0", "commissions");
       const swap = parseSignedNumber(readCell(cells, headerMap.swap) || "0", "swap");
       const sourceTradeId = readCell(cells, headerMap.id) || null;
-      const notes = readCell(cells, headerMap.comment) || null;
+      const notes = sanitizeTextCell(readCell(cells, headerMap.comment)) || null;
       const side = parseCTraderDirection(direction);
 
       if (!side) {
@@ -688,7 +701,7 @@ function parseMetaTraderXlsx(fileContent: string): TradeImportPreview {
       const draft = toImportedTradeDraft({
         source: "METATRADER",
         sourceTradeId,
-        symbol: readCell(cells, headerMap.symbol),
+        symbol: sanitizeTextCell(readCell(cells, headerMap.symbol)),
         side: isBuy ? "LONG" : "SHORT",
         quantity: parseNumber(readCell(cells, headerMap.size), "size"),
         entryPrice: parseNumber(readCell(cells, headerMap.openPrice), "open price"),
@@ -698,7 +711,7 @@ function parseMetaTraderXlsx(fileContent: string): TradeImportPreview {
           Math.abs(parseSignedNumber(readCell(cells, headerMap.swap) || "0", "swap")),
         openedAt: parseDate(readCell(cells, headerMap.openTime), "open time"),
         closedAt: parseDate(closeValue, "close time"),
-        notes: readCell(cells, headerMap.comment) || null,
+        notes: sanitizeTextCell(readCell(cells, headerMap.comment)) || null,
         netPnl: readCell(cells, headerMap.profit) ? parseSignedNumber(readCell(cells, headerMap.profit), "profit") : null,
       });
 

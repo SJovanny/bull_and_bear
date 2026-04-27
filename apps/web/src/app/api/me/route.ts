@@ -10,7 +10,21 @@ export const GET = withAuth(async (_request, { user }) => {
     orderBy: { createdAt: "asc" },
   });
 
-  return Response.json({ user, accounts });
+  // Only return safe fields — never expose stripeCustomerId or subscriptionId
+  const safeUser = {
+    id: user.id,
+    email: user.email,
+    displayName: user.displayName,
+    timezone: user.timezone,
+    createdAt: user.createdAt,
+    isAdmin: user.isAdmin,
+    subscriptionStatus: user.subscriptionStatus,
+    trialEndsAt: user.trialEndsAt,
+    currentPeriodEnd: user.currentPeriodEnd,
+    hasStripeAccount: !!user.stripeCustomerId,
+  };
+
+  return Response.json({ user: safeUser, accounts });
 }, { skipSubscriptionCheck: true });
 
 const profileUpdateSchema = z.object({

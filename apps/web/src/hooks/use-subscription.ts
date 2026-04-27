@@ -6,7 +6,7 @@ type SubscriptionInfo = {
   subscriptionStatus: string;
   trialEndsAt: string | null;
   currentPeriodEnd: string | null;
-  stripeCustomerId: string | null;
+  hasStripeAccount: boolean;
   isAdmin: boolean;
 };
 
@@ -92,7 +92,7 @@ export function useSubscription(): SubscriptionState {
     hasAccess,
     status: info?.subscriptionStatus ?? "INACTIVE",
     trialDaysLeft,
-    hasStripeAccount: !!info?.stripeCustomerId,
+    hasStripeAccount: info?.hasStripeAccount ?? false,
     checkout,
     openPortal,
   };

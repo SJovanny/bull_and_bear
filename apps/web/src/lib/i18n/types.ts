@@ -592,6 +592,7 @@ export type TranslationKeys = {
   "importModal.selectAccount": string;
   "importModal.addFileFirst": string;
   "importModal.readError": string;
+  "importModal.fileTooLarge": string;
 
   // ─── Trade Detail ───────────────────────────────────────────
   "tradeDetail.title": string;
