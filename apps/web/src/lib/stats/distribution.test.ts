@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { buildDistribution } from "./distribution";
+import type { StatsTrade } from "./types";
 
 const trades: StatsTrade[] = [
   {

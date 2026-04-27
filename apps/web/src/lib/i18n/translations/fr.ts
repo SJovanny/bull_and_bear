@@ -558,7 +558,7 @@ export const fr: TranslationKeys = {
   "importModal.noErrors": "Aucune erreur de parsing.",
   "importModal.importing": "Import...",
   "importModal.importBtn": "Importer",
-  "importModal.cTraderHelper": "CSV exporté depuis Statement",
+  "importModal.cTraderHelper": "CSV ou XLSX exporté depuis Statement",
   "importModal.mtHelper": "Rapport XLSX exporté depuis Account History",
   "importModal.tableRow": "Ligne",
   "importModal.tableTrade": "Trade",
