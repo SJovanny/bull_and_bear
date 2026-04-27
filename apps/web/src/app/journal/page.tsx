@@ -83,6 +83,7 @@ function JournalPageContent() {
 
   const loadData = useCallback(async () => {
     if (!selectedAccountId) {
+      setLoading(false);
       return;
     }
 

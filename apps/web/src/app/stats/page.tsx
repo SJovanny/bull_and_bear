@@ -60,6 +60,7 @@ function StatsPageContent() {
   useEffect(() => {
     async function loadBase() {
       if (!baseQuery) {
+        setLoading(false);
         return;
       }
 

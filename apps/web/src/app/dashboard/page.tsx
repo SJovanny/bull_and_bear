@@ -54,6 +54,7 @@ function DashboardContent() {
   useEffect(() => {
     async function loadData() {
       if (!selectedAccountId || !accountScopedBase) {
+        setLoading(false);
         return;
       }
 

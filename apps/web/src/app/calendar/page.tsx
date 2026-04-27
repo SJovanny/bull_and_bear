@@ -165,6 +165,7 @@ function CalendarPageContent() {
 
   const loadTrades = useCallback(async () => {
     if (!tradesEndpoint) {
+      setLoading(false);
       return;
     }
 
