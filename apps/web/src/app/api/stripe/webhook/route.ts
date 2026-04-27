@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
+import { SubscriptionStatus } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
 import { stripe } from "@/lib/stripe";
@@ -8,17 +9,17 @@ import { requireEnv } from "@/lib/env";
 // Stripe requires the raw body for signature verification — disable body parsing
 export const runtime = "nodejs";
 
-function mapStripeStatus(status: Stripe.Subscription.Status): string {
+function mapStripeStatus(status: Stripe.Subscription.Status): SubscriptionStatus {
   switch (status) {
-    case "active": return "active";
-    case "trialing": return "trialing";
-    case "past_due": return "past_due";
-    case "canceled": return "canceled";
+    case "active": return SubscriptionStatus.ACTIVE;
+    case "trialing": return SubscriptionStatus.TRIALING;
+    case "past_due": return SubscriptionStatus.PAST_DUE;
+    case "canceled": return SubscriptionStatus.CANCELED;
     case "incomplete":
     case "incomplete_expired":
     case "unpaid":
     case "paused":
-    default: return "expired";
+    default: return SubscriptionStatus.EXPIRED;
   }
 }
 
@@ -50,7 +51,9 @@ async function upsertSubscription(subscription: Stripe.Subscription) {
       subscriptionId: subscription.id,
       subscriptionStatus: mapStripeStatus(subscription.status),
       ...(periodEnd ? { currentPeriodEnd: periodEnd } : {}),
-      // Clear trial once subscription is active
+      ...(subscription.status === "trialing" && subscription.trial_end
+        ? { trialEndsAt: new Date(subscription.trial_end * 1000) }
+        : {}),
       ...(subscription.status === "active" ? { trialEndsAt: null } : {}),
     },
   });
@@ -106,7 +109,7 @@ export async function POST(request: Request) {
         if (customerId) {
           await prisma.user.updateMany({
             where: { stripeCustomerId: customerId },
-            data: { subscriptionStatus: "past_due" },
+            data: { subscriptionStatus: SubscriptionStatus.PAST_DUE },
           });
         }
         break;

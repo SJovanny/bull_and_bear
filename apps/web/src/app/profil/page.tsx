@@ -270,12 +270,12 @@ export default function ProfilPage() {
               <div className="flex-1">
                 <p className="text-sm text-secondary font-sans">{t("profile.billingStatus")}</p>
                 <p className="mt-1 text-lg font-semibold text-primary font-sans">
-                  {subStatus === "active" && t("profile.billingActive")}
-                  {subStatus === "trialing" && hasAccess && t("profile.billingTrial").replace("{days}", String(trialDaysLeft))}
-                  {subStatus === "trialing" && !hasAccess && t("profile.billingTrialExpired")}
-                  {subStatus === "past_due" && t("profile.billingPastDue")}
-                  {subStatus === "canceled" && t("profile.billingCanceled")}
-                  {subStatus === "expired" && t("profile.billingExpired")}
+                  {subStatus === "ACTIVE" && t("profile.billingActive")}
+                  {subStatus === "TRIALING" && hasAccess && t("profile.billingTrial").replace("{days}", String(trialDaysLeft))}
+                  {subStatus === "TRIALING" && !hasAccess && t("profile.billingTrialExpired")}
+                  {subStatus === "PAST_DUE" && t("profile.billingPastDue")}
+                  {subStatus === "CANCELED" && t("profile.billingCanceled")}
+                  {subStatus === "EXPIRED" && t("profile.billingExpired")}
                 </p>
               </div>
               {hasStripeAccount ? (

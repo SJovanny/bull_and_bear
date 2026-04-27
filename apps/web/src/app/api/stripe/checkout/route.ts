@@ -37,8 +37,8 @@ export const POST = withAuth(async (request, { user }) => {
     }
 
     // Give a 14-day free trial to new users who haven't subscribed yet
-    const isNewUser = !user.subscriptionId && user.subscriptionStatus === "inactive";
-    const hasExistingTrial = user.subscriptionStatus === "trialing" && user.trialEndsAt;
+    const isNewUser = !user.subscriptionId && user.subscriptionStatus === "INACTIVE";
+    const hasExistingTrial = user.subscriptionStatus === "TRIALING" && user.trialEndsAt;
 
     let subscriptionData: Record<string, unknown> = { metadata: { userId: user.id } };
     if (isNewUser) {

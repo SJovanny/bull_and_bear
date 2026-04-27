@@ -51,21 +51,30 @@ enum AssetClass {
   OTHER
 }
 
+enum SubscriptionStatus {
+  INACTIVE
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  EXPIRED
+}
+
 model User {
-  id                  String         @id @default(uuid())
-  email               String         @unique
+  id                  String             @id @default(uuid())
+  email               String             @unique
   displayName         String?
-  timezone            String         @default("UTC")
-  tutorialsCompleted  Json           @default("{}")
+  timezone            String             @default("UTC")
+  tutorialsCompleted  Json               @default("{}")
   // ─── Stripe / Subscription ───────────────────────────────────
-  stripeCustomerId    String?        @unique
-  subscriptionId      String?        @unique
-  subscriptionStatus  String         @default("inactive")
+  stripeCustomerId    String?            @unique
+  subscriptionId      String?            @unique
+  subscriptionStatus  SubscriptionStatus @default(INACTIVE)
   trialEndsAt         DateTime?
   currentPeriodEnd    DateTime?
   // ─────────────────────────────────────────────────────────────
-  createdAt           DateTime       @default(now())
-  updatedAt           DateTime       @updatedAt
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
   accounts            Account[]
   trades              Trade[]
   journals            DailyJournal[]

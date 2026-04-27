@@ -58,7 +58,7 @@ export default function PricingPage() {
           <p className="mt-3 text-slate-400">{t("pricing.subtitle")}</p>
 
           {/* Trial banner */}
-          {status === "trialing" && trialDaysLeft > 0 && (
+          {status === "TRIALING" && trialDaysLeft > 0 && (
             <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-sm text-cyan-400">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="h-4 w-4">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -134,7 +134,7 @@ export default function PricingPage() {
             </ul>
 
             <div className="mt-8">
-              {hasAccess && status === "active" ? (
+              {hasAccess && status === "ACTIVE" ? (
                 <button
                   type="button"
                   onClick={() => void handlePortal()}
@@ -143,7 +143,7 @@ export default function PricingPage() {
                 >
                   {isLoading ? t("pricing.loading") : t("pricing.manageBtn")}
                 </button>
-              ) : hasStripeAccount && status !== "trialing" ? (
+              ) : hasStripeAccount ? (
                 <button
                   type="button"
                   onClick={() => void handlePortal()}

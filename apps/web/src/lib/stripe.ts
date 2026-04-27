@@ -25,25 +25,20 @@ export const STRIPE_PRICE_YEARLY = requireEnv(
 
 // ─── Subscription status helpers ────────────────────────────────────────────
 
-export type SubscriptionStatus =
-  | "trialing"
-  | "active"
-  | "past_due"
-  | "canceled"
-  | "expired"
-  | "incomplete";
+// Re-export the Prisma enum for use across the app
+export { SubscriptionStatus } from "@prisma/client";
 
 /**
  * Returns true if the user currently has access to paid features.
- * - "trialing" with a future trialEndsAt → access granted
- * - "active" → access granted
+ * - "TRIALING" with a future trialEndsAt → access granted
+ * - "ACTIVE" → access granted
  * - everything else → paywall
  */
 export function hasActiveAccess(
   status: string,
   trialEndsAt: Date | null,
 ): boolean {
-  if (status === "active") return true;
-  if (status === "trialing" && trialEndsAt && trialEndsAt > new Date()) return true;
+  if (status === "ACTIVE") return true;
+  if (status === "TRIALING" && trialEndsAt && trialEndsAt > new Date()) return true;
   return false;
 }

@@ -42,8 +42,8 @@ export function useSubscription(): SubscriptionState {
 
   const now = new Date();
   const trialEnd = info?.trialEndsAt ? new Date(info.trialEndsAt) : null;
-  const isTrialing = info?.subscriptionStatus === "trialing" && trialEnd && trialEnd > now;
-  const isActive = info?.subscriptionStatus === "active";
+  const isTrialing = info?.subscriptionStatus === "TRIALING" && trialEnd && trialEnd > now;
+  const isActive = info?.subscriptionStatus === "ACTIVE";
   const hasAccess = isTrialing || isActive || false;
 
   const trialDaysLeft =
@@ -72,7 +72,7 @@ export function useSubscription(): SubscriptionState {
   return {
     loading,
     hasAccess,
-    status: info?.subscriptionStatus ?? "trialing",
+    status: info?.subscriptionStatus ?? "INACTIVE",
     trialDaysLeft,
     hasStripeAccount: !!info?.stripeCustomerId,
     checkout,

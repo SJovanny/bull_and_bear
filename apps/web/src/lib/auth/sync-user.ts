@@ -1,6 +1,7 @@
 import "server-only";
 
 import type { User as SupabaseUser } from "@supabase/supabase-js";
+import { SubscriptionStatus } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
 
@@ -21,7 +22,7 @@ export async function syncUserFromAuth(user: SupabaseUser) {
       email: user.email,
       displayName:
         user.user_metadata?.full_name ?? user.user_metadata?.name ?? user.email.split("@")[0],
-      subscriptionStatus: "inactive",
+      subscriptionStatus: SubscriptionStatus.INACTIVE,
       trialEndsAt: null,
     },
   });
