@@ -141,7 +141,11 @@ function withTimezoneSuffix(isoLike: string, timezoneOffset?: string | null) {
     return isoLike;
   }
 
-  return `${isoLike}${timezoneOffset ?? "Z"}`;
+  if (timezoneOffset) {
+    return `${isoLike}${timezoneOffset}`;
+  }
+
+  return isoLike;
 }
 
 function parseDdMmDate(value: string, timezoneOffset?: string | null): Date | null {
@@ -213,13 +217,34 @@ function extractTimezoneOffsetFromHeader(header: string) {
   return match ? normalizeUtcOffset(match[1]) : null;
 }
 
+function isCTraderHeaders(headers: string[]) {
+  const normalized = headers.map((h) => normalizeHeader(String(h ?? "")));
+  const hasDirection = normalized.includes("opening direction") || normalized.includes("sens d'ouverture");
+  const hasClosingPrice = normalized.includes("closing price") || normalized.includes("price de cloture") || normalized.includes("cours de cloture");
+  return hasDirection && hasClosingPrice;
+}
+
 function detectSource(fileContent: string, fileName?: string): TradeImportSource | null {
   if (fileName?.toLowerCase().endsWith(".xlsx")) {
+    try {
+      const workbook = read(fileContent, { type: "base64" });
+      const firstSheet = workbook.SheetNames[0] ? workbook.Sheets[workbook.SheetNames[0]] : null;
+      if (firstSheet) {
+        const rows = utils.sheet_to_json<(string | number | null)[]>(firstSheet, { header: 1, raw: false, defval: "" });
+        const headerRow = (rows[0] ?? []).map((c) => String(c ?? ""));
+        if (isCTraderHeaders(headerRow)) {
+          return "CTRADER";
+        }
+      }
+    } catch {
+      // fall through
+    }
     return "METATRADER";
   }
 
   const snippet = fileContent.slice(0, 2000).toLowerCase();
-  if (snippet.includes("opening direction") && snippet.includes("closing price")) {
+  if ((snippet.includes("opening direction") || snippet.includes("sens d'ouverture")) &&
+      (snippet.includes("closing price") || snippet.includes("price de cloture") || snippet.includes("cours de cloture"))) {
     return "CTRADER";
   }
   return null;
@@ -307,30 +332,37 @@ function buildCTraderHeaderMap(headerCells: string[]): CTraderHeaderMap {
   const map: CTraderHeaderMap = {};
   headerCells.forEach((cell, index) => {
     const header = normalizeHeader(cell);
-    if (header === "id") map.id = index;
-    if (header === "symbol") map.symbol = index;
-    if (header === "opening direction") map.openingDirection = index;
-    if (header === "opening time" || header.startsWith("opening time (")) {
+    if (header === "id" || header === "id de l'ordre") map.id = index;
+    if (header === "symbol" || header === "symbole") map.symbol = index;
+    if (header === "opening direction" || header === "sens d'ouverture") map.openingDirection = index;
+    if (header === "opening time" || header.startsWith("opening time (") || header === "heure d'ouverture" || header.startsWith("heure d'ouverture (")) {
       map.openingTime = index;
       map.openingTimezoneOffset = extractTimezoneOffsetFromHeader(cell);
     }
-    if (header === "closing time" || header.startsWith("closing time (")) {
+    if (header === "closing time" || header.startsWith("closing time (") || header === "heure de cloture" || header.startsWith("heure de cloture (")) {
       map.closingTime = index;
       map.closingTimezoneOffset = extractTimezoneOffsetFromHeader(cell);
     }
-    if (header === "entry price") map.entryPrice = index;
-    if (header === "closing price") map.closingPrice = index;
-    if (header === "closing quantity") map.quantity = index;
+    if (header === "entry price" || header === "cours d'entree" || header === "price d'entree") map.entryPrice = index;
+    if (header === "closing price" || header === "price de cloture" || header === "cours de cloture") map.closingPrice = index;
+    if (header === "closing quantity" || header === "quantite de cloture") map.quantity = index;
     if (header === "commissions") map.commissions = index;
-    if (header === "swap") map.swap = index;
-    if (header.startsWith("net ") || header.startsWith("net\u00a0")) map.net = index;
-    if (header === "comment") map.comment = index;
+    if (header === "swap" || header === "echange") map.swap = index;
+    if (header.startsWith("net ") || header.startsWith("net\u00a0") || header.endsWith(" nets") || header.endsWith("\u00a0nets")) map.net = index;
+    if (header === "comment" || header === "commentaire") map.comment = index;
   });
   return map;
 }
 
 function readCell(cells: string[], index: number | undefined) {
   return index == null ? "" : (cells[index] ?? "").trim();
+}
+
+function parseCTraderDirection(value: string): "LONG" | "SHORT" | null {
+  const direction = value.toLowerCase();
+  if (direction === "buy" || direction === "acheter") return "LONG";
+  if (direction === "sell" || direction === "vendre") return "SHORT";
+  return null;
 }
 
 function parseCTraderCsv(fileContent: string): TradeImportPreview {
@@ -369,7 +401,110 @@ function parseCTraderCsv(fileContent: string): TradeImportPreview {
       const swap = parseSignedNumber(readCell(cells, headerMap.swap) || "0", "swap");
       const sourceTradeId = readCell(cells, headerMap.id) || null;
       const notes = readCell(cells, headerMap.comment) || null;
-      const side = direction === "buy" ? "LONG" : direction === "sell" ? "SHORT" : null;
+      const side = parseCTraderDirection(direction);
+
+      if (!side) {
+        throw new Error("Unsupported opening direction");
+      }
+
+      const draft = toImportedTradeDraft({
+        source: "CTRADER",
+        sourceTradeId,
+        symbol,
+        side,
+        quantity,
+        entryPrice,
+        exitPrice,
+        fees: Math.abs(commissions) + Math.abs(swap),
+        openedAt,
+        closedAt,
+        notes,
+        netPnl: readCell(cells, headerMap.net) ? parseSignedNumber(readCell(cells, headerMap.net), "net pnl") : null,
+      });
+
+      let duplicateReason: TradeImportPreviewRow["duplicateReason"] = null;
+
+      if (sourceTradeId && seenSourceIds.has(sourceTradeId)) {
+        duplicateReason = "same_file";
+      }
+      if (!duplicateReason && seenFingerprints.has(draft.importFingerprint)) {
+        duplicateReason = "same_file";
+      }
+
+      if (sourceTradeId) seenSourceIds.add(sourceTradeId);
+      seenFingerprints.add(draft.importFingerprint);
+
+      rows.push({ rowNumber, duplicateReason, ...draft });
+    } catch (error) {
+      errors.push({
+        rowNumber,
+        message: error instanceof Error ? error.message : "Could not parse row",
+      });
+    }
+  }
+
+  return { detectedSource: "CTRADER", rows, errors };
+}
+
+function parseCTraderXlsx(fileContent: string): TradeImportPreview {
+  let workbook;
+
+  try {
+    workbook = read(fileContent, { type: "base64" });
+  } catch {
+    return { detectedSource: "CTRADER", rows: [], errors: [{ rowNumber: 1, message: "Could not read XLSX file" }] };
+  }
+
+  const firstSheetName = workbook.SheetNames[0];
+  const firstSheet = firstSheetName ? workbook.Sheets[firstSheetName] : null;
+
+  if (!firstSheet) {
+    return { detectedSource: "CTRADER", rows: [], errors: [{ rowNumber: 1, message: "Workbook is empty" }] };
+  }
+
+  const sheetRows = utils.sheet_to_json<(string | number | null)[]>(firstSheet, {
+    header: 1,
+    raw: false,
+    defval: "",
+    blankrows: false,
+  });
+  const rowsAsText = sheetRows.map((row) => row.map(normalizeWorksheetCell));
+
+  if (rowsAsText.length < 2) {
+    return { detectedSource: "CTRADER", rows: [], errors: [{ rowNumber: 1, message: "File is empty" }] };
+  }
+
+  const headerMap = buildCTraderHeaderMap(rowsAsText[0] ?? []);
+  const rows: TradeImportPreviewRow[] = [];
+  const errors: Array<{ rowNumber: number; message: string }> = [];
+  const seenSourceIds = new Set<string>();
+  const seenFingerprints = new Set<string>();
+
+  for (let index = 1; index < rowsAsText.length; index += 1) {
+    const cells = rowsAsText[index] ?? [];
+    const rowNumber = index + 1;
+
+    if (!cells.some(Boolean)) {
+      continue;
+    }
+
+    try {
+      const symbol = readCell(cells, headerMap.symbol);
+      const direction = readCell(cells, headerMap.openingDirection).toLowerCase();
+      const closedAt = parseDate(readCell(cells, headerMap.closingTime), "closing time", headerMap.closingTimezoneOffset);
+      const openingTimeRaw = readCell(cells, headerMap.openingTime);
+      const openedAt = openingTimeRaw
+        ? parseDate(openingTimeRaw, "opening time", headerMap.openingTimezoneOffset ?? headerMap.closingTimezoneOffset)
+        : closedAt;
+      const quantityRaw = readCell(cells, headerMap.quantity).replace(/\s*lots$/i, "");
+      const quantity = parseNumber(quantityRaw, "quantity");
+      const entryPrice = parseNumber(readCell(cells, headerMap.entryPrice), "entry price");
+      const exitPrice = parseNumber(readCell(cells, headerMap.closingPrice), "closing price");
+      const commissions = parseSignedNumber(readCell(cells, headerMap.commissions) || "0", "commissions");
+      const swap = parseSignedNumber(readCell(cells, headerMap.swap) || "0", "swap");
+      const sourceTradeId = readCell(cells, headerMap.id) || null;
+      const notes = readCell(cells, headerMap.comment) || null;
+      const side = parseCTraderDirection(direction);
 
       if (!side) {
         throw new Error("Unsupported opening direction");
@@ -594,7 +729,8 @@ export function parseImportedTrades(fileContent: string, selectedSource: TradeIm
   const detectedSource = detectSource(fileContent, fileName);
 
   if (selectedSource === "CTRADER") {
-    const preview = parseCTraderCsv(fileContent);
+    const isXlsx = fileName?.toLowerCase().endsWith(".xlsx");
+    const preview = isXlsx ? parseCTraderXlsx(fileContent) : parseCTraderCsv(fileContent);
     return { ...preview, detectedSource };
   }
 

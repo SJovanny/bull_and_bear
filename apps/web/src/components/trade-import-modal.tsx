@@ -48,7 +48,7 @@ const sourceConfig = (t: (key: keyof TranslationKeys) => string): Record<TradeIm
   CTRADER: {
     label: "cTrader",
     helper: t("importModal.cTraderHelper"),
-    accept: ".csv,text/csv",
+    accept: ".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     image: "https://res.cloudinary.com/ddvabefhf/image/upload/v1773440476/ctrader_logo_full_pwcbdz.png",
     alt: "cTrader logo",
   },
@@ -139,7 +139,7 @@ export function TradeImportModal({ isOpen, accountId, onClose, onImported }: Tra
 
     try {
       const nextContent =
-        source === "METATRADER"
+        source === "METATRADER" || file.name.toLowerCase().endsWith(".xlsx")
           ? arrayBufferToBase64(await file.arrayBuffer())
           : await file.text();
       setFileContent(nextContent);
