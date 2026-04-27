@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { safeParseJson, withAuth } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
+
+const tutorialPatchSchema = z.object({
+  action: z.enum(["complete", "reset", "resetAll"]),
+  page: z.string().max(100).optional(),
+});
 
 // ─── GET /api/me/tutorial ───────────────────────────────────────────────────
 // Returns the user's tutorial completion status
@@ -21,7 +27,12 @@ export const PATCH = withAuth(async (request, { user }) => {
   const { data: body, error } = await safeParseJson(request);
   if (error) return error;
 
-  const { action, page } = body as { action: "complete" | "reset" | "resetAll"; page?: string };
+  const parsed = tutorialPatchSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+  }
+
+  const { action, page } = parsed.data;
 
   const dbUser = await prisma.user.findUnique({
     where: { id: user.id },

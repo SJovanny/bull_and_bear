@@ -9,10 +9,15 @@ export const POST = withAuth(async (_request, { user }) => {
 
   const appUrl = requireEnv("NEXT_PUBLIC_APP_URL", process.env.NEXT_PUBLIC_APP_URL);
 
-  const session = await stripe.billingPortal.sessions.create({
-    customer: user.stripeCustomerId,
-    return_url: `${appUrl}/profil`,
-  });
+  try {
+    const session = await stripe.billingPortal.sessions.create({
+      customer: user.stripeCustomerId,
+      return_url: `${appUrl}/profil`,
+    });
 
-  return Response.json({ url: session.url });
+    return Response.json({ url: session.url });
+  } catch (err) {
+    console.error("[portal] Stripe error:", err);
+    return safeErrorResponse("Could not create billing portal session", 500);
+  }
 }, { skipSubscriptionCheck: true });

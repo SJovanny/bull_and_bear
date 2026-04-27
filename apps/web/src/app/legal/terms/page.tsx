@@ -18,7 +18,7 @@ export default function TermsPage() {
       <p>
         Les présentes conditions générales d&apos;utilisation (ci-après « CGU ») régissent l&apos;accès et
         l&apos;utilisation du service Bull &amp; Bear, journal de trading en ligne accessible à l&apos;adresse{" "}
-        <strong>[VOTRE DOMAINE]</strong>, édité par <strong>[VOTRE NOM / SOCIÉTÉ]</strong>
+        <strong>bullandbear.com</strong>, édité par <strong>Bull &amp; Bear</strong>
         (ci-après « l&apos;Éditeur »).
       </p>
       <p>
@@ -178,7 +178,7 @@ export default function TermsPage() {
       <p>
         Les présentes CGU sont régies par le droit français. En cas de litige relatif à l&apos;interprétation
         ou à l&apos;exécution des présentes, les parties s&apos;efforceront de trouver une solution amiable.
-        À défaut, le litige sera porté devant les tribunaux compétents de <strong>[VILLE]</strong>,
+        À défaut, le litige sera porté devant les tribunaux compétents de <strong>Strasbourg</strong>,
         sous réserve des règles impératives de protection des consommateurs applicables dans le pays
         de résidence de l&apos;utilisateur.
       </p>
@@ -187,7 +187,7 @@ export default function TermsPage() {
       <h2>13. Contact</h2>
       <p>
         Pour toute question relative aux présentes CGU :{" "}
-        <a href="mailto:legal@yourdomain.com">legal@yourdomain.com</a>
+        <a href="mailto:bullandbear.journal@gmail.com">bullandbear.journal@gmail.com</a>
       </p>
     </LegalShell>
   );

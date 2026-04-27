@@ -115,6 +115,30 @@ export async function POST(request: Request) {
         break;
       }
 
+      case "invoice.payment_succeeded": {
+        // Recover from PAST_DUE when payment succeeds
+        const paidInvoice = event.data.object as Stripe.Invoice;
+        const paidCustomerId =
+          typeof paidInvoice.customer === "string" ? paidInvoice.customer : paidInvoice.customer?.id;
+        // In Stripe v2026+, subscription may live under parent or as a property
+        const paidSubId = (paidInvoice as unknown as Record<string, unknown>).subscription as string | undefined;
+        if (paidCustomerId && paidSubId) {
+          const sub = await stripe.subscriptions.retrieve(paidSubId);
+          await upsertSubscription(sub);
+        }
+        break;
+      }
+
+      case "customer.subscription.trial_will_end": {
+        // Stripe sends this 3 days before trial ends — log for now,
+        // can be extended to send email notifications
+        const trialSub = event.data.object as Stripe.Subscription;
+        console.log(
+          `[webhook] Trial ending soon for subscription ${trialSub.id}, trial_end: ${trialSub.trial_end}`,
+        );
+        break;
+      }
+
       default:
         // Ignore unhandled events
         break;

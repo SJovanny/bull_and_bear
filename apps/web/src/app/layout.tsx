@@ -15,8 +15,50 @@ const jetBrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Bull & Bear",
-  description: "Trading Journal & Analytics",
+  metadataBase: new URL("https://bullandbear.com"),
+  title: {
+    default: "Bull & Bear — Trading Journal & Analytics",
+    template: "%s — Bull & Bear",
+  },
+  description:
+    "Track, analyze, and improve your trading performance. Import trades from cTrader, view detailed statistics, and keep a daily trading journal.",
+  keywords: [
+    "trading journal",
+    "journal de trading",
+    "trading analytics",
+    "cTrader import",
+    "trading performance",
+    "trade tracker",
+  ],
+  openGraph: {
+    type: "website",
+    locale: "fr_FR",
+    alternateLocale: "en_US",
+    url: "https://bullandbear.com",
+    siteName: "Bull & Bear",
+    title: "Bull & Bear — Trading Journal & Analytics",
+    description:
+      "Track, analyze, and improve your trading performance. Import trades, view statistics, and keep a daily journal.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Bull & Bear — Trading Journal",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Bull & Bear — Trading Journal & Analytics",
+    description:
+      "Track, analyze, and improve your trading performance.",
+    images: ["/og-image.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
   icons: {
     icon: "/BB_logo.png",
     shortcut: "/BB_logo.png",

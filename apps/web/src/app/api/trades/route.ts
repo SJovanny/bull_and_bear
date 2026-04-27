@@ -10,6 +10,9 @@ export const GET = withAuth(async (request, { user }) => {
   const { searchParams } = new URL(request.url);
   const accountId = searchParams.get("accountId");
   const date = searchParams.get("date");
+  const cursor = searchParams.get("cursor");
+  const limitParam = searchParams.get("limit");
+  const limit = Math.min(Math.max(Number(limitParam) || 100, 1), 500);
 
   if (accountId) {
     const account = await verifyAccountOwnership(accountId, user.id);
@@ -35,10 +38,15 @@ export const GET = withAuth(async (request, { user }) => {
       ...(openedAtFilter ? { openedAt: openedAtFilter } : {}),
     },
     orderBy: { openedAt: "desc" },
-    take: 1000,
+    take: limit + 1,
+    ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
   });
 
-  return Response.json({ trades });
+  const hasMore = trades.length > limit;
+  if (hasMore) trades.pop();
+  const nextCursor = hasMore ? trades[trades.length - 1]?.id : null;
+
+  return Response.json({ trades, nextCursor });
 });
 
 export const POST = withAuth(async (request, { user }) => {

@@ -16,12 +16,12 @@ export default function PrivacyPolicyPage() {
       {/* ─── 1. Qui sommes-nous ────────────────────────────────── */}
       <h2>1. Responsable du traitement</h2>
       <p>
-        Bull &amp; Bear est un journal de trading en ligne édité par <strong>[VOTRE NOM / SOCIÉTÉ]</strong>,
-        dont le siège social est situé à <strong>[ADRESSE]</strong>, enregistré sous le numéro <strong>[SIREN / RCS]</strong>.
+        Bull &amp; Bear est un journal de trading en ligne édité par <strong>Bull &amp; Bear</strong>,
+        situé à <strong>Strasbourg, France</strong>.
       </p>
       <p>
         Pour toute question relative à la protection de vos données, vous pouvez nous contacter à l&apos;adresse :{" "}
-        <a href="mailto:privacy@yourdomain.com">privacy@yourdomain.com</a>.
+        <a href="mailto:bullandbear.journal@gmail.com">bullandbear.journal@gmail.com</a>.
       </p>
 
       {/* ─── 2. Données collectées ─────────────────────────────── */}
@@ -196,7 +196,7 @@ export default function PrivacyPolicyPage() {
       </ul>
       <p>
         Pour exercer l&apos;un de ces droits, contactez-nous à{" "}
-        <a href="mailto:privacy@yourdomain.com">privacy@yourdomain.com</a>. Nous répondrons dans un
+        <a href="mailto:bullandbear.journal@gmail.com">bullandbear.journal@gmail.com</a>. Nous répondrons dans un
         délai maximum de <strong>30 jours</strong>.
       </p>
       <p>
@@ -230,7 +230,7 @@ export default function PrivacyPolicyPage() {
       <h2>11. Contact</h2>
       <p>
         Pour toute question relative à cette politique ou à la protection de vos données :{" "}
-        <a href="mailto:privacy@yourdomain.com">privacy@yourdomain.com</a>
+        <a href="mailto:bullandbear.journal@gmail.com">bullandbear.journal@gmail.com</a>
       </p>
     </LegalShell>
   );
