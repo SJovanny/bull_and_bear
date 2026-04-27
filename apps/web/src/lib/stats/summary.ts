@@ -56,6 +56,7 @@ export function buildSummary(
   activityTrades: StatsTrade[],
   closedTrades: StatsTrade[],
   initialBalance: number | null = null,
+  allTimeNetPnl?: number,
 ): StatsSummary {
   const pnlValues = closedTrades.map(t => Number(t.netPnl));
   const winners = pnlValues.filter((value) => value > 0);
@@ -85,7 +86,7 @@ export function buildSummary(
     period: filters.period,
     range: formatRange(filters),
     initialBalance,
-    currentBalance: hasBalance ? initialBalance + netPnl : null,
+    currentBalance: hasBalance ? initialBalance + (allTimeNetPnl ?? netPnl) : null,
     returnPercent: hasBalance ? (netPnl / initialBalance) * 100 : null,
     maxDrawdownPercent: hasBalance ? computeMaxDrawdownPercent(pnlValues, initialBalance) : null,
     activity: {

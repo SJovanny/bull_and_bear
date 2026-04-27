@@ -11,10 +11,19 @@ export const GET = withAuth(async (request, { user }) => {
 
   const initialBalance = account.initialBalance !== null ? toNumber(account.initialBalance) : null;
 
-  const [activityTrades, closedTrades] = await Promise.all([
+  const needsAllTime = filters.period !== "ALL";
+
+  const [activityTrades, closedTrades, allTimeClosedTrades] = await Promise.all([
     fetchActivityTrades(filters),
     fetchClosedTrades(filters),
+    needsAllTime
+      ? fetchClosedTrades({ ...filters, period: "ALL", from: null, to: null })
+      : Promise.resolve(null),
   ]);
 
-  return Response.json(buildSummary(filters, activityTrades, closedTrades, initialBalance));
+  const allTimeNetPnl = needsAllTime
+    ? allTimeClosedTrades!.reduce((sum, t) => sum + Number(t.netPnl), 0)
+    : undefined;
+
+  return Response.json(buildSummary(filters, activityTrades, closedTrades, initialBalance, allTimeNetPnl));
 });
