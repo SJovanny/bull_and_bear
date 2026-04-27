@@ -31,13 +31,29 @@ export function useSubscription(): SubscriptionState {
   const [info, setInfo] = useState<SubscriptionInfo | null>(null);
 
   useEffect(() => {
-    fetch("/api/me")
-      .then((r) => r.json())
-      .then((data: { user?: SubscriptionInfo }) => {
+    async function init() {
+      try {
+        // After Stripe checkout redirect, sync the subscription before reading
+        // the user — the webhook may not have arrived yet.
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("checkout") === "success") {
+          await fetch("/api/stripe/sync", { method: "POST" });
+          // Clean the query param so we don't sync on every refresh
+          const url = new URL(window.location.href);
+          url.searchParams.delete("checkout");
+          window.history.replaceState({}, "", url.pathname + url.search);
+        }
+
+        const res = await fetch("/api/me");
+        const data = (await res.json()) as { user?: SubscriptionInfo };
         if (data.user) setInfo(data.user);
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+      } catch {
+        // ignore
+      } finally {
+        setLoading(false);
+      }
+    }
+    void init();
   }, []);
 
   const now = new Date();
