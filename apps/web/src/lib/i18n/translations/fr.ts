@@ -343,11 +343,11 @@ export const fr: TranslationKeys = {
   "paywall.dataNote": "Vos données sont conservées. Vous retrouverez tout après votre abonnement.",
 
   // ─── Trial Prompt ────────────────────────────────────────────
-  "trialPrompt.title": "Prenez le contrôle de vos finances",
-  "trialPrompt.subtitle": "Rejoignez des milliers d'investisseurs qui suivent, analysent et font croître leur portefeuille avec Bull & Bear.",
-  "trialPrompt.feature1": "Suivi en temps réel de votre portefeuille sur tous vos comptes",
-  "trialPrompt.feature2": "Analyses et insights propulsés par l'IA",
-  "trialPrompt.feature3": "Alertes intelligentes pour ne manquer aucune opportunité",
+  "trialPrompt.title": "Votre journal de trading, simplifié",
+  "trialPrompt.subtitle": "Bull & Bear vous aide à enregistrer, revoir et apprendre de chaque trade. Restez organisé, restez discipliné, devenez rentable — à un prix accessible à tous.",
+  "trialPrompt.feature1": "Enregistrez vos trades et revoyez-les avec les graphiques TradingView",
+  "trialPrompt.feature2": "Suivez vos performances avec des stats et analyses détaillées",
+  "trialPrompt.feature3": "Le journal de trading le plus abordable du marché",
   "trialPrompt.monthly": "Mensuel",
   "trialPrompt.yearly": "Annuel",
   "trialPrompt.monthlyPrice": "5€ / mois",

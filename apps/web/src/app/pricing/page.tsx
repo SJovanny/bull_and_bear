@@ -146,7 +146,7 @@ export default function PricingPage() {
               ) : hasStripeAccount ? (
                 <button
                   type="button"
-                  onClick={() => void handlePortal()}
+                  onClick={() => void handleCheckout()}
                   disabled={isLoading}
                   className="flex h-12 w-full items-center justify-center rounded-xl bg-brand-500 text-sm font-semibold text-white transition hover:bg-brand-600 disabled:opacity-50"
                 >
