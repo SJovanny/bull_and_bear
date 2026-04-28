@@ -78,9 +78,7 @@ export default function LoginPage() {
         </Link>
 
         <div className="relative z-10 w-full max-w-md rounded-2xl border border-white/10 bg-white/[0.04] p-6 shadow-[0_18px_50px_rgba(0,0,0,0.24)] backdrop-blur sm:p-8">
-          <p className="inline-flex items-center rounded-full border border-cyan-300/16 bg-cyan-300/8 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-cyan-100/86">
-            Authentication
-          </p>
+          
           <h1 className="mt-4 text-3xl font-semibold tracking-tight text-white">{t("auth.login.title")}</h1>
           <p className="mt-2 text-sm text-slate-300">{t("auth.login.subtitle")}</p>
 
