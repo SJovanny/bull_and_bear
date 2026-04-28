@@ -12,6 +12,7 @@ import { useSubscription } from "@/hooks/use-subscription";
 import { useTranslation } from "@/lib/i18n/context";
 import { tutorialStepsMap } from "@/config/tutorial-steps";
 import { supabaseClient } from "@/lib/supabase/client";
+import { getTimezoneOptions, formatTimezoneDisplay } from "@/lib/timezone-utils";
 
 type MePayload = {
   user?: {
@@ -209,13 +210,13 @@ export default function ProfilPage() {
                     onChange={(e) => setEditTimezone(e.target.value)}
                     className="mt-1 h-10 w-full rounded-xl border border-border bg-surface-2 px-3 text-sm text-primary outline-none ring-brand-500 transition focus:ring-2"
                   >
-                    {Intl.supportedValuesOf("timeZone").map((tz) => (
-                      <option key={tz} value={tz}>{tz}</option>
+                    {getTimezoneOptions().map((tz) => (
+                      <option key={tz.value} value={tz.value}>{tz.label}</option>
                     ))}
                   </select>
                 ) : (
                   <p className="mt-1 text-lg font-semibold text-primary font-sans">
-                    {loading ? "..." : user?.timezone || "UTC"}
+                    {loading ? "..." : formatTimezoneDisplay(user?.timezone || "UTC")}
                   </p>
                 )}
               </div>
