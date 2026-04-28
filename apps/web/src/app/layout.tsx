@@ -15,7 +15,11 @@ const jetBrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://bullandbear.com"),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL ?? process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : "https://bullandbear.com"
+  ),
   title: {
     default: "Bull & Bear — Trading Journal & Analytics",
     template: "%s — Bull & Bear",
