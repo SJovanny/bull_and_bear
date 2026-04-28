@@ -333,8 +333,11 @@ export const en: TranslationKeys = {
   "paywall.dataNote": "Your data is safe. Everything will be right where you left it after subscribing.",
 
   // ─── Trial Prompt ────────────────────────────────────────────
-  "trialPrompt.title": "Welcome to Bull & Bear",
-  "trialPrompt.subtitle": "Start your free trial to explore the app. No credit card required upfront.",
+  "trialPrompt.title": "Take Control of Your Finances",
+  "trialPrompt.subtitle": "Join thousands of investors who track, analyze, and grow their portfolios with Bull & Bear.",
+  "trialPrompt.feature1": "Real-time portfolio tracking across all your accounts",
+  "trialPrompt.feature2": "AI-powered insights and performance analytics",
+  "trialPrompt.feature3": "Smart alerts so you never miss an opportunity",
   "trialPrompt.monthly": "Monthly",
   "trialPrompt.yearly": "Yearly",
   "trialPrompt.monthlyPrice": "5€ / month",

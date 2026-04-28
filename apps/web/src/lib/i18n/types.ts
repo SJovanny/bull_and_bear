@@ -335,6 +335,9 @@ export type TranslationKeys = {
   // ─── Trial Prompt ────────────────────────────────────────────
   "trialPrompt.title": string;
   "trialPrompt.subtitle": string;
+  "trialPrompt.feature1": string;
+  "trialPrompt.feature2": string;
+  "trialPrompt.feature3": string;
   "trialPrompt.monthly": string;
   "trialPrompt.yearly": string;
   "trialPrompt.monthlyPrice": string;
