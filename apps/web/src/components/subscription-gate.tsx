@@ -19,7 +19,7 @@ type SubscriptionGateProps = {
  * 3. Paywall if their subscription/trial has expired
  */
 export function SubscriptionGate({ children }: SubscriptionGateProps) {
-  const { loading, hasAccess, hasStripeAccount, trialDaysLeft, profileComplete } = useSubscription();
+  const { loading, hasAccess, hasSubscription, trialDaysLeft, profileComplete } = useSubscription();
   const [profileJustCompleted, setProfileJustCompleted] = useState(false);
 
   if (loading) return <LoadingSpinner />;
@@ -30,8 +30,8 @@ export function SubscriptionGate({ children }: SubscriptionGateProps) {
   }
 
   if (!hasAccess) {
-    // User has never gone through Stripe checkout → show mandatory trial prompt
-    if (!hasStripeAccount) {
+    // User has never completed a subscription → show trial prompt
+    if (!hasSubscription) {
       return <TrialPromptModal />;
     }
 

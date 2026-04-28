@@ -26,6 +26,7 @@ export const GET = withAuth(async (_request, { user }) => {
     trialEndsAt: user.trialEndsAt,
     currentPeriodEnd: user.currentPeriodEnd,
     hasStripeAccount: !!user.stripeCustomerId,
+    hasSubscription: !!user.subscriptionId,
   };
 
   return Response.json({ user: safeUser, accounts });

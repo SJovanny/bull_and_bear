@@ -11,7 +11,7 @@ import type { TranslationKeys } from "@/lib/i18n/types";
 export default function PricingPage() {
   const [interval, setInterval] = useState<"month" | "year">("year");
   const [isLoading, setIsLoading] = useState(false);
-  const { hasAccess, status, trialDaysLeft, checkout, openPortal, hasStripeAccount } = useSubscription();
+  const { hasAccess, status, trialDaysLeft, checkout, openPortal, hasSubscription } = useSubscription();
   const { t } = useTranslation();
 
   async function handleCheckout() {
@@ -143,7 +143,7 @@ export default function PricingPage() {
                 >
                   {isLoading ? t("pricing.loading") : t("pricing.manageBtn")}
                 </button>
-              ) : hasStripeAccount ? (
+              ) : hasSubscription ? (
                 <button
                   type="button"
                   onClick={() => void handleCheckout()}
