@@ -54,8 +54,8 @@ export function useSubscription(): SubscriptionState {
         const res = await fetch("/api/me");
         const data = (await res.json()) as { user?: SubscriptionInfo };
         if (data.user) setInfo(data.user);
-      } catch {
-        // ignore
+      } catch (err) {
+        console.error("[useSubscription] Failed to load user info:", err);
       } finally {
         setLoading(false);
       }
