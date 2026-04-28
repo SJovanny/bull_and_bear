@@ -107,13 +107,13 @@ export function TrialPromptModal() {
           </div>
 
           {/* Right — Preview image */}
-          <div className="hidden md:flex flex-1 items-center justify-center bg-surface-2/50 p-6">
+          <div className="hidden md:flex flex-1 items-center justify-center p-8 lg:p-10">
             <Image
               src="/preview.png"
               alt="Bull & Bear app preview"
-              width={480}
-              height={480}
-              className="rounded-xl object-contain"
+              width={600}
+              height={500}
+              className="w-full h-auto rounded-xl object-contain drop-shadow-lg"
               priority
             />
           </div>

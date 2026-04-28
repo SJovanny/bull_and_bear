@@ -91,6 +91,11 @@ export const fr: TranslationKeys = {
   "auth.login.google": "Continuer avec Google",
   "auth.signup.title": "Inscription",
   "auth.signup.subtitle": "Créez votre compte Bull & Bear",
+  "auth.signup.firstName": "Prénom",
+  "auth.signup.lastName": "Nom",
+  "auth.signup.country": "Pays de résidence",
+  "auth.signup.language": "Langue préférée",
+  "auth.signup.selectCountry": "Sélectionnez votre pays",
   "auth.signup.email": "Email",
   "auth.signup.password": "Mot de passe (min. 6 caractères)",
   "auth.signup.submit": "Créer un compte",
@@ -99,6 +104,11 @@ export const fr: TranslationKeys = {
   "auth.signup.loginLink": "Se connecter",
   "auth.signup.success": "Inscription réussie ! Vérifiez votre email pour confirmer votre compte.",
   "auth.signup.google": "S'inscrire avec Google",
+
+  // ─── Profile Completion ────────────────────────────────────────
+  "profileCompletion.title": "Complétez votre profil",
+  "profileCompletion.subtitle": "Parlez-nous un peu de vous pour commencer.",
+  "profileCompletion.cta": "Continuer",
 
   // ─── Sidebar / Nav ──────────────────────────────────────────
   "nav.dashboard": "Dashboard",

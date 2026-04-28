@@ -15,6 +15,10 @@ export const GET = withAuth(async (_request, { user }) => {
     id: user.id,
     email: user.email,
     displayName: user.displayName,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    country: user.country,
+    language: user.language,
     timezone: user.timezone,
     createdAt: user.createdAt,
     isAdmin: user.isAdmin,
@@ -29,6 +33,10 @@ export const GET = withAuth(async (_request, { user }) => {
 
 const profileUpdateSchema = z.object({
   displayName: z.string().max(100).optional(),
+  firstName: z.string().max(100).optional(),
+  lastName: z.string().max(100).optional(),
+  country: z.string().max(100).optional(),
+  language: z.enum(["fr", "en"]).optional(),
   timezone: z.string().max(100).optional(),
 });
 
@@ -41,12 +49,16 @@ export const PATCH = withAuth(async (request, { user }) => {
     return safeErrorResponse("Invalid request body", 400);
   }
 
-  const { displayName, timezone } = parsed.data;
+  const { displayName, firstName, lastName, country, language, timezone } = parsed.data;
 
   const updated = await prisma.user.update({
     where: { id: user.id },
     data: {
       ...(displayName !== undefined && { displayName: displayName.trim() || null }),
+      ...(firstName !== undefined && { firstName: firstName.trim() || null }),
+      ...(lastName !== undefined && { lastName: lastName.trim() || null }),
+      ...(country !== undefined && { country }),
+      ...(language !== undefined && { language }),
       ...(timezone !== undefined && { timezone }),
     },
   });

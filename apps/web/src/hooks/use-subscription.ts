@@ -8,6 +8,10 @@ type SubscriptionInfo = {
   currentPeriodEnd: string | null;
   hasStripeAccount: boolean;
   isAdmin: boolean;
+  firstName: string | null;
+  lastName: string | null;
+  country: string | null;
+  language: string | null;
 };
 
 type SubscriptionState = {
@@ -21,6 +25,8 @@ type SubscriptionState = {
   trialDaysLeft: number;
   /** Whether the user has a Stripe customer ID (has interacted with billing) */
   hasStripeAccount: boolean;
+  /** Whether the user profile is complete (has name + country) */
+  profileComplete: boolean;
   /** Redirect to Stripe Checkout */
   checkout: (interval: "month" | "year") => Promise<void>;
   /** Redirect to Stripe Customer Portal */
@@ -87,12 +93,16 @@ export function useSubscription(): SubscriptionState {
     if (data.url) window.location.href = data.url;
   }
 
+  const hasStripeAccount = info?.hasStripeAccount ?? false;
+  const profileComplete = !!(info?.firstName && info?.lastName && info?.country);
+
   return {
     loading,
     hasAccess,
     status: info?.subscriptionStatus ?? "INACTIVE",
     trialDaysLeft,
-    hasStripeAccount: info?.hasStripeAccount ?? false,
+    hasStripeAccount,
+    profileComplete,
     checkout,
     openPortal,
   };

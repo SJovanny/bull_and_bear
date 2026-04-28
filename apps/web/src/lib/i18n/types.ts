@@ -91,6 +91,11 @@ export type TranslationKeys = {
   "auth.login.google": string;
   "auth.signup.title": string;
   "auth.signup.subtitle": string;
+  "auth.signup.firstName": string;
+  "auth.signup.lastName": string;
+  "auth.signup.country": string;
+  "auth.signup.language": string;
+  "auth.signup.selectCountry": string;
   "auth.signup.email": string;
   "auth.signup.password": string;
   "auth.signup.submit": string;
@@ -99,6 +104,11 @@ export type TranslationKeys = {
   "auth.signup.loginLink": string;
   "auth.signup.success": string;
   "auth.signup.google": string;
+
+  // ─── Profile Completion ────────────────────────────────────────
+  "profileCompletion.title": string;
+  "profileCompletion.subtitle": string;
+  "profileCompletion.cta": string;
 
   // ─── Sidebar / Nav ──────────────────────────────────────────
   "nav.dashboard": string;

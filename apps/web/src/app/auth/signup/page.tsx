@@ -6,6 +6,7 @@ import Image from "next/image";
 
 import { supabaseClient } from "@/lib/supabase/client";
 import { useTranslation } from "@/lib/i18n/context";
+import { COUNTRIES } from "@/lib/countries";
 
 function computePasswordStrength(password: string): { score: number; label: string; color: string } {
   let score = 0;
@@ -21,7 +22,14 @@ function computePasswordStrength(password: string): { score: number; label: stri
   return { score, label: "Strong", color: "bg-emerald-500" };
 }
 
+const inputClassName =
+  "h-11 rounded-xl border border-white/10 bg-white/[0.03] px-3 text-sm text-white outline-none ring-cyan-500/50 transition focus:border-cyan-500/50 focus:bg-white/[0.08] focus:ring-2 placeholder:text-white/30";
+
 export default function SignupPage() {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [country, setCountry] = useState("");
+  const [language, setLanguage] = useState<"fr" | "en">("fr");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -29,6 +37,15 @@ export default function SignupPage() {
   const [message, setMessage] = useState<string | null>(null);
   const { t } = useTranslation();
   const strength = useMemo(() => computePasswordStrength(password), [password]);
+
+  const userMetadata = {
+    first_name: firstName.trim(),
+    last_name: lastName.trim(),
+    full_name: `${firstName.trim()} ${lastName.trim()}`.trim(),
+    country,
+    language,
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+  };
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -41,6 +58,7 @@ export default function SignupPage() {
       password,
       options: {
         emailRedirectTo: `${window.location.origin}/auth/callback`,
+        data: userMetadata,
       },
     });
 
@@ -63,6 +81,10 @@ export default function SignupPage() {
       provider: "google",
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
+        queryParams: {
+          access_type: "offline",
+          prompt: "consent",
+        },
       },
     });
 
@@ -95,17 +117,92 @@ export default function SignupPage() {
           <p className="mt-2 text-sm text-slate-300">{t("auth.signup.subtitle")}</p>
 
           <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+            {/* First name & Last name */}
+            <div className="grid grid-cols-2 gap-3">
+              <label className="flex flex-col gap-2">
+                <span className="text-sm font-medium text-slate-200">{t("auth.signup.firstName")}</span>
+                <input
+                  type="text"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  className={inputClassName}
+                  required
+                />
+              </label>
+              <label className="flex flex-col gap-2">
+                <span className="text-sm font-medium text-slate-200">{t("auth.signup.lastName")}</span>
+                <input
+                  type="text"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  className={inputClassName}
+                  required
+                />
+              </label>
+            </div>
+
+            {/* Country */}
+            <label className="flex flex-col gap-2">
+              <span className="text-sm font-medium text-slate-200">{t("auth.signup.country")}</span>
+              <select
+                value={country}
+                onChange={(e) => setCountry(e.target.value)}
+                className={`${inputClassName} appearance-none`}
+                required
+              >
+                <option value="" disabled className="bg-[#0b1728] text-white/50">
+                  {t("auth.signup.selectCountry")}
+                </option>
+                {COUNTRIES.map((c) => (
+                  <option key={c} value={c} className="bg-[#0b1728] text-white">
+                    {c}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            {/* Language */}
+            <label className="flex flex-col gap-2">
+              <span className="text-sm font-medium text-slate-200">{t("auth.signup.language")}</span>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setLanguage("fr")}
+                  className={`flex-1 rounded-xl border-2 px-4 py-2.5 text-sm font-medium transition ${
+                    language === "fr"
+                      ? "border-cyan-500 bg-cyan-500/10 text-white"
+                      : "border-white/10 text-slate-400 hover:border-white/20"
+                  }`}
+                >
+                  Français
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLanguage("en")}
+                  className={`flex-1 rounded-xl border-2 px-4 py-2.5 text-sm font-medium transition ${
+                    language === "en"
+                      ? "border-cyan-500 bg-cyan-500/10 text-white"
+                      : "border-white/10 text-slate-400 hover:border-white/20"
+                  }`}
+                >
+                  English
+                </button>
+              </div>
+            </label>
+
+            {/* Email */}
             <label className="flex flex-col gap-2">
               <span className="text-sm font-medium text-slate-200">{t("auth.signup.email")}</span>
               <input
                 type="email"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
-                className="h-11 rounded-xl border border-white/10 bg-white/[0.03] px-3 text-sm text-white outline-none ring-cyan-500/50 transition focus:border-cyan-500/50 focus:bg-white/[0.08] focus:ring-2 placeholder:text-white/30"
+                className={inputClassName}
                 required
               />
             </label>
 
+            {/* Password */}
             <label className="flex flex-col gap-2">
               <span className="text-sm font-medium text-slate-200">{t("auth.signup.password")}</span>
               <input
@@ -113,7 +210,7 @@ export default function SignupPage() {
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 minLength={8}
-                className="h-11 rounded-xl border border-white/10 bg-white/[0.03] px-3 text-sm text-white outline-none ring-cyan-500/50 transition focus:border-cyan-500/50 focus:bg-white/[0.08] focus:ring-2 placeholder:text-white/30"
+                className={inputClassName}
                 required
               />
               {password.length > 0 ? (
