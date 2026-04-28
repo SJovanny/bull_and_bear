@@ -19,7 +19,7 @@ export const GET = withAuth(async (_request, { user }) => {
   return NextResponse.json({
     tutorialsCompleted: (dbUser?.tutorialsCompleted as Record<string, boolean>) ?? {},
   });
-});
+}, { skipSubscriptionCheck: true });
 
 // ─── PATCH /api/me/tutorial ─────────────────────────────────────────────────
 // Mark a tutorial as completed, or reset one/all tutorials
@@ -69,4 +69,4 @@ export const PATCH = withAuth(async (request, { user }) => {
   });
 
   return NextResponse.json({ tutorialsCompleted: updated });
-});
+}, { skipSubscriptionCheck: true });
