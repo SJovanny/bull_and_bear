@@ -7,6 +7,7 @@ import { requireEnv } from "@/lib/env";
 
 const checkoutSchema = z.object({
   interval: z.enum(["month", "year"]),
+  skipTrial: z.boolean().optional(),
 });
 
 export const POST = withAuth(async (request, { user }) => {
@@ -16,7 +17,7 @@ export const POST = withAuth(async (request, { user }) => {
   const parsed = checkoutSchema.safeParse(body);
   if (!parsed.success) return safeErrorResponse("Invalid request body", 400);
 
-  const { interval } = parsed.data;
+  const { interval, skipTrial } = parsed.data;
   const priceId = interval === "month" ? STRIPE_PRICE_MONTHLY : STRIPE_PRICE_YEARLY;
   const appUrl = requireEnv("NEXT_PUBLIC_APP_URL", process.env.NEXT_PUBLIC_APP_URL);
 
@@ -41,10 +42,12 @@ export const POST = withAuth(async (request, { user }) => {
     const hasExistingTrial = user.subscriptionStatus === "TRIALING" && user.trialEndsAt;
 
     let subscriptionData: Record<string, unknown> = { metadata: { userId: user.id } };
-    if (isNewUser) {
-      subscriptionData.trial_period_days = 14;
-    } else if (hasExistingTrial) {
-      subscriptionData.trial_end = Math.floor(user.trialEndsAt!.getTime() / 1000);
+    if (!skipTrial) {
+      if (isNewUser) {
+        subscriptionData.trial_period_days = 14;
+      } else if (hasExistingTrial) {
+        subscriptionData.trial_end = Math.floor(user.trialEndsAt!.getTime() / 1000);
+      }
     }
 
     const session = await stripe.checkout.sessions.create({

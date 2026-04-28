@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     process.env.NEXT_PUBLIC_APP_URL
     || (process.env.VERCEL_PROJECT_PRODUCTION_URL
       ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-      : "https://bull-and-bear-beryl.vercel.app")
+      : "https://bullandbear.pro")
   ),
   title: {
     default: "Bull & Bear — Trading Journal & Analytics",
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "fr_FR",
     alternateLocale: "en_US",
-    url: "https://bullandbear.com",
+    url: "https://bullandbear.pro",
     siteName: "Bull & Bear",
     title: "Bull & Bear — Trading Journal & Analytics",
     description:

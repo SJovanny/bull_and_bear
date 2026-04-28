@@ -10,10 +10,10 @@ export function TrialPromptModal() {
   const [interval, setInterval] = useState<"month" | "year">("year");
   const [redirecting, setRedirecting] = useState(false);
 
-  async function handleSubscribe() {
+  async function handleSubscribe(skipTrial = false) {
     setRedirecting(true);
     try {
-      await checkout(interval);
+      await checkout(interval, skipTrial);
     } catch {
       setRedirecting(false);
     }
@@ -90,7 +90,7 @@ export function TrialPromptModal() {
         {/* CTA */}
         <button
           type="button"
-          onClick={handleSubscribe}
+          onClick={() => handleSubscribe(false)}
           disabled={redirecting}
           className="mt-6 flex h-12 w-full items-center justify-center rounded-xl bg-brand-500 text-sm font-semibold text-white transition hover:bg-brand-600 disabled:opacity-60"
         >
@@ -100,6 +100,15 @@ export function TrialPromptModal() {
         <p className="mt-3 text-center text-xs text-secondary/70 font-sans">
           {t("trialPrompt.freeTrial")}
         </p>
+
+        <button
+          type="button"
+          onClick={() => handleSubscribe(true)}
+          disabled={redirecting}
+          className="mt-2 flex h-10 w-full items-center justify-center rounded-xl border border-border text-xs font-medium text-secondary transition hover:bg-surface-2 hover:text-primary disabled:opacity-60"
+        >
+          {t("trialPrompt.payNow")}
+        </button>
       </div>
     </div>
   );

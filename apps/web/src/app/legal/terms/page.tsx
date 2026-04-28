@@ -18,7 +18,7 @@ export default function TermsPage() {
       <p>
         Les présentes conditions générales d&apos;utilisation (ci-après « CGU ») régissent l&apos;accès et
         l&apos;utilisation du service Bull &amp; Bear, journal de trading en ligne accessible à l&apos;adresse{" "}
-        <strong>bullandbear.com</strong>, édité par <strong>Bull &amp; Bear</strong>
+        <strong>bullandbear.pro</strong>, édité par <strong>Bull &amp; Bear</strong>
         (ci-après « l&apos;Éditeur »).
       </p>
       <p>

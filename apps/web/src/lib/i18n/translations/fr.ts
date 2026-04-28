@@ -355,6 +355,7 @@ export const fr: TranslationKeys = {
   "trialPrompt.yearlySave": "Économisez 25%",
   "trialPrompt.cta": "Commencer l'essai gratuit",
   "trialPrompt.freeTrial": "Essai gratuit de 14 jours inclus",
+  "trialPrompt.payNow": "Passer l'essai et s'abonner maintenant",
 
   // ─── Pricing ────────────────────────────────────────────────
   "pricing.backToDashboard": "← Retour au dashboard",

@@ -355,6 +355,7 @@ export type TranslationKeys = {
   "trialPrompt.yearlySave": string;
   "trialPrompt.cta": string;
   "trialPrompt.freeTrial": string;
+  "trialPrompt.payNow": string;
 
   // ─── Pricing ────────────────────────────────────────────────
   "pricing.backToDashboard": string;

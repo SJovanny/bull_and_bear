@@ -28,7 +28,7 @@ type SubscriptionState = {
   /** Whether the user profile is complete (has name + country) */
   profileComplete: boolean;
   /** Redirect to Stripe Checkout */
-  checkout: (interval: "month" | "year") => Promise<void>;
+  checkout: (interval: "month" | "year", skipTrial?: boolean) => Promise<void>;
   /** Redirect to Stripe Customer Portal */
   openPortal: () => Promise<void>;
 };
@@ -75,11 +75,11 @@ export function useSubscription(): SubscriptionState {
       ? Math.max(0, Math.ceil((trialEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)))
       : 0;
 
-  async function checkout(interval: "month" | "year") {
+  async function checkout(interval: "month" | "year", skipTrial?: boolean) {
     const res = await fetch("/api/stripe/checkout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ interval }),
+      body: JSON.stringify({ interval, skipTrial: skipTrial ?? false }),
     });
     const data = (await res.json()) as { url?: string };
     if (data.url) window.location.href = data.url;
