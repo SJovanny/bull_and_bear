@@ -73,11 +73,11 @@ export const DELETE = withAuth(async (request, { user, params }) => {
 
   if (permanent) {
     // Hard delete — cascades to trades via Prisma schema
-    await prisma.account.delete({ where: { id } });
+    await prisma.account.delete({ where: { id, userId: user.id } });
   } else {
     // Soft delete (archive) — trades are preserved
     await prisma.account.update({
-      where: { id },
+      where: { id, userId: user.id },
       data: { isArchived: true },
     });
   }

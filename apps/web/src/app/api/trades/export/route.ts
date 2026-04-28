@@ -3,8 +3,12 @@ import { prisma } from "@/lib/prisma";
 
 function escapeCsv(value: string | number | boolean | null | undefined): string {
   if (value == null) return "";
-  const str = String(value);
-  if (str.includes(",") || str.includes('"') || str.includes("\n")) {
+  let str = String(value);
+  // Prevent formula injection in spreadsheet applications
+  if (/^[=+\-@\t\r]/.test(str)) {
+    str = "'" + str;
+  }
+  if (str.includes(",") || str.includes('"') || str.includes("\n") || str.includes("'")) {
     return `"${str.replace(/"/g, '""')}"`;
   }
   return str;

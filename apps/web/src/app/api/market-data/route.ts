@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 import { safeErrorResponse, withAuth } from "@/lib/api";
 import {
   computeChartWindow,
@@ -7,6 +9,14 @@ import {
   toTwelveDataDateTime,
 } from "@/lib/market-data";
 
+const querySchema = z.object({
+  symbol: z.string().min(1).max(30).regex(/^[\w./\-:^ ]+$/, "Invalid symbol characters"),
+  assetClass: z.string().max(20).optional().default(""),
+  interval: z.string().max(10).nullable().optional(),
+  openedAt: z.string().datetime({ offset: true, message: "openedAt must be an ISO date" }),
+  closedAt: z.string().datetime({ offset: true, message: "closedAt must be an ISO date" }).nullable().optional(),
+});
+
 export const GET = withAuth(async (request) => {
   const apiKey = process.env.TWELVE_DATA_API_KEY;
   if (!apiKey) {
@@ -14,27 +24,32 @@ export const GET = withAuth(async (request) => {
   }
 
   const { searchParams } = new URL(request.url);
-  const symbol = searchParams.get("symbol");
-  const assetClass = searchParams.get("assetClass") ?? "";
-  const interval = searchParams.get("interval");
-  const openedAt = searchParams.get("openedAt");
-  const closedAt = searchParams.get("closedAt");
+  const parsed = querySchema.safeParse({
+    symbol: searchParams.get("symbol"),
+    assetClass: searchParams.get("assetClass") ?? undefined,
+    interval: searchParams.get("interval"),
+    openedAt: searchParams.get("openedAt"),
+    closedAt: searchParams.get("closedAt"),
+  });
 
-  if (!symbol || !openedAt) {
-    return safeErrorResponse("symbol and openedAt are required", 400);
+  if (!parsed.success) {
+    return safeErrorResponse("Invalid query parameters", 400);
   }
 
+  const { symbol, assetClass, interval, openedAt, closedAt } = parsed.data;
+
   const providerSymbols = mapTradeSymbolCandidates(symbol, assetClass);
-  const providerInterval = resolveChartInterval(interval);
-  const { start, end } = computeChartWindow(openedAt, closedAt, interval);
+  const chartInterval = interval ?? null;
+  const providerInterval = resolveChartInterval(chartInterval);
+  const { start, end } = computeChartWindow(openedAt, closedAt ?? null, chartInterval);
   let lastError = "Unable to load market data";
 
   for (const providerSymbol of providerSymbols) {
     const upstreamUrl = new URL("https://api.twelvedata.com/time_series");
     upstreamUrl.searchParams.set("symbol", providerSymbol);
     upstreamUrl.searchParams.set("interval", providerInterval);
-    upstreamUrl.searchParams.set("start_date", toTwelveDataDateTime(start, interval));
-    upstreamUrl.searchParams.set("end_date", toTwelveDataDateTime(end, interval));
+    upstreamUrl.searchParams.set("start_date", toTwelveDataDateTime(start, chartInterval));
+    upstreamUrl.searchParams.set("end_date", toTwelveDataDateTime(end, chartInterval));
     upstreamUrl.searchParams.set("timezone", "UTC");
     upstreamUrl.searchParams.set("order", "ASC");
     upstreamUrl.searchParams.set("outputsize", "1500");

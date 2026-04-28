@@ -51,7 +51,15 @@ export const PATCH = withAuth(async (request, { user }) => {
     },
   });
 
-  return Response.json({ user: updated });
+  return Response.json({
+    user: {
+      id: updated.id,
+      email: updated.email,
+      displayName: updated.displayName,
+      timezone: updated.timezone,
+      createdAt: updated.createdAt,
+    },
+  });
 }, { skipSubscriptionCheck: true });
 
 // ─── DELETE /api/me ─ Right to erasure (GDPR Art. 17) ────────────────────────
