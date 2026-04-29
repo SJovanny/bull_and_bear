@@ -16,6 +16,7 @@ import {
   IconProfile,
   IconSupport,
 } from "./icons";
+import { SidebarNotes } from "./sidebar-notes";
 
 export function Sidebar() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -92,6 +93,10 @@ export function Sidebar() {
           />
         ))}
       </nav>
+
+      <div className="border-t border-slate-800 px-1 py-2">
+        <SidebarNotes isCollapsed={isSidebarCollapsed} />
+      </div>
 
       <div className="flex flex-col gap-2 border-t border-slate-800 p-3">
         <LanguageSwitcher isCollapsed={isSidebarCollapsed} />

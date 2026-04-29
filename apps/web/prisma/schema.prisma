@@ -70,6 +70,7 @@ model User {
   language            String             @default("fr")
   timezone            String             @default("UTC")
   tutorialsCompleted  Json               @default("{}")
+  importantNotes      String             @default("")
   isAdmin             Boolean            @default(false)
   // ─── Stripe / Subscription ───────────────────────────────────
   stripeCustomerId    String?            @unique

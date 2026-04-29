@@ -139,6 +139,9 @@ export type TranslationKeys = {
   "nav.collapse": string;
   "nav.expand": string;
   "nav.support": string;
+  "sidebar.notes.title": string;
+  "sidebar.notes.placeholder": string;
+  "sidebar.notes.saving": string;
 
   // ─── Theme ──────────────────────────────────────────────────
   "theme.dark": string;

@@ -139,6 +139,9 @@ export const fr: TranslationKeys = {
   "nav.collapse": "Réduire",
   "nav.expand": "Développer",
   "nav.support": "Support",
+  "sidebar.notes.title": "Notes importantes",
+  "sidebar.notes.placeholder": "Écrivez vos notes ici...",
+  "sidebar.notes.saving": "Sauvegarde...",
 
   // ─── Theme ──────────────────────────────────────────────────
   "theme.dark": "Mode sombre",

@@ -139,6 +139,9 @@ export const en: TranslationKeys = {
   "nav.collapse": "Collapse",
   "nav.expand": "Expand",
   "nav.support": "Support",
+  "sidebar.notes.title": "Important notes",
+  "sidebar.notes.placeholder": "Write your notes here...",
+  "sidebar.notes.saving": "Saving...",
 
   // ─── Theme ──────────────────────────────────────────────────
   "theme.dark": "Dark mode",
