@@ -19,6 +19,21 @@ export default function LandingPage() {
 
   useEffect(() => {
     async function checkAuth() {
+      // If we were redirected here due to an auth error, clear the cache
+      // and mark as unauthenticated immediately
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("authError") === "unauthorized") {
+        sessionStorage.removeItem("bb-is-authenticated");
+        setIsAuthenticated(false);
+        setChecked(true);
+        // Clean the query param so it doesn't persist on refresh
+        const url = new URL(window.location.href);
+        url.searchParams.delete("authError");
+        url.searchParams.delete("next");
+        window.history.replaceState({}, "", url.pathname + url.search);
+        return;
+      }
+
       // Check sessionStorage first to avoid a network round-trip on every landing visit
       const cached = sessionStorage.getItem("bb-is-authenticated");
       if (cached !== null) {
