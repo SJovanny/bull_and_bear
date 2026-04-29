@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { KpiCards } from "@/components/dashboard/kpi-cards";
@@ -36,6 +36,21 @@ function DashboardContent() {
   const [error, setError] = useState<string | null>(null);
   const [period, setPeriod] = useState<DashboardPeriod>("30D");
   const [notesHover, setNotesHover] = useState(false);
+  const [notesLocked, setNotesLocked] = useState(false);
+  const notesOpen = notesHover || notesLocked;
+  const notesRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!notesLocked) return;
+    function handleClick(e: MouseEvent) {
+      if (notesRef.current && !notesRef.current.contains(e.target as Node)) {
+        setNotesLocked(false);
+        setNotesHover(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [notesLocked]);
   const selectedAccountId = useSelectedAccountId();
   const { t } = useTranslation();
   const { tutorialsCompleted, loaded: tutorialLoaded, markCompleted } = useTutorialStatus();
@@ -174,12 +189,14 @@ function DashboardContent() {
             <div className="flex-1" />
 
             <div
+              ref={notesRef}
               className="relative"
               onMouseEnter={() => setNotesHover(true)}
-              onMouseLeave={() => setNotesHover(false)}
+              onMouseLeave={() => { if (!notesLocked) setNotesHover(false); }}
             >
               <button
                 type="button"
+                onClick={() => setNotesLocked((v) => !v)}
                 className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border px-3 text-xs font-medium text-secondary transition hover:bg-surface-2 hover:text-primary"
               >
                 <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-4 w-4">
@@ -187,7 +204,7 @@ function DashboardContent() {
                 </svg>
                 {t("dashboard.notesModal.title")}
               </button>
-              <DashboardNotesPopover open={notesHover} />
+              <DashboardNotesPopover open={notesOpen} />
             </div>
           </div>
         </section>
