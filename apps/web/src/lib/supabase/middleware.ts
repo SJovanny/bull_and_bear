@@ -45,7 +45,7 @@ export async function updateSession(request: NextRequest, response?: NextRespons
 
   const pathname = request.nextUrl.pathname;
   const isPublicPage = pathname === "/";
-  const isAuthPage = pathname.startsWith("/auth/login") || pathname.startsWith("/auth/signup");
+  const isAuthPage = pathname.startsWith("/auth/login") || pathname.startsWith("/auth/signup") || pathname.startsWith("/auth/forgot-password") || pathname.startsWith("/auth/reset-password");
   const isAuthCallback = pathname.startsWith("/auth/callback");
 
   if (!user && !isPublicPage && !isAuthPage && !isAuthCallback) {
