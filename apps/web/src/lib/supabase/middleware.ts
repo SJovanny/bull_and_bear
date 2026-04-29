@@ -57,7 +57,7 @@ export async function updateSession(request: NextRequest, response?: NextRespons
     return NextResponse.redirect(redirectUrl);
   }
 
-  if (user && isAuthPage) {
+  if (user && isAuthPage && !pathname.startsWith("/auth/reset-password")) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/dashboard";
     redirectUrl.search = "";
