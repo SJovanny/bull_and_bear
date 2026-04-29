@@ -105,6 +105,8 @@ export type TranslationKeys = {
   "auth.resetPassword.submitting": string;
   "auth.resetPassword.success": string;
   "auth.resetPassword.mismatch": string;
+  "auth.resetPassword.linkExpired": string;
+  "auth.resetPassword.tryAgain": string;
   "auth.signup.title": string;
   "auth.signup.subtitle": string;
   "auth.signup.firstName": string;

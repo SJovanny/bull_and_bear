@@ -105,6 +105,8 @@ export const en: TranslationKeys = {
   "auth.resetPassword.submitting": "Resetting...",
   "auth.resetPassword.success": "Password updated! Redirecting...",
   "auth.resetPassword.mismatch": "Passwords do not match.",
+  "auth.resetPassword.linkExpired": "The reset link is invalid or has expired. Please request a new one.",
+  "auth.resetPassword.tryAgain": "Request a new link",
   "auth.signup.title": "Sign Up",
   "auth.signup.subtitle": "Create your Bull & Bear account",
   "auth.signup.firstName": "First name",
