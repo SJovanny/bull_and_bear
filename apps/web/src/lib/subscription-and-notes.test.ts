@@ -64,9 +64,19 @@ function computeGateDecision(state: {
   return "allowed";
 }
 
-// From api/notes/route.ts — notes validation schema
-const notesSchema = z.object({
-  content: z.string().max(5000),
+// From api/notes/route.ts — notes validation schemas
+const createNoteSchema = z.object({
+  type: z.enum(["NOTE", "STRATEGY"]),
+  title: z.string().min(1).max(200),
+  content: z.string().max(10000),
+  isPinned: z.boolean().optional(),
+});
+
+const updateNoteSchema = z.object({
+  id: z.string().uuid(),
+  title: z.string().min(1).max(200).optional(),
+  content: z.string().max(10000).optional(),
+  isPinned: z.boolean().optional(),
 });
 
 // From stripe.ts — hasActiveAccess
@@ -322,35 +332,137 @@ describe("subscription gate decision", () => {
   });
 });
 
-describe("notes validation schema", () => {
-  it("accepts valid content", () => {
-    const result = notesSchema.safeParse({ content: "My trading rules" });
+describe("notes create validation schema", () => {
+  it("accepts valid NOTE", () => {
+    const result = createNoteSchema.safeParse({ type: "NOTE", title: "My note", content: "Some content" });
     expect(result.success).toBe(true);
   });
 
-  it("accepts empty string", () => {
-    const result = notesSchema.safeParse({ content: "" });
+  it("accepts valid STRATEGY", () => {
+    const result = createNoteSchema.safeParse({ type: "STRATEGY", title: "Breakout", content: "Buy on breakout" });
     expect(result.success).toBe(true);
   });
 
-  it("rejects content over 5000 chars", () => {
-    const result = notesSchema.safeParse({ content: "a".repeat(5001) });
+  it("rejects invalid type", () => {
+    const result = createNoteSchema.safeParse({ type: "INVALID", title: "Test", content: "" });
     expect(result.success).toBe(false);
   });
 
-  it("accepts content at exactly 5000 chars", () => {
-    const result = notesSchema.safeParse({ content: "a".repeat(5000) });
+  it("rejects empty title", () => {
+    const result = createNoteSchema.safeParse({ type: "NOTE", title: "", content: "" });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects title over 200 chars", () => {
+    const result = createNoteSchema.safeParse({ type: "NOTE", title: "a".repeat(201), content: "" });
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts content up to 10000 chars", () => {
+    const result = createNoteSchema.safeParse({ type: "NOTE", title: "Test", content: "a".repeat(10000) });
     expect(result.success).toBe(true);
   });
 
-  it("rejects missing content field", () => {
-    const result = notesSchema.safeParse({});
+  it("rejects content over 10000 chars", () => {
+    const result = createNoteSchema.safeParse({ type: "NOTE", title: "Test", content: "a".repeat(10001) });
     expect(result.success).toBe(false);
   });
 
-  it("rejects non-string content", () => {
-    const result = notesSchema.safeParse({ content: 123 });
+  it("accepts optional isPinned boolean", () => {
+    const result = createNoteSchema.safeParse({ type: "NOTE", title: "Test", content: "", isPinned: true });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects missing title", () => {
+    const result = createNoteSchema.safeParse({ type: "NOTE", content: "test" });
     expect(result.success).toBe(false);
+  });
+
+  it("rejects missing type", () => {
+    const result = createNoteSchema.safeParse({ title: "Test", content: "test" });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe("notes update validation schema", () => {
+  it("accepts valid update with all fields", () => {
+    const result = updateNoteSchema.safeParse({
+      id: "550e8400-e29b-41d4-a716-446655440000",
+      title: "Updated",
+      content: "New content",
+      isPinned: true,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts update with only id and isPinned (pin toggle)", () => {
+    const result = updateNoteSchema.safeParse({
+      id: "550e8400-e29b-41d4-a716-446655440000",
+      isPinned: false,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects non-uuid id", () => {
+    const result = updateNoteSchema.safeParse({ id: "not-a-uuid", title: "Test" });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects missing id", () => {
+    const result = updateNoteSchema.safeParse({ title: "Test" });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects empty title when provided", () => {
+    const result = updateNoteSchema.safeParse({
+      id: "550e8400-e29b-41d4-a716-446655440000",
+      title: "",
+    });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe("dashboard notes modal sorting", () => {
+  // Replicate the sorting logic from the modal
+  function sortNotes(notes: { isPinned: boolean; updatedAt: string }[]) {
+    return [...notes].sort((a, b) => {
+      if (a.isPinned !== b.isPinned) return a.isPinned ? -1 : 1;
+      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+    });
+  }
+
+  it("shows pinned notes first", () => {
+    const notes = [
+      { isPinned: false, updatedAt: "2026-04-29T12:00:00Z" },
+      { isPinned: true, updatedAt: "2026-04-28T12:00:00Z" },
+      { isPinned: false, updatedAt: "2026-04-27T12:00:00Z" },
+    ];
+    const sorted = sortNotes(notes);
+    expect(sorted[0].isPinned).toBe(true);
+  });
+
+  it("sorts by updatedAt descending within same pin status", () => {
+    const notes = [
+      { isPinned: false, updatedAt: "2026-04-27T12:00:00Z" },
+      { isPinned: false, updatedAt: "2026-04-29T12:00:00Z" },
+      { isPinned: false, updatedAt: "2026-04-28T12:00:00Z" },
+    ];
+    const sorted = sortNotes(notes);
+    expect(sorted[0].updatedAt).toBe("2026-04-29T12:00:00Z");
+    expect(sorted[1].updatedAt).toBe("2026-04-28T12:00:00Z");
+    expect(sorted[2].updatedAt).toBe("2026-04-27T12:00:00Z");
+  });
+
+  it("pinned notes sorted by updatedAt descending among themselves", () => {
+    const notes = [
+      { isPinned: true, updatedAt: "2026-04-27T12:00:00Z" },
+      { isPinned: true, updatedAt: "2026-04-29T12:00:00Z" },
+      { isPinned: false, updatedAt: "2026-04-30T12:00:00Z" },
+    ];
+    const sorted = sortNotes(notes);
+    expect(sorted[0].updatedAt).toBe("2026-04-29T12:00:00Z");
+    expect(sorted[1].updatedAt).toBe("2026-04-27T12:00:00Z");
+    expect(sorted[2].updatedAt).toBe("2026-04-30T12:00:00Z");
   });
 });
 

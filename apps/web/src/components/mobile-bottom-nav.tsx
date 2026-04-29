@@ -11,6 +11,7 @@ import {
   IconAccounts,
   IconProfile,
   IconSupport,
+  IconNotes,
 } from "./icons";
 import { ThemeToggle } from "./theme-toggle";
 import { LanguageSwitcher } from "./language-switcher";
@@ -38,6 +39,14 @@ export function MobileBottomNav() {
             onClick={e => e.stopPropagation()}
           >
             <div className="p-2">
+              <Link
+                href="/notes"
+                onClick={() => setShowMore(false)}
+                className="flex w-full items-center rounded-lg px-4 py-3 text-sm font-medium text-primary hover:bg-surface-2"
+              >
+                <IconNotes className="mr-3 h-5 w-5 text-secondary" />
+                {t("nav.notes")}
+              </Link>
               <Link
                 href="/profil"
                 onClick={() => setShowMore(false)}

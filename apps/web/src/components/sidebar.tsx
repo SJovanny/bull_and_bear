@@ -15,8 +15,9 @@ import {
   IconAccounts,
   IconProfile,
   IconSupport,
+  IconNotes,
 } from "./icons";
-import { SidebarNotes } from "./sidebar-notes";
+
 
 export function Sidebar() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -28,6 +29,7 @@ export function Sidebar() {
     { href: "/journal", label: t("nav.journal"), icon: IconJournal },
     { href: "/calendar", label: t("nav.calendar"), icon: IconCalendar },
     { href: "/stats", label: t("nav.stats"), icon: IconStats },
+    { href: "/notes", label: t("nav.notes"), icon: IconNotes },
     { href: "/profil", label: t("nav.profile"), icon: IconProfile },
     { href: "/comptes", label: t("nav.accounts"), icon: IconAccounts },
     { href: "/faq", label: t("nav.support"), icon: IconSupport },
@@ -93,10 +95,6 @@ export function Sidebar() {
           />
         ))}
       </nav>
-
-      <div className="border-t border-slate-800 px-1 py-2">
-        <SidebarNotes isCollapsed={isSidebarCollapsed} />
-      </div>
 
       <div className="flex flex-col gap-2 border-t border-slate-800 p-3">
         <LanguageSwitcher isCollapsed={isSidebarCollapsed} />

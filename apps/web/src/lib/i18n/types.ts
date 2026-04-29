@@ -139,9 +139,30 @@ export type TranslationKeys = {
   "nav.collapse": string;
   "nav.expand": string;
   "nav.support": string;
-  "sidebar.notes.title": string;
-  "sidebar.notes.placeholder": string;
-  "sidebar.notes.saving": string;
+  "nav.notes": string;
+  "notes.title": string;
+  "notes.tabNotes": string;
+  "notes.tabStrategies": string;
+  "notes.newNote": string;
+  "notes.newStrategy": string;
+  "notes.titlePlaceholder": string;
+  "notes.contentPlaceholder": string;
+  "notes.strategyTitlePlaceholder": string;
+  "notes.strategyContentPlaceholder": string;
+  "notes.save": string;
+  "notes.saving": string;
+  "notes.cancel": string;
+  "notes.delete": string;
+  "notes.deleteConfirm": string;
+  "notes.pin": string;
+  "notes.unpin": string;
+  "notes.empty": string;
+  "notes.emptyStrategies": string;
+  "notes.updated": string;
+  "dashboard.notesModal.title": string;
+  "dashboard.notesModal.viewAll": string;
+  "dashboard.notesModal.empty": string;
+  "dashboard.notesModal.pinned": string;
 
   // ─── Theme ──────────────────────────────────────────────────
   "theme.dark": string;
