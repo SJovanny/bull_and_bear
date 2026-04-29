@@ -7,7 +7,7 @@ import { KpiCards } from "@/components/dashboard/kpi-cards";
 import { DashboardCharts } from "@/components/dashboard/charts";
 import { RecentTrades } from "@/components/dashboard/recent-trades";
 import { MiniCalendar } from "@/components/dashboard/mini-calendar";
-import { DashboardNotesModal } from "@/components/dashboard/notes-modal";
+import { DashboardNotesPopover } from "@/components/dashboard/notes-modal";
 import LoadingSpinner from "@/components/loading-spinner";
 import { useSelectedAccountId } from "@/hooks/use-selected-account-id";
 import { useTutorialStatus } from "@/hooks/use-tutorial-status";
@@ -35,7 +35,7 @@ function DashboardContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [period, setPeriod] = useState<DashboardPeriod>("30D");
-  const [notesOpen, setNotesOpen] = useState(false);
+  const [notesHover, setNotesHover] = useState(false);
   const selectedAccountId = useSelectedAccountId();
   const { t } = useTranslation();
   const { tutorialsCompleted, loaded: tutorialLoaded, markCompleted } = useTutorialStatus();
@@ -173,16 +173,22 @@ function DashboardContent() {
 
             <div className="flex-1" />
 
-            <button
-              type="button"
-              onClick={() => setNotesOpen(true)}
-              className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border px-3 text-xs font-medium text-secondary transition hover:bg-surface-2 hover:text-primary"
+            <div
+              className="relative"
+              onMouseEnter={() => setNotesHover(true)}
+              onMouseLeave={() => setNotesHover(false)}
             >
-              <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-4 w-4">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-              </svg>
-              {t("dashboard.notesModal.title")}
-            </button>
+              <button
+                type="button"
+                className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border px-3 text-xs font-medium text-secondary transition hover:bg-surface-2 hover:text-primary"
+              >
+                <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-4 w-4">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                </svg>
+                {t("dashboard.notesModal.title")}
+              </button>
+              <DashboardNotesPopover open={notesHover} />
+            </div>
           </div>
         </section>
 
@@ -237,7 +243,6 @@ function DashboardContent() {
           </>
         )}
       </div>
-      <DashboardNotesModal open={notesOpen} onClose={() => setNotesOpen(false)} />
     </DashboardShell>
   );
 }
