@@ -38,7 +38,7 @@ export function KpiCards({
   const splitValueClassName = "text-[clamp(1.2rem,1.6vw,1.65rem)] font-black tabular-nums leading-none tracking-tight font-mono";
 
   return (
-    <section className={`grid gap-3 sm:grid-cols-2 ${hasBalance ? "xl:grid-cols-6" : "xl:grid-cols-5"}`}>
+    <section className={`grid grid-cols-2 gap-3 ${hasBalance ? "xl:grid-cols-6" : "xl:grid-cols-5"}`}>
       {/* Account Balance — only shown when initialBalance is set */}
       {hasBalance ? (
         <article className="relative rounded-2xl border border-border bg-surface-1 p-5 shadow-sm group transition-all hover:shadow-md">
