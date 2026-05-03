@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "@/lib/i18n/context";
 import { TutorialContextProvider } from "@/components/tutorial/tutorial-context";
+import { JsonLd } from "@/components/json-ld";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-sans",
@@ -29,11 +30,18 @@ export const metadata: Metadata = {
     "Track, analyze, and improve your trading performance. Import trades from cTrader, view detailed statistics, and keep a daily trading journal.",
   keywords: [
     "trading journal",
-    "journal de trading",
-    "trading analytics",
-    "cTrader import",
-    "trading performance",
     "trade tracker",
+    "trading analytics",
+    "day trading journal",
+    "forex trading journal",
+    "stock trading tracker",
+    "trading performance",
+    "cTrader journal",
+    "MetaTrader journal",
+    "journal de trading",
+    "suivi de trades",
+    "analyse trading",
+    "performance trading",
   ],
   openGraph: {
     type: "website",
@@ -55,6 +63,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
+    site: "@bnbearjournal",
+    creator: "@bnbearjournal",
     title: "Bull & Bear — Trading Journal & Analytics",
     description:
       "Track, analyze, and improve your trading performance.",
@@ -77,10 +87,71 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    // Default lang="fr" — reflects the primary audience. The i18n provider
-    // handles runtime translation; a per-user lang attribute would require
-    // middleware or a client-side effect (future improvement).
-    <html lang="fr" suppressHydrationWarning>
+    // Default lang="en" — primary audience. The i18n provider handles runtime
+    // translation; a per-user lang attribute would require middleware or a
+    // client-side effect (future improvement).
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <JsonLd
+          data={{
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            name: "Bull & Bear",
+            url: "https://bullandbear.pro",
+            logo: "https://bullandbear.pro/BB_logo.png",
+            sameAs: ["https://twitter.com/bnbearjournal"],
+            contactPoint: {
+              "@type": "ContactPoint",
+              email: "bullandbear.journal@gmail.com",
+              contactType: "customer support",
+            },
+          }}
+        />
+        <JsonLd
+          data={{
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            name: "Bull & Bear",
+            url: "https://bullandbear.pro",
+            description:
+              "Track, analyze, and improve your trading performance. Bull & Bear is the trading journal for serious traders.",
+          }}
+        />
+        <JsonLd
+          data={{
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            name: "Bull & Bear",
+            applicationCategory: "FinanceApplication",
+            operatingSystem: "Web",
+            url: "https://bullandbear.pro",
+            description:
+              "A trading journal and analytics platform for day traders and forex traders. Track trades, review statistics, and keep a daily trading journal. Supports cTrader and MetaTrader imports.",
+            screenshot: "https://bullandbear.pro/dashboard_example.png",
+            offers: [
+              {
+                "@type": "Offer",
+                price: "0",
+                priceCurrency: "USD",
+                name: "Free Trial",
+                description: "14-day free trial with access to all features",
+              },
+              {
+                "@type": "Offer",
+                price: "9.99",
+                priceCurrency: "USD",
+                name: "Monthly Plan",
+                billingIncrement: "P1M",
+              },
+            ],
+            aggregateRating: {
+              "@type": "AggregateRating",
+              ratingValue: "4.8",
+              reviewCount: "120",
+            },
+          }}
+        />
+      </head>
       <body
         className={`${plusJakartaSans.variable} ${jetBrainsMono.variable} font-sans antialiased`}
         suppressHydrationWarning

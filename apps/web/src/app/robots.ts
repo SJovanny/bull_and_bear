@@ -1,0 +1,41 @@
+import type { MetadataRoute } from "next";
+
+export default function robots(): MetadataRoute.Robots {
+  const baseUrl =
+    process.env.NEXT_PUBLIC_APP_URL ||
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : "https://bullandbear.pro");
+
+  return {
+    rules: [
+      {
+        userAgent: "*",
+        allow: [
+          "/",
+          "/pricing",
+          "/faq",
+          "/contact",
+          "/legal/",
+          "/auth/login",
+          "/auth/signup",
+          "/auth/forgot-password",
+        ],
+        disallow: [
+          "/dashboard",
+          "/journal",
+          "/calendar",
+          "/stats",
+          "/notes",
+          "/comptes",
+          "/profil",
+          "/trades/",
+          "/onboarding",
+          "/api/",
+          "/auth/reset-password",
+        ],
+      },
+    ],
+    sitemap: `${baseUrl}/sitemap.xml`,
+  };
+}
