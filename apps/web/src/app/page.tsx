@@ -96,11 +96,10 @@ export default function LandingPage() {
 
   return (
     <main className="relative min-h-screen overflow-x-hidden bg-white text-slate-900">
-      <AnimatedChartBackground />
-
       {/* Hero Section */}
       <section className="relative z-10 min-h-screen">
-        <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-10">
+        <AnimatedChartBackground />
+        <div className="relative z-10 mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-10">
           {/* Header */}
           <motion.header
             initial={{ opacity: 0, y: -20 }}
@@ -227,7 +226,7 @@ export default function LandingPage() {
           )}
 
           {/* Hero Content */}
-          <div className="flex min-h-[calc(100vh-140px)] flex-col items-center justify-center py-16 text-center">
+          <div className="flex min-h-[calc(100vh-140px)] flex-col items-center justify-center pb-32 pt-0 text-center">
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -237,18 +236,13 @@ export default function LandingPage() {
              
             </motion.div>
 
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.1 }}
-              className="max-w-4xl text-balance text-5xl font-bold leading-[1.1] tracking-tight sm:text-6xl md:text-7xl lg:text-8xl"
-            >
+            <h1 className="max-w-4xl text-balance text-5xl font-bold leading-[1.1] tracking-tight sm:text-6xl md:text-7xl lg:text-8xl">
               <span className="text-slate-900">{t("landing.hero.punchline1")}</span>
               <br />
               <span className="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
                 {t("landing.hero.punchline2")}
               </span>
-            </motion.h1>
+            </h1>
 
             <motion.p
               initial={{ opacity: 0, y: 20 }}
@@ -281,7 +275,7 @@ export default function LandingPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 1, duration: 0.5 }}
-              className="absolute bottom-8 left-1/2 -translate-x-1/2"
+              className="absolute bottom-30 left-1/2 -translate-x-1/2"
             >
               <motion.div
                 animate={{ y: [0, 10, 0] }}

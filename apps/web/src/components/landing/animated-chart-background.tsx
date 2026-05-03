@@ -206,7 +206,7 @@ export function AnimatedChartBackground() {
   return (
     <canvas
       ref={canvasRef}
-      className="pointer-events-none fixed inset-0 z-0 bg-white"
+      className="pointer-events-none absolute inset-0 z-0 bg-white"
       aria-hidden="true"
     />
   );
