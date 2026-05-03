@@ -81,13 +81,13 @@ export function AnimatedChartBackground() {
 
       const isBullish = candle.close > candle.open;
 
-      // Colors with opacity - using light mode theme
-      const bullColor = `rgba(34, 197, 94, ${opacity * 0.8})`;
-      const bearColor = `rgba(239, 68, 68, ${opacity * 0.7})`;
+      // Colors with opacity - using light mode theme with higher opacity for visibility
+      const bullColor = `rgba(34, 197, 94, ${opacity * 1.5})`;
+      const bearColor = `rgba(239, 68, 68, ${opacity * 1.4})`;
       const color = isBullish ? bullColor : bearColor;
       const wickColor = isBullish
-        ? `rgba(34, 197, 94, ${opacity * 0.6})`
-        : `rgba(239, 68, 68, ${opacity * 0.5})`;
+        ? `rgba(34, 197, 94, ${opacity * 1.2})`
+        : `rgba(239, 68, 68, ${opacity * 1.1})`;
 
       // Calculate positions
       const openY = baseY - (candle.open - 100) * scale;
@@ -119,7 +119,7 @@ export function AnimatedChartBackground() {
       opacity: number
     ) => {
       ctx.beginPath();
-      ctx.strokeStyle = `rgba(34, 197, 94, ${opacity * 0.4})`;
+      ctx.strokeStyle = `rgba(34, 197, 94, ${opacity * 0.8})`;
       ctx.lineWidth = 2;
 
       let started = false;
@@ -204,8 +204,7 @@ export function AnimatedChartBackground() {
   return (
     <canvas
       ref={canvasRef}
-      className="pointer-events-none fixed inset-0 z-0"
-      style={{ background: "transparent" }}
+      className="pointer-events-none fixed inset-0 z-0 bg-white"
       aria-hidden="true"
     />
   );
