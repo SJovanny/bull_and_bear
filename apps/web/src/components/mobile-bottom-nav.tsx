@@ -12,7 +12,6 @@ import {
   IconProfile,
   IconSupport,
   IconNotes,
-  IconContact,
 } from "./icons";
 import { ThemeToggle } from "./theme-toggle";
 import { LanguageSwitcher } from "./language-switcher";
@@ -71,14 +70,6 @@ export function MobileBottomNav() {
               >
                 <IconSupport className="mr-3 h-5 w-5 text-secondary" />
                 {t("nav.support")}
-              </Link>
-              <Link
-                href="/contact"
-                onClick={() => setShowMore(false)}
-                className="flex w-full items-center rounded-lg px-4 py-3 text-sm font-medium text-primary hover:bg-surface-2"
-              >
-                <IconContact className="mr-3 h-5 w-5 text-secondary" />
-                {t("nav.contact")}
               </Link>
             </div>
             
