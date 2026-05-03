@@ -3,10 +3,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { TrendingUp, TrendingDown, BarChart3, Target, Zap, Shield, LineChart, Calendar, Layers } from "lucide-react";
 
-import { LandingCtaSection } from "@/components/landing-cta-section";
-import { LandingFeatureShowcase } from "@/components/landing-feature-showcase";
-import { LandingStatsBar } from "@/components/landing-stats-bar";
+import { AnimatedChartBackground } from "@/components/landing/animated-chart-background";
+import { ScrollReveal, StaggerContainer, StaggerItem } from "@/components/landing/scroll-reveal";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { SiteFooter } from "@/components/site-footer";
 import { useTranslation } from "@/lib/i18n/context";
@@ -19,14 +20,11 @@ export default function LandingPage() {
 
   useEffect(() => {
     async function checkAuth() {
-      // If we were redirected here due to an auth error, clear the cache
-      // and mark as unauthenticated immediately
       const params = new URLSearchParams(window.location.search);
       if (params.get("authError") === "unauthorized") {
         sessionStorage.removeItem("bb-is-authenticated");
         setIsAuthenticated(false);
         setChecked(true);
-        // Clean the query param so it doesn't persist on refresh
         const url = new URL(window.location.href);
         url.searchParams.delete("authError");
         url.searchParams.delete("next");
@@ -34,7 +32,6 @@ export default function LandingPage() {
         return;
       }
 
-      // Check sessionStorage first to avoid a network round-trip on every landing visit
       const cached = sessionStorage.getItem("bb-is-authenticated");
       if (cached !== null) {
         setIsAuthenticated(cached === "true");
@@ -64,372 +61,533 @@ export default function LandingPage() {
   const primaryHref = isAuthenticated ? "/dashboard" : "/auth/signup";
   const primaryLabel = isAuthenticated ? t("landing.hero.dashboard") : t("landing.hero.cta");
 
+  const features = [
+    {
+      icon: LineChart,
+      title: t("landing.features.journal.title"),
+      description: t("landing.features.journal.desc"),
+    },
+    {
+      icon: Calendar,
+      title: t("landing.features.calendar.title"),
+      description: t("landing.features.calendar.desc"),
+    },
+    {
+      icon: BarChart3,
+      title: t("landing.features.stats.title"),
+      description: t("landing.features.stats.desc"),
+    },
+    {
+      icon: Layers,
+      title: t("landing.features.accounts.title"),
+      description: t("landing.features.accounts.desc"),
+    },
+    {
+      icon: Zap,
+      title: t("landing.features.import.title"),
+      description: t("landing.features.import.desc"),
+    },
+    {
+      icon: Shield,
+      title: t("landing.features.darkMode.title"),
+      description: t("landing.features.darkMode.desc"),
+    },
+  ];
+
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[#08111d] text-white">
-      <div className="relative isolate min-h-screen bg-[linear-gradient(180deg,#08111d_0%,#0b1522_42%,#0a1320_100%)]">
+    <main className="relative min-h-screen overflow-x-hidden bg-[#08111d] text-white">
+      <AnimatedChartBackground />
 
-          <section className="relative flex min-h-screen flex-col px-4 pb-8 sm:px-6 lg:px-10">
-          <div className="mx-auto flex w-full max-w-[1380px] flex-1 flex-col">
-            <header className="animate-fade-up relative z-50 flex w-full flex-row items-center justify-between py-0">
-              <Link href="/" className="flex shrink-0 items-center">
-                <Image
-                  src="/BB_logo.png"
-                  alt="Bull &amp; Bear"
-                  width={800}
-                  height={800}
-                  className="h-24 w-24 object-contain sm:h-40 sm:w-40 md:h-48 md:w-48"
-                  priority
-                />
-              </Link>
+      {/* Hero Section */}
+      <section className="relative z-10 min-h-screen">
+        <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-10">
+          {/* Header */}
+          <motion.header
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="relative z-50 flex w-full items-center justify-between py-4"
+          >
+            <Link href="/" className="flex shrink-0 items-center">
+              <Image
+                src="/BB_logo.png"
+                alt="Bull &amp; Bear"
+                width={800}
+                height={800}
+                className="h-20 w-20 object-contain sm:h-28 sm:w-28 md:h-36 md:w-36"
+                priority
+              />
+            </Link>
 
-              {/* Mobile Header Controls */}
-              <div className="flex items-center gap-3 sm:hidden">
-                <LanguageSwitcher />
-                <button
-                  type="button"
-                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className="inline-flex items-center justify-center rounded-md p-2 text-white/70 hover:bg-white/10 hover:text-white focus:outline-none"
-                  aria-expanded={isMobileMenuOpen}
+            {/* Mobile Header Controls */}
+            <div className="flex items-center gap-3 sm:hidden">
+              <LanguageSwitcher />
+              <button
+                type="button"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="inline-flex items-center justify-center rounded-md p-2 text-white/70 hover:bg-white/10 hover:text-white focus:outline-none"
+                aria-expanded={isMobileMenuOpen}
+              >
+                <span className="sr-only">{isMobileMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}</span>
+                {isMobileMenuOpen ? (
+                  <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                ) : (
+                  <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                )}
+              </button>
+            </div>
+
+            {/* Desktop Navigation */}
+            <nav className="hidden items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 shadow-lg backdrop-blur-xl sm:flex">
+              <a
+                href="#about"
+                className="px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-white/70 transition hover:text-white"
+              >
+                {t("landing.nav.about")}
+              </a>
+              <a
+                href="#features"
+                className="px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-white/70 transition hover:text-white"
+              >
+                {t("landing.nav.features")}
+              </a>
+              <LanguageSwitcher />
+              <div className={`flex items-center gap-2 transition-opacity duration-300 ${checked ? "opacity-100" : "opacity-0"}`}>
+                {!isAuthenticated && (
+                  <Link
+                    href="/auth/login"
+                    className="rounded-full border border-white/14 bg-white/[0.03] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-white/[0.08]"
+                  >
+                    {t("landing.nav.login")}
+                  </Link>
+                )}
+                <Link
+                  href={primaryHref}
+                  className="rounded-full bg-blue-500 px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-blue-400"
                 >
-                  <span className="sr-only">{isMobileMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}</span>
-                  {isMobileMenuOpen ? (
-                    <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" aria-hidden="true">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  ) : (
-                    <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" aria-hidden="true">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                  )}
-                </button>
+                  {primaryLabel}
+                </Link>
               </div>
+            </nav>
+          </motion.header>
 
-              {/* Desktop Navigation */}
-              <div className="hidden items-center self-center gap-3 rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 shadow-[0_18px_50px_rgba(0,0,0,0.18)] backdrop-blur sm:flex sm:justify-end sm:px-4">
+          {/* Mobile Menu */}
+          {isMobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="absolute left-4 right-4 top-24 z-40 rounded-2xl border border-white/10 bg-[#0b1728]/95 p-6 shadow-2xl backdrop-blur-xl sm:hidden"
+            >
+              <nav className="flex flex-col gap-4">
                 <a
-                  href="#a-propos"
-                  className="hidden items-center justify-center px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-white/70 transition hover:text-white sm:inline-flex"
+                  href="#about"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="text-base font-medium text-slate-200 hover:text-white"
                 >
                   {t("landing.nav.about")}
                 </a>
                 <a
-                  href="#fonctionnalites"
-                  className="hidden items-center justify-center px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-white/70 transition hover:text-white sm:inline-flex"
+                  href="#features"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="text-base font-medium text-slate-200 hover:text-white"
                 >
                   {t("landing.nav.features")}
                 </a>
-
-                {/* Language switcher in navbar */}
-                <div className="flex items-center">
-                  <LanguageSwitcher />
-                </div>
-
-                <div className={`flex items-center gap-3 transition-opacity duration-300 ${checked ? "opacity-100" : "opacity-0"}`}>
+                <div className={`flex flex-col gap-3 border-t border-white/10 pt-4 transition-opacity duration-300 ${checked ? "opacity-100" : "opacity-0"}`}>
                   {!isAuthenticated && (
                     <Link
                       href="/auth/login"
-                      className="inline-flex items-center justify-center rounded-full border border-white/14 bg-white/[0.03] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-white transition hover:-translate-y-0.5 hover:bg-white/[0.08] sm:px-5 sm:py-3"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="w-full rounded-xl border border-white/14 bg-white/[0.03] px-5 py-3.5 text-center text-sm font-semibold uppercase tracking-[0.16em] text-white"
                     >
                       {t("landing.nav.login")}
                     </Link>
                   )}
                   <Link
                     href={primaryHref}
-                    className="inline-flex items-center justify-center rounded-full bg-white px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-slate-950 transition hover:-translate-y-0.5 hover:bg-cyan-50 sm:px-5 sm:py-3"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="w-full rounded-xl bg-blue-500 px-5 py-3.5 text-center text-sm font-semibold uppercase tracking-[0.16em] text-white"
                   >
                     {primaryLabel}
                   </Link>
                 </div>
+              </nav>
+            </motion.div>
+          )}
+
+          {/* Hero Content */}
+          <div className="flex min-h-[calc(100vh-140px)] flex-col items-center justify-center py-16 text-center">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5 }}
+              className="mb-8 flex items-center gap-3"
+            >
+              <div className="flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-4 py-2">
+                <TrendingUp className="h-4 w-4 text-green-400" />
+                <span className="text-sm font-medium text-blue-300">Bull</span>
               </div>
-            </header>
-
-            {/* Mobile Menu Dropdown */}
-            {isMobileMenuOpen && (
-              <div className="animate-fade-up absolute left-4 right-4 top-24 z-40 rounded-2xl border border-white/10 bg-[#0b1728] p-6 shadow-2xl sm:hidden">
-                <nav className="flex flex-col gap-6">
-                  <a
-                    href="#a-propos"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="text-base font-medium text-slate-200 hover:text-white"
-                  >
-                    {t("landing.nav.about")}
-                  </a>
-                  <a
-                    href="#fonctionnalites"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="text-base font-medium text-slate-200 hover:text-white"
-                  >
-                    {t("landing.nav.features")}
-                  </a>
-
-                  <div className={`flex flex-col gap-3 border-t border-white/10 pt-6 transition-opacity duration-300 ${checked ? "opacity-100" : "opacity-0"}`}>
-                    {!isAuthenticated && (
-                      <Link
-                        href="/auth/login"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        className="inline-flex w-full items-center justify-center rounded-xl border border-white/14 bg-white/[0.03] px-5 py-3.5 text-sm font-semibold uppercase tracking-[0.16em] text-white transition active:bg-white/[0.08]"
-                      >
-                        {t("landing.nav.login")}
-                      </Link>
-                    )}
-                    <Link
-                      href={primaryHref}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="inline-flex w-full items-center justify-center rounded-xl bg-white px-5 py-3.5 text-sm font-semibold uppercase tracking-[0.16em] text-slate-950 transition active:bg-cyan-50"
-                    >
-                      {primaryLabel}
-                    </Link>
-                  </div>
-                </nav>
+              <span className="text-white/40">&</span>
+              <div className="flex items-center gap-2 rounded-full border border-red-500/30 bg-red-500/10 px-4 py-2">
+                <TrendingDown className="h-4 w-4 text-red-400" />
+                <span className="text-sm font-medium text-red-300">Bear</span>
               </div>
-            )}
+            </motion.div>
 
-            <div className="flex flex-1 items-center pb-16 pt-6 sm:pt-12 lg:pb-20 lg:pt-16">
-              <div className="mx-auto grid w-full max-w-[1380px] items-center gap-10 lg:grid-cols-12 lg:gap-16">
-                <div className="relative order-2 flex justify-center lg:order-1 lg:col-span-7">
-                  <Image
-                    src="/screen-view.png"
-                    alt="Bull &amp; Bear Dashboard"
-                    width={1200}
-                    height={800}
-                    className="relative z-10 h-auto w-full max-w-[760px] object-contain"
-                    priority
-                  />
-                </div>
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.1 }}
+              className="max-w-4xl text-balance text-5xl font-bold leading-[1.1] tracking-tight sm:text-6xl md:text-7xl lg:text-8xl"
+            >
+              <span className="text-white">{t("landing.hero.punchline1")}</span>
+              <br />
+              <span className="bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
+                {t("landing.hero.punchline2")}
+              </span>
+            </motion.h1>
 
-                <div className="order-1 -mt-4 flex flex-col items-start text-left lg:order-2 lg:col-span-5 lg:-mt-10">
-                  <h1 className="text-balance text-[3rem] font-semibold leading-[0.92] tracking-[-0.08em] text-white sm:text-[4.5rem] lg:text-[5.6rem] xl:text-[6.4rem]">
-                    <span className="animate-title-rise block">{t("landing.hero.punchline1")}</span>
-                    <span className="animate-title-rise-delayed block text-cyan-100">{t("landing.hero.punchline2")}</span>
-                  </h1>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="mt-8 max-w-2xl text-pretty text-lg text-slate-400 sm:text-xl"
+            >
+              {t("landing.hero.subtitle")}
+            </motion.p>
 
-                  <p className="animate-fade-up-delayed-2 mt-8 max-w-[540px] text-pretty text-base leading-8 text-slate-300 sm:text-lg">
-                    {t("landing.hero.subtitle")}
-                  </p>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.5 }}
+              className="mt-10 flex flex-col items-center gap-4 sm:flex-row"
+            >
+              <Link
+                href={primaryHref}
+                className="group relative overflow-hidden rounded-full bg-blue-500 px-8 py-4 text-sm font-semibold uppercase tracking-[0.16em] text-white transition-all duration-300 hover:bg-blue-400 hover:shadow-[0_0_40px_rgba(59,130,246,0.4)] sm:px-10 sm:py-5"
+              >
+                <span className="relative z-10">{primaryLabel}</span>
+              </Link>
+              <span className="text-xs font-medium uppercase tracking-wider text-white/40">
+                {t("landing.hero.socialProof")}
+              </span>
+            </motion.div>
 
-                  <div className="animate-fade-up-delayed-3 mt-10 flex flex-col items-start gap-5">
-                    <Link
-                      href={primaryHref}
-                      className="inline-flex items-center justify-center rounded-full border border-white bg-white px-8 py-4 text-sm font-semibold uppercase tracking-[0.16em] text-slate-950 transition-colors duration-200 hover:bg-slate-100 sm:px-10 sm:py-5 sm:text-base"
-                    >
-                      <span>{primaryLabel}</span>
-                    </Link>
-                    <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-white/40">
-                      {t("landing.hero.socialProof")}
-                    </span>
-                  </div>
-                </div>
+            {/* Scroll indicator */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1, duration: 0.5 }}
+              className="absolute bottom-8 left-1/2 -translate-x-1/2"
+            >
+              <motion.div
+                animate={{ y: [0, 10, 0] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+                className="flex flex-col items-center gap-2"
+              >
+                <span className="text-xs uppercase tracking-widest text-white/40">Scroll</span>
+                <svg className="h-5 w-5 text-white/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                </svg>
+              </motion.div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Bar */}
+      <section className="relative z-10 border-y border-white/10 bg-[#0a1320]/80 backdrop-blur-xl">
+        <div className="mx-auto max-w-[1400px] px-4 py-12 sm:px-6 lg:px-10">
+          <StaggerContainer className="grid grid-cols-2 gap-8 md:grid-cols-4">
+            {[
+              { value: "50K+", label: t("landing.stats.tradesAnalyzed") },
+              { value: "1,200+", label: t("landing.stats.tradersOnboard") },
+              { value: "5+", label: t("landing.stats.brokersIntegrated") },
+              { value: "1M+", label: t("landing.stats.dataPoints") },
+            ].map((stat) => (
+              <StaggerItem key={stat.label} className="text-center">
+                <div className="text-3xl font-bold text-blue-400 sm:text-4xl">{stat.value}</div>
+                <div className="mt-2 text-sm text-slate-400">{stat.label}</div>
+              </StaggerItem>
+            ))}
+          </StaggerContainer>
+        </div>
+      </section>
+
+      {/* About Section */}
+      <section id="about" className="relative z-10 px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
+        <div className="mx-auto max-w-[1400px]">
+          <ScrollReveal className="mx-auto max-w-3xl text-center">
+            <h2 className="text-balance text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
+              {t("landing.about.title")}
+            </h2>
+            <p className="mt-8 text-pretty text-lg leading-relaxed text-slate-400">
+              {t("landing.about.description")}
+            </p>
+          </ScrollReveal>
+
+          {/* Bull & Bear Visual */}
+          <ScrollReveal delay={0.2} className="mt-16 flex items-center justify-center gap-8">
+            <div className="relative h-48 w-48 overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-green-500/20 to-transparent p-6 sm:h-64 sm:w-64">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(34,197,94,0.2),transparent_70%)]" />
+              {/* Placeholder for Bull image */}
+              <div className="flex h-full w-full flex-col items-center justify-center">
+                <TrendingUp className="h-16 w-16 text-green-400 sm:h-24 sm:w-24" />
+                <span className="mt-4 text-xl font-bold text-green-400">BULL</span>
               </div>
             </div>
-          </div>
-        </section>
-
-        {/* Stats Counter Bar */}
-        <LandingStatsBar />
-
-        {/* À propos section */}
-        <section id="a-propos" className="relative border-t border-white/10 px-4 py-28 sm:px-6 lg:px-10 lg:py-40">
-          <div className="mx-auto max-w-[1380px]">
-            <div className="mx-auto max-w-[760px] text-center">
-              <h2 className="mt-10 text-balance text-4xl font-semibold tracking-[-0.06em] text-white sm:text-5xl lg:text-6xl">
-                {t("landing.about.title")}
-              </h2>
-              <p className="mt-8 text-pretty text-base leading-8 text-slate-300 sm:text-lg">
-                {t("landing.about.description")}
-              </p>
+            <div className="relative h-48 w-48 overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-red-500/20 to-transparent p-6 sm:h-64 sm:w-64">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(239,68,68,0.2),transparent_70%)]" />
+              {/* Placeholder for Bear image */}
+              <div className="flex h-full w-full flex-col items-center justify-center">
+                <TrendingDown className="h-16 w-16 text-red-400 sm:h-24 sm:w-24" />
+                <span className="mt-4 text-xl font-bold text-red-400">BEAR</span>
+              </div>
             </div>
-          </div>
-        </section>
+          </ScrollReveal>
+        </div>
+      </section>
 
-        <LandingFeatureShowcase />
-
-        {/* Chart Screenshot Review Section */}
-        <section className="relative border-t border-white/10 px-4 py-28 sm:px-6 lg:px-10 lg:py-40">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_30%_50%,rgba(56,189,248,0.06),transparent_50%)]" />
-          <div className="mx-auto max-w-[1380px]">
-            <div className="grid items-center gap-16 lg:grid-cols-12 lg:gap-20 xl:gap-24">
-              {/* Image block — left side */}
-              <div className="lg:col-span-8">
-                <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03))] p-3 shadow-[0_24px_90px_rgba(0,0,0,0.34)] backdrop-blur">
-                  <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_36%)]" />
-                  <div className="pointer-events-none absolute -right-12 top-12 h-44 w-44 rounded-full bg-violet-300/12 blur-3xl" />
-                  <div className="pointer-events-none absolute -left-8 bottom-16 h-36 w-36 rounded-full bg-cyan-300/10 blur-3xl" />
-
-                  <div className="relative overflow-hidden rounded-[22px] border border-white/10 bg-[#091321]">
-                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-violet-300/15 via-cyan-300/8 to-transparent" />
-                    <div className="relative aspect-[16/10]">
-                      <Image
-                        src="/chart_example.png"
-                        alt="Chart screenshot review"
-                        fill
-                        sizes="(min-width: 1024px) 50vw, 92vw"
-                        className="object-cover object-top"
-                      />
+      {/* Dashboard Preview Section */}
+      <section className="relative z-10 px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
+        <div className="mx-auto max-w-[1400px]">
+          <div className="grid items-center gap-16 lg:grid-cols-2">
+            <ScrollReveal direction="left" className="order-2 lg:order-1">
+              <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.08] to-white/[0.02] p-3 shadow-2xl">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.1),transparent_50%)]" />
+                <div className="relative aspect-[16/10] overflow-hidden rounded-2xl border border-white/10 bg-[#091321]">
+                  {/* Placeholder for Dashboard Screenshot */}
+                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-blue-900/30 to-transparent">
+                    <div className="text-center">
+                      <BarChart3 className="mx-auto h-16 w-16 text-blue-400/50" />
+                      <p className="mt-4 text-sm text-white/40">Dashboard Preview</p>
                     </div>
                   </div>
                 </div>
               </div>
+            </ScrollReveal>
 
-              {/* Text block — right side */}
-              <div className="lg:col-span-4">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-violet-300/70">
-                  {t("landing.chartReview.eyebrow")}
-                </p>
-
-                <h3 className="mt-8 text-3xl font-semibold tracking-[-0.05em] text-white sm:text-[2.5rem] sm:leading-[1.15] lg:text-[3rem] lg:leading-[1.1]">
-                  {t("landing.chartReview.title")}
-                </h3>
-
-                <p className="mt-8 max-w-[560px] text-pretty text-base leading-8 text-slate-300 sm:text-lg">
-                  {t("landing.chartReview.description")}
-                </p>
-
-                <div className="mt-10 flex flex-wrap gap-4">
-                  {[
-                    t("landing.chartReview.bullet1"),
-                    t("landing.chartReview.bullet2"),
-                    t("landing.chartReview.bullet3"),
-                  ].map((bullet) => (
-                    <span
-                      key={bullet}
-                      className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/72"
-                    >
-                      {bullet}
-                    </span>
-                  ))}
-                </div>
+            <ScrollReveal direction="right" className="order-1 lg:order-2">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue-400">
+                {t("landing.showcase.feat1.eyebrow")}
+              </p>
+              <h3 className="mt-6 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
+                {t("landing.showcase.feat1.title")}
+              </h3>
+              <p className="mt-6 text-lg leading-relaxed text-slate-400">
+                {t("landing.showcase.feat1.desc")}
+              </p>
+              <div className="mt-8 flex flex-wrap gap-3">
+                {[
+                  t("landing.showcase.feat1.bullet1"),
+                  t("landing.showcase.feat1.bullet2"),
+                  t("landing.showcase.feat1.bullet3"),
+                ].map((bullet) => (
+                  <span
+                    key={bullet}
+                    className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white/70"
+                  >
+                    {bullet}
+                  </span>
+                ))}
               </div>
-            </div>
+            </ScrollReveal>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Stats Section */}
-        <section className="relative border-t border-white/10 px-4 py-28 sm:px-6 lg:px-10 lg:py-40">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_70%_50%,rgba(45,212,191,0.06),transparent_50%)]" />
-          <div className="mx-auto max-w-[1380px]">
-            <div className="grid items-center gap-16 lg:grid-cols-12 lg:gap-20 xl:gap-24">
-              {/* Text block — left side */}
-              <div className="lg:col-span-4 lg:order-1 order-2">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-300/70">
-                  {t("landing.statsSection.eyebrow")}
-                </p>
-
-                <h3 className="mt-8 text-3xl font-semibold tracking-[-0.05em] text-white sm:text-[2.5rem] sm:leading-[1.15] lg:text-[3rem] lg:leading-[1.1]">
-                  {t("landing.statsSection.title")}
-                </h3>
-
-                <p className="mt-8 max-w-[560px] text-pretty text-base leading-8 text-slate-300 sm:text-lg">
-                  {t("landing.statsSection.description")}
-                </p>
-
-                <div className="mt-10 flex flex-wrap gap-4">
-                  {[
-                    t("landing.statsSection.bullet1"),
-                    t("landing.statsSection.bullet2"),
-                    t("landing.statsSection.bullet3"),
-                  ].map((bullet) => (
-                    <span
-                      key={bullet}
-                      className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/72"
-                    >
-                      {bullet}
-                    </span>
-                  ))}
-                </div>
+      {/* Journal Section */}
+      <section className="relative z-10 px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
+        <div className="mx-auto max-w-[1400px]">
+          <div className="grid items-center gap-16 lg:grid-cols-2">
+            <ScrollReveal direction="left">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-400">
+                {t("landing.showcase.feat2.eyebrow")}
+              </p>
+              <h3 className="mt-6 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
+                {t("landing.showcase.feat2.title")}
+              </h3>
+              <p className="mt-6 text-lg leading-relaxed text-slate-400">
+                {t("landing.showcase.feat2.desc")}
+              </p>
+              <div className="mt-8 flex flex-wrap gap-3">
+                {[
+                  t("landing.showcase.feat2.bullet1"),
+                  t("landing.showcase.feat2.bullet2"),
+                  t("landing.showcase.feat2.bullet3"),
+                ].map((bullet) => (
+                  <span
+                    key={bullet}
+                    className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white/70"
+                  >
+                    {bullet}
+                  </span>
+                ))}
               </div>
+            </ScrollReveal>
 
-              {/* Image block — right side */}
-              <div className="lg:col-span-8 lg:order-2 order-1">
-                <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03))] p-3 shadow-[0_24px_90px_rgba(0,0,0,0.34)] backdrop-blur">
-                  <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_36%)]" />
-                  <div className="pointer-events-none absolute -left-12 top-12 h-44 w-44 rounded-full bg-cyan-300/12 blur-3xl" />
-                  <div className="pointer-events-none absolute -right-8 bottom-16 h-36 w-36 rounded-full bg-emerald-300/10 blur-3xl" />
-
-                  <div className="relative overflow-hidden rounded-[22px] border border-white/10 bg-[#091321]">
-                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-cyan-300/15 via-emerald-300/8 to-transparent" />
-                    <div className="relative aspect-[16/10]">
-                      <Image
-                        src="/stats_example.png"
-                        alt="Advanced statistics review"
-                        fill
-                        sizes="(min-width: 1024px) 50vw, 92vw"
-                        className="object-cover object-top"
-                      />
+            <ScrollReveal direction="right">
+              <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.08] to-white/[0.02] p-3 shadow-2xl">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.1),transparent_50%)]" />
+                <div className="relative aspect-[16/10] overflow-hidden rounded-2xl border border-white/10 bg-[#091321]">
+                  {/* Placeholder for Journal Screenshot */}
+                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-cyan-900/30 to-transparent">
+                    <div className="text-center">
+                      <Target className="mx-auto h-16 w-16 text-cyan-400/50" />
+                      <p className="mt-4 text-sm text-white/40">Journal Preview</p>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
+            </ScrollReveal>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Integrations Section */}
-        <section className="relative border-t border-white/10 px-4 py-28 sm:px-6 lg:px-10 lg:py-40">
-          <div className="mx-auto max-w-[1380px]">
-            <div className="mx-auto max-w-[760px] text-center">
-              <h2 className="mt-10 text-balance text-4xl font-semibold tracking-[-0.06em] text-white sm:text-5xl lg:text-6xl">
-                {t("landing.integrations.title")}
-              </h2>
-              <p className="mt-8 text-pretty text-base leading-8 text-slate-300 sm:text-lg">
-                {t("landing.integrations.description")}
-              </p>
-            </div>
-
-            <div className="mt-24 flex flex-col items-center justify-center gap-16 sm:mt-32 sm:flex-row sm:gap-32">
-              <div className="group relative flex flex-col items-center">
-                <div className="absolute inset-0 translate-y-2 rounded-3xl bg-emerald-500/10 opacity-0 blur-xl transition duration-500 group-hover:opacity-100" />
-                <div className="relative flex h-40 w-40 items-center justify-center rounded-3xl border border-white/10 bg-white/[0.03] p-6 shadow-2xl backdrop-blur transition-all duration-500 group-hover:-translate-y-2 group-hover:border-emerald-500/30 group-hover:bg-white/[0.06] sm:h-52 sm:w-52 sm:p-8">
-                  <Image
-                    src="https://res.cloudinary.com/ddvabefhf/image/upload/v1773439524/mt5_i8o5cc.jpg"
-                    alt="MetaTrader"
-                    width={160}
-                    height={160}
-                    className="h-full w-full rounded-2xl object-cover opacity-80 transition duration-500 group-hover:opacity-100 group-hover:drop-shadow-[0_0_15px_rgba(16,185,129,0.5)]"
-                  />
+      {/* Stats Preview Section */}
+      <section className="relative z-10 px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
+        <div className="mx-auto max-w-[1400px]">
+          <div className="grid items-center gap-16 lg:grid-cols-2">
+            <ScrollReveal direction="left" className="order-2 lg:order-1">
+              <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.08] to-white/[0.02] p-3 shadow-2xl">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(16,185,129,0.1),transparent_50%)]" />
+                <div className="relative aspect-[16/10] overflow-hidden rounded-2xl border border-white/10 bg-[#091321]">
+                  {/* Placeholder for Stats Screenshot */}
+                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-emerald-900/30 to-transparent">
+                    <div className="text-center">
+                      <LineChart className="mx-auto h-16 w-16 text-emerald-400/50" />
+                      <p className="mt-4 text-sm text-white/40">Statistics Preview</p>
+                    </div>
+                  </div>
                 </div>
-                <span className="mt-6 text-base font-medium tracking-wide text-slate-300 transition duration-500 group-hover:text-white">
-                  MetaTrader 4/5
-                </span>
               </div>
+            </ScrollReveal>
 
-              <div className="group relative flex flex-col items-center">
-                <div className="absolute inset-0 translate-y-2 rounded-3xl bg-emerald-500/10 opacity-0 blur-xl transition duration-500 group-hover:opacity-100" />
-                <div className="relative flex h-40 w-40 items-center justify-center rounded-3xl border border-white/10 bg-white/[0.03] p-6 shadow-2xl backdrop-blur transition-all duration-500 group-hover:-translate-y-2 group-hover:border-emerald-500/30 group-hover:bg-white/[0.06] sm:h-52 sm:w-52 sm:p-8">
-                  <Image
-                    src="https://res.cloudinary.com/ddvabefhf/image/upload/v1773440476/ctrader_logo_full_pwcbdz.png"
-                    alt="cTrader"
-                    width={160}
-                    height={160}
-                    className="h-full w-full rounded-2xl object-cover opacity-80 transition duration-500 group-hover:opacity-100 group-hover:drop-shadow-[0_0_15px_rgba(16,185,129,0.5)]"
-                  />
-                </div>
-                <span className="mt-6 text-base font-medium tracking-wide text-slate-300 transition duration-500 group-hover:text-white">
-                  cTrader
-                </span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Upcoming Features Section */}
-        <section className="relative px-4 py-24 sm:px-6 lg:px-10">
-          <div className="mx-auto max-w-[1380px]">
-          <div className="mx-auto max-w-[800px] text-center">
-              <h2 className="text-balance text-3xl font-semibold tracking-[-0.05em] text-white sm:text-4xl lg:text-5xl">
-                {t("landing.upcoming.title")}
-              </h2>
-              <p className="mt-6 text-pretty text-base leading-8 text-slate-300 sm:text-lg">
-                {t("landing.upcoming.description")}
+            <ScrollReveal direction="right" className="order-1 lg:order-2">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-400">
+                {t("landing.statsSection.eyebrow")}
               </p>
-            </div>
+              <h3 className="mt-6 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
+                {t("landing.statsSection.title")}
+              </h3>
+              <p className="mt-6 text-lg leading-relaxed text-slate-400">
+                {t("landing.statsSection.description")}
+              </p>
+              <div className="mt-8 flex flex-wrap gap-3">
+                {[
+                  t("landing.statsSection.bullet1"),
+                  t("landing.statsSection.bullet2"),
+                  t("landing.statsSection.bullet3"),
+                ].map((bullet) => (
+                  <span
+                    key={bullet}
+                    className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white/70"
+                  >
+                    {bullet}
+                  </span>
+                ))}
+              </div>
+            </ScrollReveal>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Bottom CTA Section */}
-        <LandingCtaSection href={primaryHref} />
+      {/* Features Grid */}
+      <section id="features" className="relative z-10 border-t border-white/10 px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
+        <div className="mx-auto max-w-[1400px]">
+          <ScrollReveal className="mx-auto max-w-3xl text-center">
+            <h2 className="text-balance text-4xl font-bold tracking-tight text-white sm:text-5xl">
+              {t("landing.features.title")}
+            </h2>
+            <p className="mt-6 text-lg text-slate-400">
+              {t("landing.features.subtitle")}
+            </p>
+          </ScrollReveal>
 
-        <SiteFooter />
-      </div>
+          <StaggerContainer className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" staggerDelay={0.1}>
+            {features.map((feature) => (
+              <StaggerItem key={feature.title}>
+                <div className="group relative h-full overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.06] to-transparent p-6 transition-all duration-300 hover:border-blue-500/30 hover:bg-white/[0.08]">
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.1),transparent_70%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                  <feature.icon className="h-10 w-10 text-blue-400" />
+                  <h3 className="mt-4 text-lg font-semibold text-white">{feature.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-400">{feature.description}</p>
+                </div>
+              </StaggerItem>
+            ))}
+          </StaggerContainer>
+        </div>
+      </section>
+
+      {/* Integrations */}
+      <section className="relative z-10 border-t border-white/10 px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
+        <div className="mx-auto max-w-[1400px]">
+          <ScrollReveal className="mx-auto max-w-3xl text-center">
+            <h2 className="text-balance text-4xl font-bold tracking-tight text-white sm:text-5xl">
+              {t("landing.integrations.title")}
+            </h2>
+            <p className="mt-6 text-lg text-slate-400">
+              {t("landing.integrations.description")}
+            </p>
+          </ScrollReveal>
+
+          <StaggerContainer className="mt-16 flex flex-col items-center justify-center gap-12 sm:flex-row sm:gap-20">
+            <StaggerItem>
+              <div className="group flex h-40 w-40 items-center justify-center rounded-3xl border border-white/10 bg-white/[0.04] p-6 transition-all duration-300 hover:border-blue-500/30 hover:bg-white/[0.08] sm:h-52 sm:w-52 sm:p-8">
+                {/* Placeholder for MetaTrader logo */}
+                <div className="text-center">
+                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-500/20">
+                    <span className="text-2xl font-bold text-blue-400">MT</span>
+                  </div>
+                  <p className="mt-3 text-sm font-medium text-white/70">MetaTrader</p>
+                </div>
+              </div>
+            </StaggerItem>
+            <StaggerItem>
+              <div className="group flex h-40 w-40 items-center justify-center rounded-3xl border border-white/10 bg-white/[0.04] p-6 transition-all duration-300 hover:border-blue-500/30 hover:bg-white/[0.08] sm:h-52 sm:w-52 sm:p-8">
+                {/* Placeholder for cTrader logo */}
+                <div className="text-center">
+                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-cyan-500/20">
+                    <span className="text-2xl font-bold text-cyan-400">cT</span>
+                  </div>
+                  <p className="mt-3 text-sm font-medium text-white/70">cTrader</p>
+                </div>
+              </div>
+            </StaggerItem>
+          </StaggerContainer>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="relative z-10 px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
+        <div className="mx-auto max-w-[1400px]">
+          <ScrollReveal>
+            <div className="relative overflow-hidden rounded-3xl border border-blue-500/30 bg-gradient-to-br from-blue-500/20 via-[#0a1320] to-[#0a1320] p-8 sm:p-16">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.15),transparent_70%)]" />
+              <div className="relative mx-auto max-w-2xl text-center">
+                <h2 className="text-balance text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
+                  {t("landing.cta.headline")}
+                </h2>
+                <p className="mt-6 text-lg text-slate-300">
+                  {t("landing.cta.subtitle")}
+                </p>
+                <Link
+                  href={primaryHref}
+                  className="mt-10 inline-flex items-center justify-center rounded-full bg-blue-500 px-8 py-4 text-sm font-semibold uppercase tracking-[0.16em] text-white transition-all duration-300 hover:bg-blue-400 hover:shadow-[0_0_40px_rgba(59,130,246,0.4)] sm:px-10 sm:py-5"
+                >
+                  {t("landing.cta.button")}
+                </Link>
+              </div>
+            </div>
+          </ScrollReveal>
+        </div>
+      </section>
+
+      <SiteFooter />
     </main>
   );
 }
