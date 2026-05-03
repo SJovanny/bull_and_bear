@@ -106,15 +106,16 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="relative z-50 flex w-full items-center justify-between py-4"
+            className="relative z-50 flex w-full items-start justify-between py-4"
           >
+            {/* Logo */}
             <Link href="/" className="flex shrink-0 items-center">
               <Image
                 src="/BB_logo.png"
                 alt="Bull &amp; Bear"
                 width={800}
                 height={800}
-                className="h-20 w-20 object-contain sm:h-28 sm:w-28 md:h-36 md:w-36"
+                className="h-33 w-33 object-contain sm:h-56 sm:w-56 md:h-72 md:w-72 -mt-8 sm:-mt-14 md:-mt-20"
                 priority
               />
             </Link>
@@ -141,8 +142,8 @@ export default function LandingPage() {
               </button>
             </div>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden items-center gap-2 rounded-full border border-slate-200 bg-white/80 px-3 py-2 shadow-lg backdrop-blur-xl sm:flex">
+            {/* Desktop Navigation — independently positioned top-right */}
+            <nav className="hidden items-center gap-2 rounded-full border border-slate-200 bg-white/80 px-3 py-2 shadow-lg backdrop-blur-xl sm:flex self-start mt-4">
               <a
                 href="#about"
                 className="px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-slate-600 transition hover:text-slate-900"
@@ -426,13 +427,13 @@ export default function LandingPage() {
               <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-100 to-white p-3 shadow-2xl">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.08),transparent_50%)]" />
                 <div className="relative aspect-[16/10] overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
-                  {/* Placeholder for Journal Screenshot */}
-                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-cyan-100/50 to-transparent">
-                    <div className="text-center">
-                      <Target className="mx-auto h-16 w-16 text-cyan-500/50" />
-                      <p className="mt-4 text-sm text-slate-500">Journal Preview</p>
-                    </div>
-                  </div>
+                  <Image
+                    src="/journal_example.png"
+                    alt="Bull & Bear Journal"
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    className="object-cover object-top"
+                  />
                 </div>
               </div>
             </ScrollReveal>
@@ -448,13 +449,13 @@ export default function LandingPage() {
               <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-100 to-white p-3 shadow-2xl">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(16,185,129,0.08),transparent_50%)]" />
                 <div className="relative aspect-[16/10] overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
-                  {/* Placeholder for Stats Screenshot */}
-                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-emerald-100/50 to-transparent">
-                    <div className="text-center">
-                      <LineChart className="mx-auto h-16 w-16 text-emerald-500/50" />
-                      <p className="mt-4 text-sm text-slate-500">Statistics Preview</p>
-                    </div>
-                  </div>
+                  <Image
+                    src="/stats_example.png"
+                    alt="Bull & Bear Statistics"
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    className="object-cover object-top"
+                  />
                 </div>
               </div>
             </ScrollReveal>
@@ -493,13 +494,13 @@ export default function LandingPage() {
         <div className="mx-auto max-w-[1400px]">
           <div className="grid items-center gap-16 lg:grid-cols-2">
             <ScrollReveal direction="left">
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-400">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-600">
                 {t("landing.chartsSection.eyebrow")}
               </p>
-              <h3 className="mt-6 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
+              <h3 className="mt-6 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
                 {t("landing.chartsSection.title")}
               </h3>
-              <p className="mt-6 text-lg leading-relaxed text-slate-400">
+              <p className="mt-6 text-lg leading-relaxed text-slate-600">
                 {t("landing.chartsSection.description")}
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
@@ -510,7 +511,7 @@ export default function LandingPage() {
                 ].map((bullet) => (
                   <span
                     key={bullet}
-                    className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white/70"
+                    className="rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-slate-700"
                   >
                     {bullet}
                   </span>
@@ -519,9 +520,9 @@ export default function LandingPage() {
             </ScrollReveal>
 
             <ScrollReveal direction="right">
-              <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.08] to-white/[0.02] p-3 shadow-2xl">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(251,191,36,0.1),transparent_50%)]" />
-                <div className="relative aspect-[16/10] overflow-hidden rounded-2xl border border-white/10 bg-[#091321]">
+              <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-100 to-white p-3 shadow-2xl">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(251,191,36,0.08),transparent_50%)]" />
+                <div className="relative aspect-[16/10] overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
                   <Image
                     src="/chart_example.png"
                     alt="Bull & Bear Charts"
@@ -578,24 +579,24 @@ export default function LandingPage() {
             <StaggerContainer className="mt-16 flex flex-col items-center justify-center gap-12 sm:flex-row sm:gap-20">
             <StaggerItem>
               <div className="group flex h-40 w-40 items-center justify-center rounded-3xl border border-slate-200 bg-slate-50 p-6 transition-all duration-300 hover:border-blue-300 hover:bg-slate-100 sm:h-52 sm:w-52 sm:p-8">
-                {/* Placeholder for MetaTrader logo */}
-                <div className="text-center">
-                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-100">
-                    <span className="text-2xl font-bold text-blue-600">MT</span>
-                  </div>
-                  <p className="mt-3 text-sm font-medium text-slate-700">MetaTrader</p>
-                </div>
+                <Image
+                  src="https://res.cloudinary.com/ddvabefhf/image/upload/v1773439524/mt5_i8o5cc.jpg"
+                  alt="MetaTrader"
+                  width={160}
+                  height={160}
+                  className="h-full w-full object-contain"
+                />
               </div>
             </StaggerItem>
             <StaggerItem>
               <div className="group flex h-40 w-40 items-center justify-center rounded-3xl border border-slate-200 bg-slate-50 p-6 transition-all duration-300 hover:border-blue-300 hover:bg-slate-100 sm:h-52 sm:w-52 sm:p-8">
-                {/* Placeholder for cTrader logo */}
-                <div className="text-center">
-                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-cyan-100">
-                    <span className="text-2xl font-bold text-cyan-600">cT</span>
-                  </div>
-                  <p className="mt-3 text-sm font-medium text-slate-700">cTrader</p>
-                </div>
+                <Image
+                  src="https://res.cloudinary.com/ddvabefhf/image/upload/v1773440476/ctrader_logo_full_pwcbdz.png"
+                  alt="cTrader"
+                  width={160}
+                  height={160}
+                  className="h-full w-full object-contain"
+                />
               </div>
             </StaggerItem>
           </StaggerContainer>
