@@ -589,6 +589,7 @@ export default function LandingPage() {
                         alt="Bull & Bear Mobile"
                         fill
                         sizes="300px"
+                        loading="eager"
                         className="object-cover object-top"
                       />
                     </div>
