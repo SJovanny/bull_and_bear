@@ -86,6 +86,12 @@ export type TranslationKeys = {
   "landing.chartsSection.bullet1": string;
   "landing.chartsSection.bullet2": string;
   "landing.chartsSection.bullet3": string;
+  "landing.mobileSection.eyebrow": string;
+  "landing.mobileSection.title": string;
+  "landing.mobileSection.description": string;
+  "landing.mobileSection.bullet1": string;
+  "landing.mobileSection.bullet2": string;
+  "landing.mobileSection.bullet3": string;
   "landing.upcoming.title": string;
   "landing.upcoming.description": string;
 

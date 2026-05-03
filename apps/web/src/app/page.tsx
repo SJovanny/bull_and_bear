@@ -543,6 +543,65 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Mobile Section */}
+      <section className="relative z-10 overflow-hidden border-t border-slate-200 px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
+        <div className="mx-auto max-w-[1400px]">
+          <div className="grid items-center gap-16 lg:grid-cols-2">
+            <ScrollReveal direction="left">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-violet-600">
+                {t("landing.mobileSection.eyebrow")}
+              </p>
+              <h3 className="mt-6 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
+                {t("landing.mobileSection.title")}
+              </h3>
+              <p className="mt-6 text-lg leading-relaxed text-slate-600">
+                {t("landing.mobileSection.description")}
+              </p>
+              <div className="mt-8 flex flex-wrap gap-3">
+                {[
+                  t("landing.mobileSection.bullet1"),
+                  t("landing.mobileSection.bullet2"),
+                  t("landing.mobileSection.bullet3"),
+                ].map((bullet) => (
+                  <span
+                    key={bullet}
+                    className="rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-slate-700"
+                  >
+                    {bullet}
+                  </span>
+                ))}
+              </div>
+            </ScrollReveal>
+
+            <ScrollReveal direction="right">
+              <div className="flex justify-center">
+                <div className="relative w-64 sm:w-72">
+                  {/* Phone frame */}
+                  <div className="relative rounded-[3rem] border-[6px] border-slate-900 bg-slate-900 shadow-[0_40px_80px_rgba(0,0,0,0.25)]">
+                    {/* Notch */}
+                    <div className="absolute inset-x-0 top-0 z-10 flex justify-center pt-3">
+                      <div className="h-6 w-24 rounded-full bg-slate-900" />
+                    </div>
+                    {/* Screen */}
+                    <div className="relative aspect-[9/19.5] overflow-hidden rounded-[2.5rem] bg-slate-100">
+                      <Image
+                        src="/mobile.png"
+                        alt="Bull & Bear Mobile"
+                        fill
+                        sizes="300px"
+                        className="object-cover object-top"
+                      />
+                    </div>
+                  </div>
+                  {/* Decorative glow */}
+                  <div className="pointer-events-none absolute -bottom-8 left-1/2 h-40 w-40 -translate-x-1/2 rounded-full bg-violet-400/20 blur-3xl" />
+                </div>
+              </div>
+            </ScrollReveal>
+          </div>
+        </div>
+      </section>
+
       {/* Features Grid */}
       <section id="features" className="relative z-10 border-t border-slate-200 px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
         <div className="mx-auto max-w-[1400px]">

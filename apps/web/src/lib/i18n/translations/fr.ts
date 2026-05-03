@@ -86,6 +86,12 @@ export const fr: TranslationKeys = {
   "landing.chartsSection.bullet1": "Annotations graphiques",
   "landing.chartsSection.bullet2": "Replay de trades",
   "landing.chartsSection.bullet3": "Reconnaissance de patterns",
+  "landing.mobileSection.eyebrow": "Mobile First",
+  "landing.mobileSection.title": "Votre journal de trading, où que vous soyez.",
+  "landing.mobileSection.description": "Bull & Bear est entièrement optimisé pour mobile. Consultez vos trades, ajoutez des entrées et suivez vos performances en déplacement — avec la même clarté que sur desktop.",
+  "landing.mobileSection.bullet1": "Design responsive",
+  "landing.mobileSection.bullet2": "Tradez en déplacement",
+  "landing.mobileSection.bullet3": "Accès complet aux fonctionnalités",
   "landing.upcoming.title": "Et bien plus à venir...",
   "landing.upcoming.description": "De nouvelles fonctionnalités puissantes sont en route pour faire de Bull & Bear tout ce dont vous avez besoin pour exceller dans votre trading.",
 
