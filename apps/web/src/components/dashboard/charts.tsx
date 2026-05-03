@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback, useRef, useEffect } from "react";
 import { formatNumber, pnlColorClass } from "@/lib/format";
 import { DailyPnlHistogram } from "./daily-pnl-histogram";
 import { useTranslation } from "@/lib/i18n/context";
@@ -20,40 +20,6 @@ type ChartsProps = {
 
 function formatCurrency(value: number, fractionDigits = 2) {
   return `${value > 0 ? "+" : ""}${formatNumber(value, fractionDigits)}`;
-}
-
-// ─── Smooth cubic bezier path builder ────────────────────────────────────────
-
-function buildSmoothPath(positions: { x: number; y: number }[]): string {
-  if (positions.length === 0) return "";
-  if (positions.length === 1) return `M ${positions[0].x},${positions[0].y}`;
-
-  let d = `M ${positions[0].x},${positions[0].y}`;
-
-  for (let i = 0; i < positions.length - 1; i++) {
-    const p0 = positions[Math.max(0, i - 1)];
-    const p1 = positions[i];
-    const p2 = positions[i + 1];
-    const p3 = positions[Math.min(positions.length - 1, i + 2)];
-
-    const tension = 0.3;
-    const cp1x = p1.x + (p2.x - p0.x) * tension;
-    const cp1y = p1.y + (p2.y - p0.y) * tension;
-    const cp2x = p2.x - (p3.x - p1.x) * tension;
-    const cp2y = p2.y - (p3.y - p1.y) * tension;
-
-    d += ` C ${cp1x},${cp1y} ${cp2x},${cp2y} ${p2.x},${p2.y}`;
-  }
-
-  return d;
-}
-
-function buildAreaPath(positions: { x: number; y: number }[], zeroY: number): string {
-  if (positions.length === 0) return "";
-  const linePath = buildSmoothPath(positions);
-  const lastX = positions[positions.length - 1].x;
-  const firstX = positions[0].x;
-  return `${linePath} L ${lastX},${zeroY} L ${firstX},${zeroY} Z`;
 }
 
 // ─── Nice tick calculation ───────────────────────────────────────────────────
@@ -82,27 +48,26 @@ function computeTicks(minVal: number, maxVal: number, targetCount = 5): number[]
   return ticks;
 }
 
-// ─── Chart data builder ─────────────────────────────────────────────────────
+// ─── Chart data builder (pixel-based) ───────────────────────────────────────
 
 type ChartData = {
-  linePath: string;
-  areaPath: string;
   min: number;
   max: number;
   ticks: number[];
   zeroY: number;
-  pointPositions: { x: number; y: number; point: EquityPoint }[];
+  pointPositions: { x: number; y: number; xPct: number; yPct: number; point: EquityPoint }[];
 };
 
-function buildLineChart(series: EquityPoint[], mode: "dollar" | "percent"): ChartData {
+function buildChartData(series: EquityPoint[], mode: "dollar" | "percent", width: number, height: number): ChartData {
+  const paddingBottom = 32; // space for x-axis labels
+  const chartHeight = height - paddingBottom;
+  
   if (series.length === 0) {
     return {
-      linePath: "",
-      areaPath: "",
       min: 0,
       max: 1,
       ticks: [0],
-      zeroY: 100,
+      zeroY: chartHeight,
       pointPositions: [],
     };
   }
@@ -116,29 +81,25 @@ function buildLineChart(series: EquityPoint[], mode: "dollar" | "percent"): Char
   const padding = Math.max(spread * 0.15, 1);
   const min = rawMin - padding * 0.5;
   const max = rawMax + padding * 0.5;
-  const range = max - min || 1;
 
   const ticks = computeTicks(min, max, 5);
   const tickMin = Math.min(...ticks, min);
   const tickMax = Math.max(...ticks, max);
   const fullRange = tickMax - tickMin || 1;
 
-  const toY = (v: number) => 100 - ((v - tickMin) / fullRange) * 100;
+  const toY = (v: number) => chartHeight - ((v - tickMin) / fullRange) * chartHeight;
   const zeroY = toY(0);
 
   const pointPositions = series.map((point, index) => {
     const val = mode === "percent" && point.cumulativePercent !== null ? point.cumulativePercent : point.cumulativePnl;
-    const x = series.length === 1 ? 50 : (index / (series.length - 1)) * 100;
+    const xPct = series.length === 1 ? 50 : (index / (series.length - 1)) * 100;
+    const yPct = ((val - tickMin) / fullRange) * 100;
+    const x = (xPct / 100) * width;
     const y = toY(val);
-    return { x, y, point };
+    return { x, y, xPct, yPct, point };
   });
 
-  const linePath = buildSmoothPath(pointPositions);
-  const areaPath = buildAreaPath(pointPositions, zeroY);
-
   return {
-    linePath,
-    areaPath,
     min: tickMin,
     max: tickMax,
     ticks,
@@ -147,9 +108,44 @@ function buildLineChart(series: EquityPoint[], mode: "dollar" | "percent"): Char
   };
 }
 
+// ─── SVG Path builders (pixel-based) ─────────────────────────────────────────
+
+function buildSmoothPath(positions: { x: number; y: number }[]): string {
+  if (positions.length === 0) return "";
+  if (positions.length === 1) return `M ${positions[0].x},${positions[0].y}`;
+
+  let d = `M ${positions[0].x},${positions[0].y}`;
+
+  for (let i = 0; i < positions.length - 1; i++) {
+    const p0 = positions[Math.max(0, i - 1)];
+    const p1 = positions[i];
+    const p2 = positions[i + 1];
+    const p3 = positions[Math.min(positions.length - 1, i + 2)];
+
+    const tension = 0.25;
+    const cp1x = p1.x + (p2.x - p0.x) * tension;
+    const cp1y = p1.y + (p2.y - p0.y) * tension;
+    const cp2x = p2.x - (p3.x - p1.x) * tension;
+    const cp2y = p2.y - (p3.y - p1.y) * tension;
+
+    d += ` C ${cp1x},${cp1y} ${cp2x},${cp2y} ${p2.x},${p2.y}`;
+  }
+
+  return d;
+}
+
+function buildAreaPath(positions: { x: number; y: number }[], zeroY: number): string {
+  if (positions.length === 0) return "";
+  const linePath = buildSmoothPath(positions);
+  const lastX = positions[positions.length - 1].x;
+  const firstX = positions[0].x;
+  return `${linePath} L ${lastX},${zeroY} L ${firstX},${zeroY} Z`;
+}
+
 function xLabelInterval(length: number) {
   if (length <= 7) return 1;
-  return Math.ceil(length / 6);
+  if (length <= 14) return 2;
+  return Math.ceil(length / 7);
 }
 
 // ─── Component ──────────────────────────────────────────────────────────────
@@ -170,11 +166,42 @@ export function DashboardCharts({
   const [equityMode, setEquityMode] = useState<"dollar" | "percent">("dollar");
   const activeMode = hasBalance ? equityMode : "dollar";
   const { t } = useTranslation();
+  
+  // Track container size for pixel-based rendering
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [dimensions, setDimensions] = useState({ width: 600, height: 256 });
+  
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (entry) {
+        setDimensions({
+          width: entry.contentRect.width,
+          height: 256, // Fixed height
+        });
+      }
+    });
+    
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, []);
 
-  const chart = useMemo(() => buildLineChart(cumulativeSeries, activeMode), [cumulativeSeries, activeMode]);
+  const chart = useMemo(
+    () => buildChartData(cumulativeSeries, activeMode, dimensions.width, dimensions.height),
+    [cumulativeSeries, activeMode, dimensions.width, dimensions.height]
+  );
+  
+  const linePath = useMemo(() => buildSmoothPath(chart.pointPositions), [chart.pointPositions]);
+  const areaPath = useMemo(() => buildAreaPath(chart.pointPositions, chart.zeroY), [chart.pointPositions, chart.zeroY]);
+  
   const hoveredPos = hoveredIndex !== null ? chart.pointPositions[hoveredIndex] ?? null : null;
   const latestPoint = cumulativeSeries[cumulativeSeries.length - 1] ?? null;
   const labelEvery = xLabelInterval(cumulativeSeries.length);
+  
+  const chartHeight = dimensions.height - 32;
 
   const displayValue = activeMode === "percent" && latestPoint?.cumulativePercent !== null
     ? latestPoint?.cumulativePercent ?? 0
@@ -196,12 +223,12 @@ export function DashboardCharts({
     (e: React.MouseEvent<HTMLDivElement>) => {
       if (chart.pointPositions.length === 0) return;
       const rect = e.currentTarget.getBoundingClientRect();
-      const xPct = ((e.clientX - rect.left) / rect.width) * 100;
+      const mouseX = e.clientX - rect.left;
       // Find closest point
       let closest = 0;
       let closestDist = Infinity;
       for (let i = 0; i < chart.pointPositions.length; i++) {
-        const dist = Math.abs(chart.pointPositions[i].x - xPct);
+        const dist = Math.abs(chart.pointPositions[i].x - mouseX);
         if (dist < closestDist) {
           closestDist = dist;
           closest = i;
@@ -303,22 +330,24 @@ export function DashboardCharts({
           ) : (
             <div className="grid grid-cols-[auto_1fr] gap-3 sm:gap-4">
               {/* Y-axis labels */}
-              <div className="relative h-64 w-12 pb-8 pt-1 text-right text-[11px] font-medium text-secondary font-mono sm:text-xs">
-                {chart.ticks.map((tick, i) => (
-                  <span
-                    key={i}
-                    className="absolute right-0 -translate-y-1/2 whitespace-nowrap"
-                    style={{
-                      top: `${((chart.max - tick) / (chart.max - chart.min || 1)) * (100 - 12.5)}%`,
-                    }}
-                  >
-                    {activeMode === "percent" ? `${formatNumber(tick, 1)}%` : formatNumber(tick)}
-                  </span>
-                ))}
+              <div className="relative h-64 w-14 pb-8 pt-1 text-right text-[11px] font-medium text-secondary font-mono sm:text-xs">
+                {chart.ticks.map((tick, i) => {
+                  const yPct = ((chart.max - tick) / (chart.max - chart.min || 1)) * (chartHeight / dimensions.height) * 100;
+                  return (
+                    <span
+                      key={i}
+                      className="absolute right-0 -translate-y-1/2 whitespace-nowrap pr-2"
+                      style={{ top: `${yPct}%` }}
+                    >
+                      {activeMode === "percent" ? `${formatNumber(tick, 1)}%` : formatNumber(tick)}
+                    </span>
+                  );
+                })}
               </div>
 
               {/* Chart SVG */}
               <div
+                ref={containerRef}
                 className="relative h-64 cursor-crosshair"
                 onMouseMove={handleMouseMove}
                 onMouseLeave={handleMouseLeave}
@@ -326,11 +355,11 @@ export function DashboardCharts({
                 {/* Tooltip */}
                 {hoveredPos ? (
                   <div
-                    className="pointer-events-none absolute z-20 rounded-xl border border-border bg-surface-1/95 px-3.5 py-2.5 text-xs shadow-xl backdrop-blur-sm transition-all duration-100"
+                    className="pointer-events-none absolute z-20 rounded-xl border border-border bg-surface-1/95 px-3.5 py-2.5 text-xs shadow-xl backdrop-blur-sm"
                     style={{
-                      left: `${hoveredPos.x}%`,
-                      top: `calc(${Math.min(Math.max(hoveredPos.y - 12, 0), 60)}% - 0.5rem)`,
-                      transform: hoveredPos.x > 75 ? "translateX(-100%)" : hoveredPos.x < 25 ? "translateX(0)" : "translateX(-50%)",
+                      left: `${hoveredPos.xPct}%`,
+                      top: Math.max(hoveredPos.y - 80, 8),
+                      transform: hoveredPos.xPct > 80 ? "translateX(-100%)" : hoveredPos.xPct < 20 ? "translateX(0)" : "translateX(-50%)",
                     }}
                   >
                     <p className="font-semibold text-primary font-sans">{hoveredPos.point.label}</p>
@@ -351,20 +380,27 @@ export function DashboardCharts({
                   </div>
                 ) : null}
 
-                <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 h-[calc(100%-2rem)] w-full overflow-visible">
+                <svg 
+                  width={dimensions.width} 
+                  height={dimensions.height} 
+                  className="absolute inset-0 overflow-visible"
+                  style={{ height: dimensions.height }}
+                >
                   <defs>
-                    {/* Gradient fill */}
+                    {/* Gradient fills */}
                     <linearGradient id="equity-grad-pos" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#10b981" stopOpacity="0.25" />
+                      <stop offset="0%" stopColor="#10b981" stopOpacity="0.35" />
+                      <stop offset="50%" stopColor="#10b981" stopOpacity="0.15" />
                       <stop offset="100%" stopColor="#10b981" stopOpacity="0.02" />
                     </linearGradient>
                     <linearGradient id="equity-grad-neg" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor="#ef4444" stopOpacity="0.02" />
-                      <stop offset="100%" stopColor="#ef4444" stopOpacity="0.25" />
+                      <stop offset="50%" stopColor="#ef4444" stopOpacity="0.15" />
+                      <stop offset="100%" stopColor="#ef4444" stopOpacity="0.35" />
                     </linearGradient>
                     {/* Glow filter for the line */}
-                    <filter id="line-glow" x="-20%" y="-20%" width="140%" height="140%">
-                      <feGaussianBlur in="SourceGraphic" stdDeviation="1.2" result="blur" />
+                    <filter id="line-glow" x="-50%" y="-50%" width="200%" height="200%">
+                      <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur" />
                       <feMerge>
                         <feMergeNode in="blur" />
                         <feMergeNode in="SourceGraphic" />
@@ -374,13 +410,14 @@ export function DashboardCharts({
 
                   {/* Grid lines */}
                   {chart.ticks.map((tick, i) => {
-                    const y = 100 - ((tick - chart.min) / ((chart.max - chart.min) || 1)) * 100;
+                    const y = chartHeight - ((tick - chart.min) / ((chart.max - chart.min) || 1)) * chartHeight;
                     return (
                       <line
                         key={i}
-                        x1="0" y1={y} x2="100" y2={y}
-                        stroke="rgba(100, 116, 139, 0.12)"
-                        strokeWidth="0.3"
+                        x1="0" y1={y} x2={dimensions.width} y2={y}
+                        stroke="var(--color-border)"
+                        strokeWidth="1"
+                        strokeOpacity="0.5"
                       />
                     );
                   })}
@@ -388,57 +425,68 @@ export function DashboardCharts({
                   {/* Zero line (prominent) */}
                   {chart.min < 0 && chart.max > 0 && (
                     <line
-                      x1="0" y1={chart.zeroY} x2="100" y2={chart.zeroY}
-                      stroke="rgba(148, 163, 184, 0.35)"
-                      strokeWidth="0.4"
-                      strokeDasharray="2 1.5"
+                      x1="0" y1={chart.zeroY} x2={dimensions.width} y2={chart.zeroY}
+                      stroke="var(--color-text-secondary)"
+                      strokeWidth="1.5"
+                      strokeOpacity="0.5"
+                      strokeDasharray="6 4"
                     />
                   )}
 
                   {/* Gradient area fill */}
                   <path
-                    d={chart.areaPath}
+                    d={areaPath}
                     fill={`url(#${gradientId})`}
                     className="animate-[fadeIn_0.6s_ease-out]"
                   />
 
                   {/* Smooth line with glow */}
                   <path
-                    d={chart.linePath}
+                    d={linePath}
                     fill="none"
                     stroke={lineColor}
-                    strokeWidth="1.4"
+                    strokeWidth="2.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     filter="url(#line-glow)"
-                    vectorEffect="non-scaling-stroke"
-                    className="animate-[drawLine_1s_ease-out]"
                   />
 
                   {/* Hover crosshair */}
                   {hoveredPos ? (
                     <line
                       x1={hoveredPos.x} y1="0"
-                      x2={hoveredPos.x} y2="100"
-                      stroke="rgba(148, 163, 184, 0.3)"
-                      strokeWidth="0.3"
-                      strokeDasharray="1 1"
+                      x2={hoveredPos.x} y2={chartHeight}
+                      stroke="var(--color-text-secondary)"
+                      strokeWidth="1"
+                      strokeOpacity="0.4"
+                      strokeDasharray="4 3"
                     />
                   ) : null}
 
                   {/* Data points */}
                   {chart.pointPositions.map(({ x, y, point }, i) => {
                     const isHovered = hoveredIndex === i;
+                    const isLast = i === chart.pointPositions.length - 1;
+                    const showPoint = isHovered || isLast || chart.pointPositions.length <= 14;
+                    
+                    if (!showPoint) return null;
+                    
                     return (
                       <g key={point.key}>
                         {isHovered ? (
                           <>
-                            <circle cx={x} cy={y} r="3" fill={`${lineColor}20`} />
-                            <circle cx={x} cy={y} r="2" fill="var(--color-surface-1)" stroke={lineColor} strokeWidth="0.8" />
-                            <circle cx={x} cy={y} r="0.8" fill={lineColor} />
+                            <circle cx={x} cy={y} r="12" fill={`${lineColor}`} fillOpacity="0.15" />
+                            <circle cx={x} cy={y} r="6" fill="var(--color-surface-1)" stroke={lineColor} strokeWidth="2.5" />
+                            <circle cx={x} cy={y} r="2.5" fill={lineColor} />
+                          </>
+                        ) : isLast ? (
+                          <>
+                            <circle cx={x} cy={y} r="8" fill={`${lineColor}`} fillOpacity="0.2" className="animate-pulse" />
+                            <circle cx={x} cy={y} r="5" fill="var(--color-surface-1)" stroke={lineColor} strokeWidth="2" />
+                            <circle cx={x} cy={y} r="2" fill={lineColor} />
                           </>
                         ) : (
-                          <circle cx={x} cy={y} r="0.9" fill="var(--color-surface-1)" stroke={lineColor} strokeWidth="0.5" opacity="0.7" />
+                          <circle cx={x} cy={y} r="3.5" fill="var(--color-surface-1)" stroke={lineColor} strokeWidth="1.5" opacity="0.8" />
                         )}
                       </g>
                     );
@@ -446,7 +494,7 @@ export function DashboardCharts({
                 </svg>
 
                 {/* X-axis labels */}
-                <div className="absolute inset-x-0 bottom-0 flex h-8 items-end justify-between gap-2 text-[11px] font-medium text-secondary font-mono sm:text-xs">
+                <div className="absolute inset-x-0 bottom-0 flex h-8 items-end justify-between text-[10px] font-medium text-secondary font-mono sm:text-xs">
                   {cumulativeSeries.map((point, index) => {
                     const shouldShow =
                       index === 0 ||
