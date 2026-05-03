@@ -95,7 +95,7 @@ export default function LandingPage() {
   ];
 
   return (
-    <main className="relative min-h-screen overflow-x-hidden bg-[#08111d] text-white">
+    <main className="relative min-h-screen overflow-x-hidden bg-white text-slate-900">
       <AnimatedChartBackground />
 
       {/* Hero Section */}
@@ -125,7 +125,7 @@ export default function LandingPage() {
               <button
                 type="button"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="inline-flex items-center justify-center rounded-md p-2 text-white/70 hover:bg-white/10 hover:text-white focus:outline-none"
+                className="inline-flex items-center justify-center rounded-md p-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus:outline-none"
                 aria-expanded={isMobileMenuOpen}
               >
                 <span className="sr-only">{isMobileMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}</span>
@@ -142,16 +142,16 @@ export default function LandingPage() {
             </div>
 
             {/* Desktop Navigation */}
-            <nav className="hidden items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 shadow-lg backdrop-blur-xl sm:flex">
+            <nav className="hidden items-center gap-2 rounded-full border border-slate-200 bg-white/80 px-3 py-2 shadow-lg backdrop-blur-xl sm:flex">
               <a
                 href="#about"
-                className="px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-white/70 transition hover:text-white"
+                className="px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-slate-600 transition hover:text-slate-900"
               >
                 {t("landing.nav.about")}
               </a>
               <a
                 href="#features"
-                className="px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-white/70 transition hover:text-white"
+                className="px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-slate-600 transition hover:text-slate-900"
               >
                 {t("landing.nav.features")}
               </a>
@@ -160,7 +160,7 @@ export default function LandingPage() {
                 {!isAuthenticated && (
                   <Link
                     href="/auth/login"
-                    className="rounded-full border border-white/14 bg-white/[0.03] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-white/[0.08]"
+                    className="rounded-full border border-slate-200 bg-slate-50 px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-slate-700 transition hover:bg-slate-100"
                   >
                     {t("landing.nav.login")}
                   </Link>
@@ -180,29 +180,29 @@ export default function LandingPage() {
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="absolute left-4 right-4 top-24 z-40 rounded-2xl border border-white/10 bg-[#0b1728]/95 p-6 shadow-2xl backdrop-blur-xl sm:hidden"
+              className="absolute left-4 right-4 top-24 z-40 rounded-2xl border border-slate-200 bg-white/95 p-6 shadow-2xl backdrop-blur-xl sm:hidden"
             >
               <nav className="flex flex-col gap-4">
                 <a
                   href="#about"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="text-base font-medium text-slate-200 hover:text-white"
+                  className="text-base font-medium text-slate-700 hover:text-slate-900"
                 >
                   {t("landing.nav.about")}
                 </a>
                 <a
                   href="#features"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="text-base font-medium text-slate-200 hover:text-white"
+                  className="text-base font-medium text-slate-700 hover:text-slate-900"
                 >
                   {t("landing.nav.features")}
                 </a>
-                <div className={`flex flex-col gap-3 border-t border-white/10 pt-4 transition-opacity duration-300 ${checked ? "opacity-100" : "opacity-0"}`}>
+                <div className={`flex flex-col gap-3 border-t border-slate-200 pt-4 transition-opacity duration-300 ${checked ? "opacity-100" : "opacity-0"}`}>
                   {!isAuthenticated && (
                     <Link
                       href="/auth/login"
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className="w-full rounded-xl border border-white/14 bg-white/[0.03] px-5 py-3.5 text-center text-sm font-semibold uppercase tracking-[0.16em] text-white"
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-5 py-3.5 text-center text-sm font-semibold uppercase tracking-[0.16em] text-slate-700"
                     >
                       {t("landing.nav.login")}
                     </Link>
@@ -236,9 +236,9 @@ export default function LandingPage() {
               transition={{ duration: 0.7, delay: 0.1 }}
               className="max-w-4xl text-balance text-5xl font-bold leading-[1.1] tracking-tight sm:text-6xl md:text-7xl lg:text-8xl"
             >
-              <span className="text-white">{t("landing.hero.punchline1")}</span>
+              <span className="text-slate-900">{t("landing.hero.punchline1")}</span>
               <br />
-              <span className="bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
                 {t("landing.hero.punchline2")}
               </span>
             </motion.h1>
@@ -247,7 +247,7 @@ export default function LandingPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="mt-8 max-w-2xl text-pretty text-lg text-slate-400 sm:text-xl"
+              className="mt-8 max-w-2xl text-pretty text-lg text-slate-600 sm:text-xl"
             >
               {t("landing.hero.subtitle")}
             </motion.p>
@@ -264,7 +264,7 @@ export default function LandingPage() {
               >
                 <span className="relative z-10">{primaryLabel}</span>
               </Link>
-              <span className="text-xs font-medium uppercase tracking-wider text-white/40">
+              <span className="text-xs font-medium uppercase tracking-wider text-slate-500">
                 {t("landing.hero.socialProof")}
               </span>
             </motion.div>
@@ -281,8 +281,8 @@ export default function LandingPage() {
                 transition={{ duration: 1.5, repeat: Infinity }}
                 className="flex flex-col items-center gap-2"
               >
-                <span className="text-xs uppercase tracking-widest text-white/40">Scroll</span>
-                <svg className="h-5 w-5 text-white/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <span className="text-xs uppercase tracking-widest text-slate-500">Scroll</span>
+                <svg className="h-5 w-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                 </svg>
               </motion.div>
@@ -292,7 +292,7 @@ export default function LandingPage() {
       </section>
 
       {/* Stats Bar */}
-      <section className="relative z-10 border-y border-white/10 bg-[#0a1320]/80 backdrop-blur-xl">
+      <section className="relative z-10 border-y border-slate-200 bg-slate-50/80 backdrop-blur-xl">
         <div className="mx-auto max-w-[1400px] px-4 py-12 sm:px-6 lg:px-10">
           <StaggerContainer className="grid grid-cols-2 gap-8 md:grid-cols-4">
             {[
@@ -302,8 +302,8 @@ export default function LandingPage() {
               { value: "1M+", label: t("landing.stats.dataPoints") },
             ].map((stat) => (
               <StaggerItem key={stat.label} className="text-center">
-                <div className="text-3xl font-bold text-blue-400 sm:text-4xl">{stat.value}</div>
-                <div className="mt-2 text-sm text-slate-400">{stat.label}</div>
+                <div className="text-3xl font-bold text-blue-600 sm:text-4xl">{stat.value}</div>
+                <div className="mt-2 text-sm text-slate-600">{stat.label}</div>
               </StaggerItem>
             ))}
           </StaggerContainer>
@@ -314,30 +314,30 @@ export default function LandingPage() {
       <section id="about" className="relative z-10 px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
         <div className="mx-auto max-w-[1400px]">
           <ScrollReveal className="mx-auto max-w-3xl text-center">
-            <h2 className="text-balance text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
+            <h2 className="text-balance text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
               {t("landing.about.title")}
             </h2>
-            <p className="mt-8 text-pretty text-lg leading-relaxed text-slate-400">
+            <p className="mt-8 text-pretty text-lg leading-relaxed text-slate-600">
               {t("landing.about.description")}
             </p>
           </ScrollReveal>
 
           {/* Bull & Bear Visual */}
           <ScrollReveal delay={0.2} className="mt-16 flex items-center justify-center gap-8">
-            <div className="relative h-48 w-48 overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-green-500/20 to-transparent p-6 sm:h-64 sm:w-64">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(34,197,94,0.2),transparent_70%)]" />
+            <div className="relative h-48 w-48 overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-green-500/10 to-transparent p-6 sm:h-64 sm:w-64">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(34,197,94,0.15),transparent_70%)]" />
               {/* Placeholder for Bull image */}
               <div className="flex h-full w-full flex-col items-center justify-center">
-                <TrendingUp className="h-16 w-16 text-green-400 sm:h-24 sm:w-24" />
-                <span className="mt-4 text-xl font-bold text-green-400">BULL</span>
+                <TrendingUp className="h-16 w-16 text-green-500 sm:h-24 sm:w-24" />
+                <span className="mt-4 text-xl font-bold text-green-600">BULL</span>
               </div>
             </div>
-            <div className="relative h-48 w-48 overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-red-500/20 to-transparent p-6 sm:h-64 sm:w-64">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(239,68,68,0.2),transparent_70%)]" />
+            <div className="relative h-48 w-48 overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-red-500/10 to-transparent p-6 sm:h-64 sm:w-64">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(239,68,68,0.15),transparent_70%)]" />
               {/* Placeholder for Bear image */}
               <div className="flex h-full w-full flex-col items-center justify-center">
-                <TrendingDown className="h-16 w-16 text-red-400 sm:h-24 sm:w-24" />
-                <span className="mt-4 text-xl font-bold text-red-400">BEAR</span>
+                <TrendingDown className="h-16 w-16 text-red-500 sm:h-24 sm:w-24" />
+                <span className="mt-4 text-xl font-bold text-red-600">BEAR</span>
               </div>
             </div>
           </ScrollReveal>
@@ -349,9 +349,9 @@ export default function LandingPage() {
         <div className="mx-auto max-w-[1400px]">
           <div className="grid items-center gap-16 lg:grid-cols-2">
             <ScrollReveal direction="left" className="order-2 lg:order-1">
-              <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.08] to-white/[0.02] p-3 shadow-2xl">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.1),transparent_50%)]" />
-                <div className="relative aspect-[16/10] overflow-hidden rounded-2xl border border-white/10 bg-[#091321]">
+              <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-100 to-white p-3 shadow-2xl">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.08),transparent_50%)]" />
+                <div className="relative aspect-[16/10] overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
                   <Image
                     src="/dashboard_example.png"
                     alt="Bull & Bear Dashboard"
@@ -364,13 +364,13 @@ export default function LandingPage() {
             </ScrollReveal>
 
             <ScrollReveal direction="right" className="order-1 lg:order-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue-400">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue-600">
                 {t("landing.showcase.feat1.eyebrow")}
               </p>
-              <h3 className="mt-6 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
+              <h3 className="mt-6 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
                 {t("landing.showcase.feat1.title")}
               </h3>
-              <p className="mt-6 text-lg leading-relaxed text-slate-400">
+              <p className="mt-6 text-lg leading-relaxed text-slate-600">
                 {t("landing.showcase.feat1.desc")}
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
@@ -381,7 +381,7 @@ export default function LandingPage() {
                 ].map((bullet) => (
                   <span
                     key={bullet}
-                    className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white/70"
+                    className="rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-slate-700"
                   >
                     {bullet}
                   </span>
@@ -397,13 +397,13 @@ export default function LandingPage() {
         <div className="mx-auto max-w-[1400px]">
           <div className="grid items-center gap-16 lg:grid-cols-2">
             <ScrollReveal direction="left">
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-400">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-600">
                 {t("landing.showcase.feat2.eyebrow")}
               </p>
-              <h3 className="mt-6 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
+              <h3 className="mt-6 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
                 {t("landing.showcase.feat2.title")}
               </h3>
-              <p className="mt-6 text-lg leading-relaxed text-slate-400">
+              <p className="mt-6 text-lg leading-relaxed text-slate-600">
                 {t("landing.showcase.feat2.desc")}
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
@@ -414,7 +414,7 @@ export default function LandingPage() {
                 ].map((bullet) => (
                   <span
                     key={bullet}
-                    className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white/70"
+                    className="rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-slate-700"
                   >
                     {bullet}
                   </span>
@@ -423,14 +423,14 @@ export default function LandingPage() {
             </ScrollReveal>
 
             <ScrollReveal direction="right">
-              <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.08] to-white/[0.02] p-3 shadow-2xl">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.1),transparent_50%)]" />
-                <div className="relative aspect-[16/10] overflow-hidden rounded-2xl border border-white/10 bg-[#091321]">
+              <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-100 to-white p-3 shadow-2xl">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.08),transparent_50%)]" />
+                <div className="relative aspect-[16/10] overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
                   {/* Placeholder for Journal Screenshot */}
-                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-cyan-900/30 to-transparent">
+                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-cyan-100/50 to-transparent">
                     <div className="text-center">
-                      <Target className="mx-auto h-16 w-16 text-cyan-400/50" />
-                      <p className="mt-4 text-sm text-white/40">Journal Preview</p>
+                      <Target className="mx-auto h-16 w-16 text-cyan-500/50" />
+                      <p className="mt-4 text-sm text-slate-500">Journal Preview</p>
                     </div>
                   </div>
                 </div>
@@ -445,14 +445,14 @@ export default function LandingPage() {
         <div className="mx-auto max-w-[1400px]">
           <div className="grid items-center gap-16 lg:grid-cols-2">
             <ScrollReveal direction="left" className="order-2 lg:order-1">
-              <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.08] to-white/[0.02] p-3 shadow-2xl">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(16,185,129,0.1),transparent_50%)]" />
-                <div className="relative aspect-[16/10] overflow-hidden rounded-2xl border border-white/10 bg-[#091321]">
+              <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-100 to-white p-3 shadow-2xl">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(16,185,129,0.08),transparent_50%)]" />
+                <div className="relative aspect-[16/10] overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
                   {/* Placeholder for Stats Screenshot */}
-                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-emerald-900/30 to-transparent">
+                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-emerald-100/50 to-transparent">
                     <div className="text-center">
-                      <LineChart className="mx-auto h-16 w-16 text-emerald-400/50" />
-                      <p className="mt-4 text-sm text-white/40">Statistics Preview</p>
+                      <LineChart className="mx-auto h-16 w-16 text-emerald-500/50" />
+                      <p className="mt-4 text-sm text-slate-500">Statistics Preview</p>
                     </div>
                   </div>
                 </div>
@@ -460,13 +460,13 @@ export default function LandingPage() {
             </ScrollReveal>
 
             <ScrollReveal direction="right" className="order-1 lg:order-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-400">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-600">
                 {t("landing.statsSection.eyebrow")}
               </p>
-              <h3 className="mt-6 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
+              <h3 className="mt-6 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
                 {t("landing.statsSection.title")}
               </h3>
-              <p className="mt-6 text-lg leading-relaxed text-slate-400">
+              <p className="mt-6 text-lg leading-relaxed text-slate-600">
                 {t("landing.statsSection.description")}
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
@@ -477,7 +477,7 @@ export default function LandingPage() {
                 ].map((bullet) => (
                   <span
                     key={bullet}
-                    className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white/70"
+                    className="rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-slate-700"
                   >
                     {bullet}
                   </span>
@@ -489,13 +489,13 @@ export default function LandingPage() {
       </section>
 
       {/* Features Grid */}
-      <section id="features" className="relative z-10 border-t border-white/10 px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
+      <section id="features" className="relative z-10 border-t border-slate-200 px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
         <div className="mx-auto max-w-[1400px]">
           <ScrollReveal className="mx-auto max-w-3xl text-center">
-            <h2 className="text-balance text-4xl font-bold tracking-tight text-white sm:text-5xl">
+            <h2 className="text-balance text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
               {t("landing.features.title")}
             </h2>
-            <p className="mt-6 text-lg text-slate-400">
+            <p className="mt-6 text-lg text-slate-600">
               {t("landing.features.subtitle")}
             </p>
           </ScrollReveal>
@@ -503,11 +503,11 @@ export default function LandingPage() {
           <StaggerContainer className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" staggerDelay={0.1}>
             {features.map((feature) => (
               <StaggerItem key={feature.title}>
-                <div className="group relative h-full overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.06] to-transparent p-6 transition-all duration-300 hover:border-blue-500/30 hover:bg-white/[0.08]">
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.1),transparent_70%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                  <feature.icon className="h-10 w-10 text-blue-400" />
-                  <h3 className="mt-4 text-lg font-semibold text-white">{feature.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-slate-400">{feature.description}</p>
+                <div className="group relative h-full overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 to-white p-6 transition-all duration-300 hover:border-blue-300 hover:bg-slate-50">
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.08),transparent_70%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                  <feature.icon className="h-10 w-10 text-blue-600" />
+                  <h3 className="mt-4 text-lg font-semibold text-slate-900">{feature.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-600">{feature.description}</p>
                 </div>
               </StaggerItem>
             ))}
@@ -516,37 +516,37 @@ export default function LandingPage() {
       </section>
 
       {/* Integrations */}
-      <section className="relative z-10 border-t border-white/10 px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
+      <section className="relative z-10 border-t border-slate-200 px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
         <div className="mx-auto max-w-[1400px]">
           <ScrollReveal className="mx-auto max-w-3xl text-center">
-            <h2 className="text-balance text-4xl font-bold tracking-tight text-white sm:text-5xl">
+            <h2 className="text-balance text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
               {t("landing.integrations.title")}
             </h2>
-            <p className="mt-6 text-lg text-slate-400">
+            <p className="mt-6 text-lg text-slate-600">
               {t("landing.integrations.description")}
             </p>
           </ScrollReveal>
 
           <StaggerContainer className="mt-16 flex flex-col items-center justify-center gap-12 sm:flex-row sm:gap-20">
             <StaggerItem>
-              <div className="group flex h-40 w-40 items-center justify-center rounded-3xl border border-white/10 bg-white/[0.04] p-6 transition-all duration-300 hover:border-blue-500/30 hover:bg-white/[0.08] sm:h-52 sm:w-52 sm:p-8">
+              <div className="group flex h-40 w-40 items-center justify-center rounded-3xl border border-slate-200 bg-slate-50 p-6 transition-all duration-300 hover:border-blue-300 hover:bg-slate-100 sm:h-52 sm:w-52 sm:p-8">
                 {/* Placeholder for MetaTrader logo */}
                 <div className="text-center">
-                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-500/20">
-                    <span className="text-2xl font-bold text-blue-400">MT</span>
+                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-100">
+                    <span className="text-2xl font-bold text-blue-600">MT</span>
                   </div>
-                  <p className="mt-3 text-sm font-medium text-white/70">MetaTrader</p>
+                  <p className="mt-3 text-sm font-medium text-slate-700">MetaTrader</p>
                 </div>
               </div>
             </StaggerItem>
             <StaggerItem>
-              <div className="group flex h-40 w-40 items-center justify-center rounded-3xl border border-white/10 bg-white/[0.04] p-6 transition-all duration-300 hover:border-blue-500/30 hover:bg-white/[0.08] sm:h-52 sm:w-52 sm:p-8">
+              <div className="group flex h-40 w-40 items-center justify-center rounded-3xl border border-slate-200 bg-slate-50 p-6 transition-all duration-300 hover:border-blue-300 hover:bg-slate-100 sm:h-52 sm:w-52 sm:p-8">
                 {/* Placeholder for cTrader logo */}
                 <div className="text-center">
-                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-cyan-500/20">
-                    <span className="text-2xl font-bold text-cyan-400">cT</span>
+                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-cyan-100">
+                    <span className="text-2xl font-bold text-cyan-600">cT</span>
                   </div>
-                  <p className="mt-3 text-sm font-medium text-white/70">cTrader</p>
+                  <p className="mt-3 text-sm font-medium text-slate-700">cTrader</p>
                 </div>
               </div>
             </StaggerItem>
@@ -558,13 +558,13 @@ export default function LandingPage() {
       <section className="relative z-10 px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
         <div className="mx-auto max-w-[1400px]">
           <ScrollReveal>
-            <div className="relative overflow-hidden rounded-3xl border border-blue-500/30 bg-gradient-to-br from-blue-500/20 via-[#0a1320] to-[#0a1320] p-8 sm:p-16">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.15),transparent_70%)]" />
+            <div className="relative overflow-hidden rounded-3xl border border-blue-200 bg-gradient-to-br from-blue-50 via-white to-white p-8 sm:p-16">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.1),transparent_70%)]" />
               <div className="relative mx-auto max-w-2xl text-center">
-                <h2 className="text-balance text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
+                <h2 className="text-balance text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
                   {t("landing.cta.headline")}
                 </h2>
-                <p className="mt-6 text-lg text-slate-300">
+                <p className="mt-6 text-lg text-slate-600">
                   {t("landing.cta.subtitle")}
                 </p>
                 <Link
