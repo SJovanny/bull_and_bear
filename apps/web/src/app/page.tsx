@@ -294,8 +294,8 @@ export default function LandingPage() {
 
       {/* Stats Bar */}
       <section className="relative z-10 border-y border-slate-200 bg-slate-50/80 backdrop-blur-xl">
-        <div className="mx-auto max-w-[1400px] px-4 py-12 sm:px-6 lg:px-10">
-          <StaggerContainer className="grid grid-cols-2 gap-8 md:grid-cols-4">
+        <div className="mx-auto max-w-[1400px] px-4 py-20 sm:px-6 lg:px-10">
+          <StaggerContainer className="grid grid-cols-2 gap-10 md:grid-cols-4">
             {[
               { value: "50K+", label: t("landing.stats.tradesAnalyzed") },
               { value: "1,200+", label: t("landing.stats.tradersOnboard") },
@@ -303,8 +303,8 @@ export default function LandingPage() {
               { value: "1M+", label: t("landing.stats.dataPoints") },
             ].map((stat) => (
               <StaggerItem key={stat.label} className="text-center">
-                <div className="text-3xl font-bold text-blue-600 sm:text-4xl">{stat.value}</div>
-                <div className="mt-2 text-sm text-slate-600">{stat.label}</div>
+                <div className="text-4xl font-bold text-blue-600 sm:text-5xl">{stat.value}</div>
+                <div className="mt-3 text-sm text-slate-600">{stat.label}</div>
               </StaggerItem>
             ))}
           </StaggerContainer>
@@ -312,33 +312,31 @@ export default function LandingPage() {
       </section>
 
       {/* About Section */}
-      <section id="about" className="relative z-10 px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
+      <section id="about" className="relative z-10 px-4 py-32 sm:px-6 lg:px-10 lg:py-40">
         <div className="mx-auto max-w-[1400px]">
           <ScrollReveal className="mx-auto max-w-3xl text-center">
             <h2 className="text-balance text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
               {t("landing.about.title")}
             </h2>
-            <p className="mt-8 text-pretty text-lg leading-relaxed text-slate-600">
+            <p className="mt-10 text-pretty text-xl leading-relaxed text-slate-600">
               {t("landing.about.description")}
             </p>
           </ScrollReveal>
 
           {/* Bull & Bear Visual */}
-          <ScrollReveal delay={0.2} className="mt-16 flex items-center justify-center gap-8">
-            <div className="relative h-48 w-48 overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-green-500/10 to-transparent p-6 sm:h-64 sm:w-64">
+          <ScrollReveal delay={0.2} className="mt-24 flex items-center justify-center gap-10">
+            <div className="relative h-56 w-56 overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-green-500/10 to-transparent p-6 sm:h-72 sm:w-72">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(34,197,94,0.15),transparent_70%)]" />
-              {/* Placeholder for Bull image */}
               <div className="flex h-full w-full flex-col items-center justify-center">
-                <TrendingUp className="h-16 w-16 text-green-500 sm:h-24 sm:w-24" />
-                <span className="mt-4 text-xl font-bold text-green-600">BULL</span>
+                <TrendingUp className="h-20 w-20 text-green-500 sm:h-28 sm:w-28" />
+                <span className="mt-5 text-xl font-bold text-green-600">BULL</span>
               </div>
             </div>
-            <div className="relative h-48 w-48 overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-red-500/10 to-transparent p-6 sm:h-64 sm:w-64">
+            <div className="relative h-56 w-56 overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-red-500/10 to-transparent p-6 sm:h-72 sm:w-72">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(239,68,68,0.15),transparent_70%)]" />
-              {/* Placeholder for Bear image */}
               <div className="flex h-full w-full flex-col items-center justify-center">
-                <TrendingDown className="h-16 w-16 text-red-500 sm:h-24 sm:w-24" />
-                <span className="mt-4 text-xl font-bold text-red-600">BEAR</span>
+                <TrendingDown className="h-20 w-20 text-red-500 sm:h-28 sm:w-28" />
+                <span className="mt-5 text-xl font-bold text-red-600">BEAR</span>
               </div>
             </div>
           </ScrollReveal>
@@ -346,9 +344,9 @@ export default function LandingPage() {
       </section>
 
        {/* Dashboard Preview Section */}
-      <section className="relative z-10 px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
+      <section className="relative z-10 px-4 py-32 sm:px-6 lg:px-10 lg:py-40">
         <div className="mx-auto max-w-[1400px]">
-          <div className="grid items-center gap-16 lg:grid-cols-2">
+          <div className="grid items-center gap-20 lg:grid-cols-2 lg:gap-28">
             <ScrollReveal direction="left" className="order-2 lg:order-1">
               <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-100 to-white p-3 shadow-2xl">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.08),transparent_50%)]" />
@@ -368,13 +366,13 @@ export default function LandingPage() {
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue-600">
                 {t("landing.showcase.feat1.eyebrow")}
               </p>
-              <h3 className="mt-6 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
+              <h3 className="mt-8 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
                 {t("landing.showcase.feat1.title")}
               </h3>
-              <p className="mt-6 text-lg leading-relaxed text-slate-600">
+              <p className="mt-8 text-lg leading-relaxed text-slate-600">
                 {t("landing.showcase.feat1.desc")}
               </p>
-              <div className="mt-8 flex flex-wrap gap-3">
+              <div className="mt-10 flex flex-wrap gap-3">
                 {[
                   t("landing.showcase.feat1.bullet1"),
                   t("landing.showcase.feat1.bullet2"),
@@ -394,20 +392,20 @@ export default function LandingPage() {
       </section>
 
       {/* Journal Section */}
-      <section className="relative z-10 px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
+      <section className="relative z-10 px-4 py-32 sm:px-6 lg:px-10 lg:py-40">
         <div className="mx-auto max-w-[1400px]">
-          <div className="grid items-center gap-16 lg:grid-cols-2">
+          <div className="grid items-center gap-20 lg:grid-cols-2 lg:gap-28">
             <ScrollReveal direction="left">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-600">
                 {t("landing.showcase.feat2.eyebrow")}
               </p>
-              <h3 className="mt-6 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
+              <h3 className="mt-8 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
                 {t("landing.showcase.feat2.title")}
               </h3>
-              <p className="mt-6 text-lg leading-relaxed text-slate-600">
+              <p className="mt-8 text-lg leading-relaxed text-slate-600">
                 {t("landing.showcase.feat2.desc")}
               </p>
-              <div className="mt-8 flex flex-wrap gap-3">
+              <div className="mt-10 flex flex-wrap gap-3">
                 {[
                   t("landing.showcase.feat2.bullet1"),
                   t("landing.showcase.feat2.bullet2"),
@@ -442,9 +440,9 @@ export default function LandingPage() {
       </section>
 
       {/* Stats Preview Section */}
-      <section className="relative z-10 px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
+      <section className="relative z-10 px-4 py-32 sm:px-6 lg:px-10 lg:py-40">
         <div className="mx-auto max-w-[1400px]">
-          <div className="grid items-center gap-16 lg:grid-cols-2">
+          <div className="grid items-center gap-20 lg:grid-cols-2 lg:gap-28">
             <ScrollReveal direction="left" className="order-2 lg:order-1">
               <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-100 to-white p-3 shadow-2xl">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(16,185,129,0.08),transparent_50%)]" />
@@ -464,13 +462,13 @@ export default function LandingPage() {
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-600">
                 {t("landing.statsSection.eyebrow")}
               </p>
-              <h3 className="mt-6 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
+              <h3 className="mt-8 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
                 {t("landing.statsSection.title")}
               </h3>
-              <p className="mt-6 text-lg leading-relaxed text-slate-600">
+              <p className="mt-8 text-lg leading-relaxed text-slate-600">
                 {t("landing.statsSection.description")}
               </p>
-              <div className="mt-8 flex flex-wrap gap-3">
+              <div className="mt-10 flex flex-wrap gap-3">
                 {[
                   t("landing.statsSection.bullet1"),
                   t("landing.statsSection.bullet2"),
@@ -490,20 +488,20 @@ export default function LandingPage() {
       </section>
 
       {/* Charts Review Section */}
-      <section className="relative z-10 px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
+      <section className="relative z-10 px-4 py-32 sm:px-6 lg:px-10 lg:py-40">
         <div className="mx-auto max-w-[1400px]">
-          <div className="grid items-center gap-16 lg:grid-cols-2">
+          <div className="grid items-center gap-20 lg:grid-cols-2 lg:gap-28">
             <ScrollReveal direction="left">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-600">
                 {t("landing.chartsSection.eyebrow")}
               </p>
-              <h3 className="mt-6 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
+              <h3 className="mt-8 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
                 {t("landing.chartsSection.title")}
               </h3>
-              <p className="mt-6 text-lg leading-relaxed text-slate-600">
+              <p className="mt-8 text-lg leading-relaxed text-slate-600">
                 {t("landing.chartsSection.description")}
               </p>
-              <div className="mt-8 flex flex-wrap gap-3">
+              <div className="mt-10 flex flex-wrap gap-3">
                 {[
                   t("landing.chartsSection.bullet1"),
                   t("landing.chartsSection.bullet2"),
@@ -538,20 +536,20 @@ export default function LandingPage() {
       </section>
 
       {/* Mobile Section */}
-      <section className="relative z-10 overflow-hidden border-t border-slate-200 px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
+      <section className="relative z-10 overflow-hidden border-t border-slate-200 px-4 py-32 sm:px-6 lg:px-10 lg:py-40">
         <div className="mx-auto max-w-[1400px]">
-          <div className="grid items-center gap-16 lg:grid-cols-2">
+          <div className="grid items-center gap-20 lg:grid-cols-2 lg:gap-28">
             <ScrollReveal direction="left">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-violet-600">
                 {t("landing.mobileSection.eyebrow")}
               </p>
-              <h3 className="mt-6 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
+              <h3 className="mt-8 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
                 {t("landing.mobileSection.title")}
               </h3>
-              <p className="mt-6 text-lg leading-relaxed text-slate-600">
+              <p className="mt-8 text-lg leading-relaxed text-slate-600">
                 {t("landing.mobileSection.description")}
               </p>
-              <div className="mt-8 flex flex-wrap gap-3">
+              <div className="mt-10 flex flex-wrap gap-3">
                 {[
                   t("landing.mobileSection.bullet1"),
                   t("landing.mobileSection.bullet2"),
@@ -598,25 +596,25 @@ export default function LandingPage() {
       </section>
 
       {/* Features Grid */}
-      <section id="features" className="relative z-10 border-t border-slate-200 px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
+      <section id="features" className="relative z-10 border-t border-slate-200 px-4 py-32 sm:px-6 lg:px-10 lg:py-40">
         <div className="mx-auto max-w-[1400px]">
           <ScrollReveal className="mx-auto max-w-3xl text-center">
             <h2 className="text-balance text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
               {t("landing.features.title")}
             </h2>
-            <p className="mt-6 text-lg text-slate-600">
+            <p className="mt-8 text-lg text-slate-600">
               {t("landing.features.subtitle")}
             </p>
           </ScrollReveal>
 
-          <StaggerContainer className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" staggerDelay={0.1}>
+          <StaggerContainer className="mt-20 grid gap-8 sm:grid-cols-2 lg:grid-cols-3" staggerDelay={0.1}>
             {features.map((feature) => (
               <StaggerItem key={feature.title}>
-                <div className="group relative h-full overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 to-white p-6 transition-all duration-300 hover:border-blue-300 hover:bg-slate-50">
+                <div className="group relative h-full overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 to-white p-8 transition-all duration-300 hover:border-blue-300 hover:bg-slate-50">
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.08),transparent_70%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                   <feature.icon className="h-10 w-10 text-blue-600" />
-                  <h3 className="mt-4 text-lg font-semibold text-slate-900">{feature.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-slate-600">{feature.description}</p>
+                  <h3 className="mt-6 text-lg font-semibold text-slate-900">{feature.title}</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-slate-600">{feature.description}</p>
                 </div>
               </StaggerItem>
             ))}
@@ -625,20 +623,20 @@ export default function LandingPage() {
       </section>
 
       {/* Integrations */}
-      <section className="relative z-10 border-t border-slate-200 px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
+      <section className="relative z-10 border-t border-slate-200 px-4 py-32 sm:px-6 lg:px-10 lg:py-40">
         <div className="mx-auto max-w-[1400px]">
           <ScrollReveal className="mx-auto max-w-3xl text-center">
             <h2 className="text-balance text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
               {t("landing.integrations.title")}
             </h2>
-            <p className="mt-6 text-lg text-slate-600">
+            <p className="mt-8 text-lg text-slate-600">
               {t("landing.integrations.description")}
             </p>
           </ScrollReveal>
 
-            <StaggerContainer className="mt-16 flex flex-col items-center justify-center gap-12 sm:flex-row sm:gap-20">
+            <StaggerContainer className="mt-20 flex flex-col items-center justify-center gap-16 sm:flex-row sm:gap-28">
             <StaggerItem>
-              <div className="group flex h-40 w-40 items-center justify-center rounded-3xl border border-slate-200 bg-slate-50 p-6 transition-all duration-300 hover:border-blue-300 hover:bg-slate-100 sm:h-52 sm:w-52 sm:p-8">
+              <div className="group flex h-48 w-48 items-center justify-center rounded-3xl border border-slate-200 bg-slate-50 p-6 transition-all duration-300 hover:border-blue-300 hover:bg-slate-100 sm:h-64 sm:w-64 sm:p-8">
                 <Image
                   src="https://res.cloudinary.com/ddvabefhf/image/upload/v1773439524/mt5_i8o5cc.jpg"
                   alt="MetaTrader"
@@ -649,7 +647,7 @@ export default function LandingPage() {
               </div>
             </StaggerItem>
             <StaggerItem>
-              <div className="group flex h-40 w-40 items-center justify-center rounded-3xl border border-slate-200 bg-slate-50 p-6 transition-all duration-300 hover:border-blue-300 hover:bg-slate-100 sm:h-52 sm:w-52 sm:p-8">
+              <div className="group flex h-48 w-48 items-center justify-center rounded-3xl border border-slate-200 bg-slate-50 p-6 transition-all duration-300 hover:border-blue-300 hover:bg-slate-100 sm:h-64 sm:w-64 sm:p-8">
                 <Image
                   src="https://res.cloudinary.com/ddvabefhf/image/upload/v1773440476/ctrader_logo_full_pwcbdz.png"
                   alt="cTrader"
@@ -664,21 +662,21 @@ export default function LandingPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="relative z-10 px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
+      <section className="relative z-10 px-4 py-32 sm:px-6 lg:px-10 lg:py-40">
         <div className="mx-auto max-w-[1400px]">
           <ScrollReveal>
-            <div className="relative overflow-hidden rounded-3xl border border-blue-200 bg-gradient-to-br from-blue-50 via-white to-white p-8 sm:p-16">
+            <div className="relative overflow-hidden rounded-3xl border border-blue-200 bg-gradient-to-br from-blue-50 via-white to-white p-12 sm:p-24">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.1),transparent_70%)]" />
               <div className="relative mx-auto max-w-2xl text-center">
                 <h2 className="text-balance text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
                   {t("landing.cta.headline")}
                 </h2>
-                <p className="mt-6 text-lg text-slate-600">
+                <p className="mt-8 text-lg text-slate-600">
                   {t("landing.cta.subtitle")}
                 </p>
                 <Link
                   href={primaryHref}
-                  className="mt-10 inline-flex items-center justify-center rounded-full bg-blue-500 px-8 py-4 text-sm font-semibold uppercase tracking-[0.16em] text-white transition-all duration-300 hover:bg-blue-400 hover:shadow-[0_0_40px_rgba(59,130,246,0.4)] sm:px-10 sm:py-5"
+                  className="mt-12 inline-flex items-center justify-center rounded-full bg-blue-500 px-8 py-4 text-sm font-semibold uppercase tracking-[0.16em] text-white transition-all duration-300 hover:bg-blue-400 hover:shadow-[0_0_40px_rgba(59,130,246,0.4)] sm:px-10 sm:py-5"
                 >
                   {t("landing.cta.button")}
                 </Link>
@@ -689,17 +687,17 @@ export default function LandingPage() {
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="relative z-10 border-t border-slate-200 px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
+      <section id="contact" className="relative z-10 border-t border-slate-200 px-4 py-32 sm:px-6 lg:px-10 lg:py-40">
         <div className="mx-auto max-w-[1400px]">
           <ScrollReveal className="mx-auto max-w-xl text-center">
             <h2 className="text-balance text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
               {t("landing.contact.title")}
             </h2>
-            <p className="mt-6 text-lg leading-relaxed text-slate-600">
+            <p className="mt-8 text-lg leading-relaxed text-slate-600">
               {t("landing.contact.description")}
             </p>
 
-            <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+            <div className="mt-12 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
               <span className="rounded-xl border border-slate-200 bg-slate-50 px-5 py-3 font-mono text-sm text-slate-900">
                 bullandbear.journal@gmail.com
               </span>
@@ -714,7 +712,7 @@ export default function LandingPage() {
               </a>
             </div>
 
-            <p className="mt-6 text-sm text-slate-500">
+            <p className="mt-8 text-sm text-slate-500">
               {t("landing.contact.response")}
             </p>
           </ScrollReveal>

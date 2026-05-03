@@ -15,7 +15,7 @@ export const fr: TranslationKeys = {
   "landing.nav.signup": "Inscription",
   "landing.nav.dashboard": "Dashboard",
   "landing.about.title": "Pourquoi Bull & Bear ?",
-  "landing.about.description": "Bull & Bear est né d'un constat simple : la plupart des traders échouent non pas par manque de stratégie, mais par manque de discipline et de suivi. Notre plateforme vous offre tous les outils nécessaires pour documenter votre parcours de trading, analyser vos performances en profondeur et identifier vos forces et faiblesses. Que vous soyez débutant ou trader expérimenté, Bull & Bear s'adapte à votre style pour vous aider à progresser jour après jour.",
+  "landing.about.description": "Bull & Bear a été créé par un trader débutant déterminé à devenir rentable. J'ai développé cette app parce que bien suivre ses trades fait gagner un temps précieux — mais la plupart des débutants ne savent pas comment faire, ont du mal à rester constants, ou trouvent simplement ça trop ennuyeux. J'étais les trois à la fois. J'ai donc créé un journal de trading abordable, utilisable par tous, du débutant au trader plus avancé. Il supprime les frictions du journaling pour que vous puissiez vous concentrer sur la progression. Les retours sont les bienvenus — l'app s'améliorera continuellement.",
   "landing.showcase.eyebrow": "Conçu pour une boucle d'analyse complète",
   "landing.showcase.title": "Un espace de trading qui gagne en précision à chaque utilisation honnête.",
   "landing.showcase.description": "Passez du récapitulatif à l'insight avec un flux guidé : analysez les chiffres, inspectez les trades, puis validez le modèle.",
