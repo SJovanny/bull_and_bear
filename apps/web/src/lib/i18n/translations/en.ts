@@ -75,6 +75,12 @@ export const en: TranslationKeys = {
   "landing.statsSection.bullet1": "Detailed metrics",
   "landing.statsSection.bullet2": "Consistency overview",
   "landing.statsSection.bullet3": "Drawdown tracking",
+  "landing.chartsSection.eyebrow": "Chart Review",
+  "landing.chartsSection.title": "Review your charts with clarity.",
+  "landing.chartsSection.description": "Revisit your trade setups directly on the chart. Annotate, analyze, and learn from every entry and exit to sharpen your edge over time.",
+  "landing.chartsSection.bullet1": "Chart annotations",
+  "landing.chartsSection.bullet2": "Trade replay",
+  "landing.chartsSection.bullet3": "Pattern recognition",
   "landing.upcoming.title": "And much more to come...",
   "landing.upcoming.description": "Powerful new features are on the way to make Bull & Bear everything you need to excel in your trading.",
 

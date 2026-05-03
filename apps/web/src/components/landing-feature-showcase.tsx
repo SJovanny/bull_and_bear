@@ -12,6 +12,7 @@ type Feature = {
   imageSrc: string;
   fallbackSrc: string;
   accent: string;
+  aspectRatio?: string;
   Icon: (props: React.SVGProps<SVGSVGElement>) => React.JSX.Element;
 };
 // The features array now requires translations, so we'll build it dynamically inside the component or pass t downwards.
@@ -90,7 +91,7 @@ function FeatureRow({ feature, index }: { feature: Feature; index: number }) {
 
           <div className="relative overflow-hidden rounded-[22px] border border-white/10 bg-[#091321]">
             <div className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${feature.accent}`} />
-            <div className="relative aspect-[16/10]">
+            <div className={`relative ${feature.aspectRatio === "16/9" ? "aspect-[16/9]" : "aspect-[16/10]"}`}>
               <FeatureImage
                 src={feature.imageSrc}
                 fallbackSrc={feature.fallbackSrc}
@@ -122,6 +123,7 @@ export function LandingFeatureShowcase() {
       imageSrc: "/dashboard_example.png",
       fallbackSrc: "/dashboard_example.png",
       accent: "from-cyan-300/20 via-sky-300/10 to-transparent",
+      aspectRatio: "16/9",
       Icon: IconDashboard,
     },
     {

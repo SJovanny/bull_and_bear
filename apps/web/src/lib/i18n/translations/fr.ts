@@ -75,6 +75,12 @@ export const fr: TranslationKeys = {
   "landing.statsSection.bullet1": "Métriques détaillées",
   "landing.statsSection.bullet2": "Aperçu de la régularité",
   "landing.statsSection.bullet3": "Suivi du drawdown",
+  "landing.chartsSection.eyebrow": "Revue graphique",
+  "landing.chartsSection.title": "Revoyez vos graphiques avec clarté.",
+  "landing.chartsSection.description": "Revoyez vos configurations de trading directement sur le graphique. Annotez, analysez et apprenez de chaque entrée et sortie pour affiner votre avantage.",
+  "landing.chartsSection.bullet1": "Annotations graphiques",
+  "landing.chartsSection.bullet2": "Replay de trades",
+  "landing.chartsSection.bullet3": "Reconnaissance de patterns",
   "landing.upcoming.title": "Et bien plus à venir...",
   "landing.upcoming.description": "De nouvelles fonctionnalités puissantes sont en route pour faire de Bull & Bear tout ce dont vous avez besoin pour exceller dans votre trading.",
 
