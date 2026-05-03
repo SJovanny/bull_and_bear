@@ -81,13 +81,13 @@ export function AnimatedChartBackground() {
 
       const isBullish = candle.close > candle.open;
 
-      // Colors with opacity - using light mode theme with higher opacity for visibility
-      const bullColor = `rgba(34, 197, 94, ${opacity * 1.5})`;
-      const bearColor = `rgba(239, 68, 68, ${opacity * 1.4})`;
+      // Colors with opacity - using light mode theme with high visibility
+      const bullColor = `rgba(34, 197, 94, ${Math.min(opacity * 1.0, 1)})`;
+      const bearColor = `rgba(239, 68, 68, ${Math.min(opacity * 1.0, 1)})`;
       const color = isBullish ? bullColor : bearColor;
       const wickColor = isBullish
-        ? `rgba(34, 197, 94, ${opacity * 1.2})`
-        : `rgba(239, 68, 68, ${opacity * 1.1})`;
+        ? `rgba(34, 197, 94, ${Math.min(opacity * 0.8, 1)})`
+        : `rgba(239, 68, 68, ${Math.min(opacity * 0.8, 1)})`;
 
       // Calculate positions
       const openY = baseY - (candle.open - 100) * scale;
@@ -119,7 +119,7 @@ export function AnimatedChartBackground() {
       opacity: number
     ) => {
       ctx.beginPath();
-      ctx.strokeStyle = `rgba(34, 197, 94, ${opacity * 0.8})`;
+      ctx.strokeStyle = `rgba(34, 197, 94, ${Math.min(opacity * 0.6, 1)})`;
       ctx.lineWidth = 2;
 
       let started = false;
@@ -146,9 +146,9 @@ export function AnimatedChartBackground() {
 
       // Draw multiple chart layers at different speeds and positions
       const layers = [
-        { y: canvas.height * 0.25, scale: 3, speed: 0.3, opacity: 0.15 },
-        { y: canvas.height * 0.5, scale: 4, speed: 0.5, opacity: 0.2 },
-        { y: canvas.height * 0.75, scale: 3.5, speed: 0.7, opacity: 0.15 },
+        { y: canvas.height * 0.25, scale: 3, speed: 0.3, opacity: 0.5 },
+        { y: canvas.height * 0.5, scale: 4, speed: 0.5, opacity: 0.7 },
+        { y: canvas.height * 0.75, scale: 3.5, speed: 0.7, opacity: 0.5 },
       ];
 
       layers.forEach((layer) => {
