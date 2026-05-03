@@ -81,13 +81,13 @@ export function AnimatedChartBackground() {
 
       const isBullish = candle.close > candle.open;
 
-      // Colors with opacity - using blue theme
-      const bullColor = `rgba(59, 130, 246, ${opacity * 0.6})`;
-      const bearColor = `rgba(239, 68, 68, ${opacity * 0.5})`;
+      // Colors with opacity - using light mode theme
+      const bullColor = `rgba(34, 197, 94, ${opacity * 0.8})`;
+      const bearColor = `rgba(239, 68, 68, ${opacity * 0.7})`;
       const color = isBullish ? bullColor : bearColor;
       const wickColor = isBullish
-        ? `rgba(59, 130, 246, ${opacity * 0.4})`
-        : `rgba(239, 68, 68, ${opacity * 0.3})`;
+        ? `rgba(34, 197, 94, ${opacity * 0.6})`
+        : `rgba(239, 68, 68, ${opacity * 0.5})`;
 
       // Calculate positions
       const openY = baseY - (candle.open - 100) * scale;
@@ -119,7 +119,7 @@ export function AnimatedChartBackground() {
       opacity: number
     ) => {
       ctx.beginPath();
-      ctx.strokeStyle = `rgba(59, 130, 246, ${opacity * 0.3})`;
+      ctx.strokeStyle = `rgba(34, 197, 94, ${opacity * 0.4})`;
       ctx.lineWidth = 2;
 
       let started = false;
@@ -174,16 +174,16 @@ export function AnimatedChartBackground() {
         drawLine(ctx, candlesRef.current, wrappedOffset, layer.y, layer.scale, layer.opacity);
       });
 
-      // Add gradient overlay at top and bottom
+      // Add gradient overlay at top and bottom for light mode
       const topGradient = ctx.createLinearGradient(0, 0, 0, canvas.height * 0.3);
-      topGradient.addColorStop(0, "rgba(8, 17, 29, 1)");
-      topGradient.addColorStop(1, "rgba(8, 17, 29, 0)");
+      topGradient.addColorStop(0, "rgba(255, 255, 255, 1)");
+      topGradient.addColorStop(1, "rgba(255, 255, 255, 0)");
       ctx.fillStyle = topGradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height * 0.3);
 
       const bottomGradient = ctx.createLinearGradient(0, canvas.height * 0.7, 0, canvas.height);
-      bottomGradient.addColorStop(0, "rgba(8, 17, 29, 0)");
-      bottomGradient.addColorStop(1, "rgba(8, 17, 29, 1)");
+      bottomGradient.addColorStop(0, "rgba(255, 255, 255, 0)");
+      bottomGradient.addColorStop(1, "rgba(255, 255, 255, 1)");
       ctx.fillStyle = bottomGradient;
       ctx.fillRect(0, canvas.height * 0.7, canvas.width, canvas.height * 0.3);
 
