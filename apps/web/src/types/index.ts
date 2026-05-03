@@ -41,6 +41,12 @@ export type StatsSummary = {
     closedTrades: number;
     canceledTrades: number;
   };
+  allTimeActivity: {
+    totalTrades: number;
+    openTrades: number;
+    closedTrades: number;
+    canceledTrades: number;
+  };
   realized: {
     closedTrades: number;
     winners: number;

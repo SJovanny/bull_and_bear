@@ -57,6 +57,7 @@ export function buildSummary(
   closedTrades: StatsTrade[],
   initialBalance: number | null = null,
   allTimeNetPnl?: number,
+  allTimeActivityTrades?: StatsTrade[] | null,
 ): StatsSummary {
   const pnlValues = closedTrades.map(t => Number(t.netPnl));
   const winners = pnlValues.filter((value) => value > 0);
@@ -94,6 +95,12 @@ export function buildSummary(
       openTrades: activityTrades.filter((trade) => trade.status === "OPEN").length,
       closedTrades: activityTrades.filter((trade) => trade.status === "CLOSED").length,
       canceledTrades: activityTrades.filter((trade) => trade.status === "CANCELED").length,
+    },
+    allTimeActivity: {
+      totalTrades: (allTimeActivityTrades ?? activityTrades).length,
+      openTrades: (allTimeActivityTrades ?? activityTrades).filter((trade) => trade.status === "OPEN").length,
+      closedTrades: (allTimeActivityTrades ?? activityTrades).filter((trade) => trade.status === "CLOSED").length,
+      canceledTrades: (allTimeActivityTrades ?? activityTrades).filter((trade) => trade.status === "CANCELED").length,
     },
     realized: {
       closedTrades: closedTrades.length,

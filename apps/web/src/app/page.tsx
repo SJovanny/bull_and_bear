@@ -227,15 +227,7 @@ export default function LandingPage() {
               transition={{ duration: 0.5 }}
               className="mb-8 flex items-center gap-3"
             >
-              <div className="flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-4 py-2">
-                <TrendingUp className="h-4 w-4 text-green-400" />
-                <span className="text-sm font-medium text-blue-300">Bull</span>
-              </div>
-              <span className="text-white/40">&</span>
-              <div className="flex items-center gap-2 rounded-full border border-red-500/30 bg-red-500/10 px-4 py-2">
-                <TrendingDown className="h-4 w-4 text-red-400" />
-                <span className="text-sm font-medium text-red-300">Bear</span>
-              </div>
+             
             </motion.div>
 
             <motion.h1

@@ -225,9 +225,11 @@ function DashboardContent() {
             totalNetPnl={displaySummary?.realized.netPnl ?? 0}
             winRate={displaySummary?.realized.winRate ?? 0}
             profitFactor={displaySummary?.realized.profitFactor ?? 0}
-            totalTrades={displaySummary?.activity.totalTrades ?? 0}
+            totalTrades={displaySummary?.allTimeActivity.totalTrades ?? 0}
             openTrades={displaySummary?.activity.openTrades ?? 0}
             closedTrades={displaySummary?.activity.closedTrades ?? 0}
+            allTimeOpenTrades={displaySummary?.allTimeActivity.openTrades ?? 0}
+            allTimeClosedTrades={displaySummary?.allTimeActivity.closedTrades ?? 0}
             currency={selectedAccountCurrency}
             currentBalance={displaySummary?.currentBalance ?? null}
             returnPercent={displaySummary?.returnPercent ?? null}

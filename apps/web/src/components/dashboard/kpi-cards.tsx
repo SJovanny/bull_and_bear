@@ -12,6 +12,8 @@ type KpiCardsProps = {
   totalTrades: number;
   openTrades: number;
   closedTrades: number;
+  allTimeOpenTrades: number;
+  allTimeClosedTrades: number;
   currency?: string;
   currentBalance: number | null;
   returnPercent: number | null;
@@ -26,6 +28,8 @@ export function KpiCards({
   totalTrades,
   openTrades,
   closedTrades,
+  allTimeOpenTrades,
+  allTimeClosedTrades,
   currency = "USD",
   currentBalance,
   returnPercent,
@@ -186,11 +190,11 @@ export function KpiCards({
         <div className="mt-4 flex items-center gap-3">
           <span className="flex items-center gap-1.5 text-[10px] font-semibold text-secondary font-sans">
             <span className="h-2 w-2 rounded-full bg-pnl-positive" />
-            {closedTrades} {t("kpi.closed")}
+            {allTimeClosedTrades} {t("kpi.closed")}
           </span>
           <span className="flex items-center gap-1.5 text-[10px] font-semibold text-secondary font-sans">
             <span className="h-2 w-2 rounded-full bg-amber-400" />
-            {openTrades} {t("kpi.open")}
+            {allTimeOpenTrades} {t("kpi.open")}
           </span>
         </div>
       </article>

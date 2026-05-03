@@ -13,11 +13,16 @@ export const GET = withAuth(async (request, { user }) => {
 
   const needsAllTime = filters.period !== "ALL";
 
-  const [activityTrades, closedTrades, allTimeClosedTrades] = await Promise.all([
+  const allTimeFilters = { ...filters, period: "ALL" as const, from: null, to: null };
+
+  const [activityTrades, closedTrades, allTimeClosedTrades, allTimeActivityTrades] = await Promise.all([
     fetchActivityTrades(filters),
     fetchClosedTrades(filters),
     needsAllTime
-      ? fetchClosedTrades({ ...filters, period: "ALL", from: null, to: null })
+      ? fetchClosedTrades(allTimeFilters)
+      : Promise.resolve(null),
+    needsAllTime
+      ? fetchActivityTrades(allTimeFilters)
       : Promise.resolve(null),
   ]);
 
@@ -25,5 +30,5 @@ export const GET = withAuth(async (request, { user }) => {
     ? allTimeClosedTrades!.reduce((sum, t) => sum + Number(t.netPnl), 0)
     : undefined;
 
-  return Response.json(buildSummary(filters, activityTrades, closedTrades, initialBalance, allTimeNetPnl));
+  return Response.json(buildSummary(filters, activityTrades, closedTrades, initialBalance, allTimeNetPnl, allTimeActivityTrades));
 });

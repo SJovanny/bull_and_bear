@@ -271,6 +271,12 @@ export const mockStatsSummary: StatsSummary = {
     closedTrades: 4,
     canceledTrades: 0,
   },
+  allTimeActivity: {
+    totalTrades: 5,
+    openTrades: 1,
+    closedTrades: 4,
+    canceledTrades: 0,
+  },
   realized: {
     closedTrades: 4,
     winners: 3,
