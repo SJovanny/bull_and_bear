@@ -16,6 +16,7 @@ import {
   IconProfile,
   IconSupport,
   IconNotes,
+  IconContact,
 } from "./icons";
 
 
@@ -33,6 +34,7 @@ export function Sidebar() {
     { href: "/profil", label: t("nav.profile"), icon: IconProfile },
     { href: "/comptes", label: t("nav.accounts"), icon: IconAccounts },
     { href: "/faq", label: t("nav.support"), icon: IconSupport },
+    { href: "/contact", label: t("nav.contact"), icon: IconContact },
   ];
 
   return (

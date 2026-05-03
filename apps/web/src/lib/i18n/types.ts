@@ -11,6 +11,7 @@ export type TranslationKeys = {
   "landing.nav.about": string;
   "landing.nav.features": string;
   "landing.nav.login": string;
+  "landing.nav.contact": string;
   "landing.nav.signup": string;
   "landing.nav.dashboard": string;
   "landing.about.title": string;
@@ -62,6 +63,10 @@ export type TranslationKeys = {
   "landing.cta.headline": string;
   "landing.cta.subtitle": string;
   "landing.cta.button": string;
+  "landing.contact.title": string;
+  "landing.contact.description": string;
+  "landing.contact.button": string;
+  "landing.contact.response": string;
   "landing.hero.socialProof": string;
   "landing.chartReview.eyebrow": string;
   "landing.chartReview.title": string;
@@ -145,6 +150,7 @@ export type TranslationKeys = {
   "nav.collapse": string;
   "nav.expand": string;
   "nav.support": string;
+  "nav.contact": string;
   "nav.notes": string;
   "notes.title": string;
   "notes.tabNotes": string;
@@ -771,6 +777,14 @@ export type TranslationKeys = {
   "faq.contact.description": string;
   "faq.contact.copy": string;
   "faq.contact.copied": string;
+  "contact.title": string;
+  "contact.subtitle": string;
+  "contact.description": string;
+  "contact.email.label": string;
+  "contact.copy": string;
+  "contact.copied": string;
+  "contact.mailto": string;
+  "contact.response": string;
   "faq.q1": string;
   "faq.a1": string;
   "faq.q2": string;

@@ -156,6 +156,12 @@ export default function LandingPage() {
               >
                 {t("landing.nav.features")}
               </a>
+              <a
+                href="#contact"
+                className="px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-slate-600 transition hover:text-slate-900"
+              >
+                {t("landing.nav.contact")}
+              </a>
               <LanguageSwitcher />
               <div className={`flex items-center gap-2 transition-opacity duration-300 ${checked ? "opacity-100" : "opacity-0"}`}>
                 {!isAuthenticated && (
@@ -624,6 +630,39 @@ export default function LandingPage() {
                 </Link>
               </div>
             </div>
+          </ScrollReveal>
+        </div>
+      </section>
+
+      {/* Contact Section */}
+      <section id="contact" className="relative z-10 border-t border-slate-200 px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
+        <div className="mx-auto max-w-[1400px]">
+          <ScrollReveal className="mx-auto max-w-xl text-center">
+            <h2 className="text-balance text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+              {t("landing.contact.title")}
+            </h2>
+            <p className="mt-6 text-lg leading-relaxed text-slate-600">
+              {t("landing.contact.description")}
+            </p>
+
+            <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+              <span className="rounded-xl border border-slate-200 bg-slate-50 px-5 py-3 font-mono text-sm text-slate-900">
+                bullandbear.journal@gmail.com
+              </span>
+              <a
+                href="mailto:bullandbear.journal@gmail.com"
+                className="inline-flex items-center gap-2 rounded-full bg-blue-500 px-6 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-white transition-all duration-300 hover:bg-blue-400 hover:shadow-[0_0_30px_rgba(59,130,246,0.3)]"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="h-4 w-4">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+                </svg>
+                {t("landing.contact.button")}
+              </a>
+            </div>
+
+            <p className="mt-6 text-sm text-slate-500">
+              {t("landing.contact.response")}
+            </p>
           </ScrollReveal>
         </div>
       </section>
