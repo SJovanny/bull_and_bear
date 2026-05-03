@@ -6,6 +6,17 @@ import { prisma } from "@/lib/prisma";
 import { normalizeStoredTradeSymbol } from "@/lib/symbol-normalization";
 import { computeTradeOutcome, defaultContractMultiplier } from "@/lib/trade-calc";
 
+function normalizeJsonArray(value: unknown): string[] | null {
+  if (Array.isArray(value)) return value.length > 0 ? value : null;
+  if (typeof value === "string") {
+    try {
+      const parsed = JSON.parse(value);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    } catch {}
+  }
+  return null;
+}
+
 export const GET = withAuth(async (request, { user }) => {
   const { searchParams } = new URL(request.url);
   const accountId = searchParams.get("accountId");
@@ -46,7 +57,14 @@ export const GET = withAuth(async (request, { user }) => {
   if (hasMore) trades.pop();
   const nextCursor = hasMore ? trades[trades.length - 1]?.id : null;
 
-  return Response.json({ trades, nextCursor });
+  return Response.json({
+    trades: trades.map((t) => ({
+      ...t,
+      confluences: normalizeJsonArray(t.confluences),
+      chartScreenshots: normalizeJsonArray(t.chartScreenshots),
+    })),
+    nextCursor,
+  });
 });
 
 export const POST = withAuth(async (request, { user }) => {

@@ -9,7 +9,7 @@ import { TradeImportModal } from "@/components/trade-import-modal";
 import LoadingSpinner from "@/components/loading-spinner";
 import { useSelectedAccountId } from "@/hooks/use-selected-account-id";
 import { useTranslation } from "@/lib/i18n/context";
-import { toDateKey } from "@/lib/format";
+import { toDateKey, safeJsonArray } from "@/lib/format";
 import { useTutorialStatus } from "@/hooks/use-tutorial-status";
 import { TutorialProvider } from "@/components/tutorial/tutorial-provider";
 import { tutorialStepsMap } from "@/config/tutorial-steps";
@@ -563,7 +563,7 @@ function CalendarPageContent() {
             entryTimeframe: editingTrade.entryTimeframe,
             higherTimeframeBias: editingTrade.higherTimeframeBias,
             strategyTag: editingTrade.strategyTag,
-            confluences: editingTrade.confluences,
+            confluences: safeJsonArray(editingTrade.confluences).length > 0 ? safeJsonArray(editingTrade.confluences) : null,
             emotionalState: editingTrade.emotionalState,
             executionRating: editingTrade.executionRating,
             planFollowed: editingTrade.planFollowed,

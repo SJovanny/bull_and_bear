@@ -6,6 +6,17 @@ import { prisma } from "@/lib/prisma";
 import { normalizeStoredTradeSymbol } from "@/lib/symbol-normalization";
 import { computeTradeOutcome, defaultContractMultiplier } from "@/lib/trade-calc";
 
+function normalizeJsonArray(value: unknown): string[] | null {
+  if (Array.isArray(value)) return value.length > 0 ? value : null;
+  if (typeof value === "string") {
+    try {
+      const parsed = JSON.parse(value);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    } catch {}
+  }
+  return null;
+}
+
 export const GET = withAuth(async (_request, { user, params }) => {
   const { id } = params;
 
@@ -17,7 +28,13 @@ export const GET = withAuth(async (_request, { user, params }) => {
     return safeErrorResponse("Trade not found", 404);
   }
 
-  return Response.json({ trade });
+  const normalized = {
+    ...trade,
+    confluences: normalizeJsonArray(trade.confluences),
+    chartScreenshots: normalizeJsonArray(trade.chartScreenshots),
+  };
+
+  return Response.json({ trade: normalized });
 });
 
 export const PATCH = withAuth(async (request, { user, params }) => {

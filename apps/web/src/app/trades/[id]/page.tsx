@@ -15,6 +15,7 @@ import { tutorialStepsMap } from "@/config/tutorial-steps";
 import { mockTradeDetail } from "@/config/tutorial-mock-data";
 import { useTranslation } from "@/lib/i18n/context";
 import { TranslationKeys } from "@/lib/i18n/types";
+import { safeJsonArray } from "@/lib/format";
 
 type Trade = {
   id: string;
@@ -456,9 +457,9 @@ export default function TradeDetailPage() {
               {/* Confluences */}
               <div data-tutorial="trade-confluences" className="rounded-xl border border-border bg-surface-1 p-4">
                 <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-secondary">{t("tradeDetail.confluences")}</p>
-                {displayTrade.confluences && displayTrade.confluences.length > 0 ? (
+                {(() => { const cf = safeJsonArray(displayTrade.confluences); return cf.length > 0 ? (
                   <div className="mt-2 flex flex-wrap gap-2">
-                    {displayTrade.confluences.map((c, i) => (
+                    {cf.map((c, i) => (
                       <span
                         key={`${c}-${i}`}
                         className="inline-flex rounded-lg bg-brand-500/10 px-2.5 py-1 text-xs font-medium text-brand-600"
@@ -469,7 +470,7 @@ export default function TradeDetailPage() {
                   </div>
                 ) : (
                   <p className="mt-1.5 text-sm text-secondary">-</p>
-                )}
+                ); })()}
               </div>
 
               {/* Entry / Exit reason */}
@@ -560,7 +561,7 @@ export default function TradeDetailPage() {
             entryTimeframe: trade.entryTimeframe,
             higherTimeframeBias: trade.higherTimeframeBias,
             strategyTag: trade.strategyTag,
-            confluences: trade.confluences,
+            confluences: safeJsonArray(trade.confluences).length > 0 ? safeJsonArray(trade.confluences) : null,
             emotionalState: trade.emotionalState,
             executionRating: trade.executionRating,
             planFollowed: trade.planFollowed,

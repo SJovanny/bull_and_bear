@@ -96,6 +96,16 @@ body {
   color: var(--color-text-primary);
 }
 
+html[data-theme="dark"] select option {
+  background: var(--color-surface-1);
+  color: var(--color-text-primary);
+}
+
+html[data-theme="dark"] input::placeholder,
+html[data-theme="dark"] textarea::placeholder {
+  color: var(--color-text-secondary);
+}
+
 html {
   scroll-behavior: smooth;
   overflow-x: hidden;

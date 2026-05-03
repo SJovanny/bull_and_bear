@@ -344,7 +344,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Dashboard Preview Section */}
+       {/* Dashboard Preview Section */}
       <section className="relative z-10 px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
         <div className="mx-auto max-w-[1400px]">
           <div className="grid items-center gap-16 lg:grid-cols-2">
@@ -352,13 +352,13 @@ export default function LandingPage() {
               <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.08] to-white/[0.02] p-3 shadow-2xl">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.1),transparent_50%)]" />
                 <div className="relative aspect-[16/10] overflow-hidden rounded-2xl border border-white/10 bg-[#091321]">
-                  {/* Placeholder for Dashboard Screenshot */}
-                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-blue-900/30 to-transparent">
-                    <div className="text-center">
-                      <BarChart3 className="mx-auto h-16 w-16 text-blue-400/50" />
-                      <p className="mt-4 text-sm text-white/40">Dashboard Preview</p>
-                    </div>
-                  </div>
+                  <Image
+                    src="/dashboard_example.png"
+                    alt="Bull & Bear Dashboard"
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    className="object-cover object-top"
+                  />
                 </div>
               </div>
             </ScrollReveal>

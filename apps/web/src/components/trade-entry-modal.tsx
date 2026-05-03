@@ -8,6 +8,7 @@ import {
 } from "@/lib/trade-calc";
 import { SYMBOL_SUGGESTIONS } from "@/lib/symbol-database";
 import { useTranslation } from "@/lib/i18n/context";
+import { safeJsonArray } from "@/lib/format";
 import { TranslationKeys } from "@/lib/i18n/types";
 import { useSelectedAccountId } from "@/hooks/use-selected-account-id";
 
@@ -78,24 +79,28 @@ const emotionLabelKeys: Record<string, keyof TranslationKeys> = {
   ENTHOUSIASTE: "tradeModal.emotion.enthusiastic",
 };
 
-const symbolSuggestionsByAssetClass: Record<AssetClass, string[]> = {
-  STOCK: [...SYMBOL_SUGGESTIONS.STOCK],
-  FUTURES: [...SYMBOL_SUGGESTIONS.FUTURES],
-  FOREX: [...SYMBOL_SUGGESTIONS.FOREX],
-  CRYPTO: [...SYMBOL_SUGGESTIONS.CRYPTO],
-  OPTIONS: [...SYMBOL_SUGGESTIONS.OPTIONS],
-  ETF: [...SYMBOL_SUGGESTIONS.ETF],
-  INDEX: [...SYMBOL_SUGGESTIONS.INDEX],
-  CFD: [...SYMBOL_SUGGESTIONS.CFD],
-  OTHER: [...SYMBOL_SUGGESTIONS.OTHER],
+const symbolSuggestionsByAssetClass: Record<AssetClass, readonly string[]> = {
+  STOCK: SYMBOL_SUGGESTIONS.STOCK,
+  FUTURES: SYMBOL_SUGGESTIONS.FUTURES,
+  FOREX: SYMBOL_SUGGESTIONS.FOREX,
+  CRYPTO: SYMBOL_SUGGESTIONS.CRYPTO,
+  OPTIONS: SYMBOL_SUGGESTIONS.OPTIONS,
+  ETF: SYMBOL_SUGGESTIONS.ETF,
+  INDEX: SYMBOL_SUGGESTIONS.INDEX,
+  CFD: SYMBOL_SUGGESTIONS.CFD,
+  OTHER: SYMBOL_SUGGESTIONS.OTHER,
 };
 
-function normalizeSymbolInput(value: string) {
-  return value.toUpperCase().replace(/\s+/g, "").replace(/[^A-Z0-9./_-]/g, "");
+function normalizeSymbolInput(value: string, isOption?: boolean) {
+  const upper = value.toUpperCase();
+  if (isOption) {
+    return upper.replace(/[^A-Z0-9.\/_\-\s]/g, "").replace(/\s+/g, " ").trim();
+  }
+  return upper.replace(/\s+/g, "").replace(/[^A-Z0-9./_-]/g, "");
 }
 
 function normalizeTradeSymbol(assetClass: AssetClass, value: string) {
-  const normalized = normalizeSymbolInput(value);
+  const normalized = normalizeSymbolInput(value, assetClass === "OPTIONS");
 
   if (assetClass !== "CRYPTO") {
     return normalized;
@@ -322,7 +327,7 @@ export function TradeEntryModal({
       setEntryTimeframe(initialTrade.entryTimeframe ?? "");
       setHigherTimeframeBias(initialTrade.higherTimeframeBias ?? "");
       setStrategyTag(initialTrade.strategyTag ?? "");
-      setConfluences(initialTrade.confluences ?? []);
+      setConfluences(safeJsonArray(initialTrade.confluences));
       setEmotionalState(initialTrade.emotionalState ?? "");
       setPlanFollowed(initialTrade.planFollowed ?? null);
       setExecutionRating(initialTrade.executionRating != null ? String(initialTrade.executionRating) : "5");
@@ -480,6 +485,14 @@ export function TradeEntryModal({
   const symbolPlaceholder = useMemo(() => {
     return symbolSuggestions[0] ?? "SYMBOL";
   }, [symbolSuggestions]);
+
+  const [symbolDropdownOpen, setSymbolDropdownOpen] = useState(false);
+
+  const filteredSymbolSuggestions = useMemo(() => {
+    const query = symbol.toUpperCase().replace(/[^A-Z0-9./_\-\s]/g, "");
+    if (!query) return symbolSuggestions;
+    return symbolSuggestions.filter((s) => s.toUpperCase().includes(query));
+  }, [symbol, symbolSuggestions]);
 
   const screenshotPreviewUrls = useMemo(() => {
     const before = screenshotBefore ? URL.createObjectURL(screenshotBefore) : null;
@@ -684,23 +697,23 @@ export function TradeEntryModal({
         role="dialog"
         aria-modal="true"
         aria-label={mode === "edit" ? t("tradeModal.editTradeAria") : t("tradeModal.addTradeAria")}
-        className="flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl"
+        className="flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-border bg-surface-1 shadow-2xl"
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="border-b border-slate-200 px-5 py-4">
+        <div className="border-b border-border px-5 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-700">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-brand-500">
                 {mode === "create" ? t("tradeModal.newTrade") : t("tradeModal.editTradeTitle")}
               </p>
-              <h3 className="text-lg font-semibold text-slate-900">
+              <h3 className="text-lg font-semibold text-primary">
                 {mode === "edit" ? t("tradeModal.editTrade") : t("tradeModal.wizardTitle")}
               </h3>
             </div>
             <button
               type="button"
               onClick={onClose}
-              className="inline-flex h-9 items-center justify-center rounded-lg border border-slate-300 px-3 text-sm font-medium text-slate-700 hover:bg-slate-100"
+              className="inline-flex h-9 items-center justify-center rounded-lg border border-border px-3 text-sm font-medium text-primary hover:bg-surface-2"
             >
               {t("tradeModal.close")}
             </button>
@@ -717,17 +730,17 @@ export function TradeEntryModal({
                   onClick={() => setCurrentStep(item.step)}
                   className={`rounded-xl border px-2 py-2 text-left transition ${
                     active
-                      ? "border-cyan-400 bg-cyan-50"
+                      ? "border-brand-500 bg-brand-500/10"
                       : done
-                        ? "border-emerald-200 bg-emerald-50"
-                        : "border-slate-200 bg-white"
+                        ? "border-pnl-positive bg-pnl-positive/10"
+                        : "border-border bg-surface-1"
                   }`}
                 >
-                  <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">
+                  <p className={`text-[10px] font-bold uppercase tracking-[0.14em] ${active ? "text-brand-500" : done ? "text-pnl-positive" : "text-secondary"}`}>
                     {t("tradeModal.step")} {item.step}
                   </p>
-                  <p className="mt-1 text-xs font-semibold text-slate-900">{item.label}</p>
-                  <p className="text-[10px] text-slate-500">{item.helper}</p>
+                  <p className={`mt-1 text-xs font-semibold ${active || done ? "text-primary" : "text-secondary"}`}>{item.label}</p>
+                  <p className="text-[10px] text-secondary">{item.helper}</p>
                 </button>
               );
             })}
@@ -736,10 +749,10 @@ export function TradeEntryModal({
 
         <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
           <div ref={scrollContainerRef} className="min-h-0 flex-1 overflow-y-auto p-5 sm:p-6">
-            {accountsLoading ? <p className="text-sm text-slate-500">{t("common.loading")}</p> : null}
+            {accountsLoading ? <p className="text-sm text-secondary">{t("common.loading")}</p> : null}
 
             {!accountsLoading && accounts.length === 0 ? (
-              <p className="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-700">
+              <p className="mb-4 rounded-lg bg-amber-500/10 px-3 py-2 text-sm text-amber-600 dark:text-amber-400">
                 {t("accounts.noAccounts")}
               </p>
             ) : null}
@@ -747,11 +760,11 @@ export function TradeEntryModal({
             {currentStep === 1 ? (
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="flex flex-col gap-2 sm:col-span-2">
-                  <span className="text-sm font-medium text-slate-700">{t("profile.tradingAccounts")} <span className="text-red-500">*</span></span>
+                  <span className="text-sm font-medium text-primary">{t("profile.tradingAccounts")} <span className="text-red-500">*</span></span>
                   <select
                     value={accountId}
                     onChange={(event) => setAccountId(event.target.value)}
-                    className="h-11 rounded-xl border border-slate-300 px-3 text-sm outline-none ring-sky-500 transition focus:ring-2"
+                    className="h-11 rounded-xl border border-border bg-surface-1 text-primary px-3 text-sm outline-none ring-brand-500 transition focus:ring-2"
                     disabled={accounts.length === 0}
                     required
                   >
@@ -764,11 +777,11 @@ export function TradeEntryModal({
                 </label>
 
                 <label className="flex flex-col gap-2">
-                  <span className="text-sm font-medium text-slate-700">{t("tradeModal.assetClass")} <span className="text-red-500">*</span></span>
+                  <span className="text-sm font-medium text-primary">{t("tradeModal.assetClass")} <span className="text-red-500">*</span></span>
                   <select
                     value={assetClass}
                     onChange={(event) => setAssetClass(event.target.value as AssetClass)}
-                    className="h-11 rounded-xl border border-slate-300 px-3 text-sm outline-none ring-sky-500 transition focus:ring-2"
+                    className="h-11 rounded-xl border border-border bg-surface-1 text-primary px-3 text-sm outline-none ring-brand-500 transition focus:ring-2"
                   >
                     {assetClasses.map((item) => (
                       <option key={item} value={item}>
@@ -778,35 +791,57 @@ export function TradeEntryModal({
                   </select>
                 </label>
 
-                <label className="flex flex-col gap-2">
-                  <span className="text-sm font-medium text-slate-700">{t("recentTrades.symbol")} <span className="text-red-500">*</span></span>
-                  <input
-                    value={symbol}
-                    onChange={(event) => setSymbol(normalizeSymbolInput(event.target.value))}
-                    list="symbol-suggestions"
-                    placeholder={symbolPlaceholder}
-                    className="h-11 rounded-xl border border-slate-300 px-3 text-sm uppercase outline-none ring-sky-500 transition focus:ring-2"
-                    required
-                  />
-                  <datalist id="symbol-suggestions">
-                    {symbolSuggestions.map((item) => (
-                      <option key={item} value={item} />
-                    ))}
-                  </datalist>
-                  <p className="text-xs text-slate-500">
-                    {t("tradeModal.suggestions")} {assetClass}: {symbolSuggestions.join(", ")}
-                    {assetClass === "CRYPTO" ? ` - ${t("tradeModal.cryptoHint")}` : ""}
-                  </p>
-                </label>
+                <div className="flex flex-col gap-2">
+                  <span className="text-sm font-medium text-primary">{t("recentTrades.symbol")} <span className="text-red-500">*</span></span>
+                  <div className="relative">
+                    <input
+                      value={symbol}
+                      onChange={(event) => {
+                        setSymbol(normalizeSymbolInput(event.target.value, assetClass === "OPTIONS"));
+                        setSymbolDropdownOpen(true);
+                      }}
+                      onFocus={() => setSymbolDropdownOpen(true)}
+                      onBlur={() => {
+                        setTimeout(() => setSymbolDropdownOpen(false), 150);
+                      }}
+                      placeholder={symbolPlaceholder}
+                      className="h-11 w-full rounded-xl border border-border bg-surface-1 text-primary px-3 text-sm uppercase outline-none ring-brand-500 transition focus:ring-2"
+                      required
+                    />
+                    {symbolDropdownOpen && filteredSymbolSuggestions.length > 0 ? (
+                      <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-56 overflow-y-auto rounded-xl border border-border bg-surface-1 shadow-lg">
+                        {filteredSymbolSuggestions.map((item) => (
+                          <button
+                            key={item}
+                            type="button"
+                            onMouseDown={(event) => event.preventDefault()}
+                            onClick={() => {
+                              setSymbol(item);
+                              setSymbolDropdownOpen(false);
+                            }}
+                            className="flex w-full items-center px-3 py-2 text-left text-sm font-semibold text-primary transition hover:bg-surface-2"
+                          >
+                            {item}
+                          </button>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+                  {assetClass === "CRYPTO" ? (
+                    <p className="text-xs text-secondary">
+                      {t("tradeModal.cryptoHint")}
+                    </p>
+                  ) : null}
+                </div>
 
                 <div className="flex flex-col gap-2">
-                  <span className="text-sm font-medium text-slate-700">{t("recentTrades.side")} *</span>
-                  <div className="grid h-11 grid-cols-2 rounded-xl border border-slate-300 p-1">
+                  <span className="text-sm font-medium text-primary">{t("recentTrades.side")} *</span>
+                  <div className="grid h-11 grid-cols-2 rounded-xl border border-border p-1">
                     <button
                       type="button"
                       onClick={() => setSide("LONG")}
                       className={`rounded-lg text-sm font-semibold ${
-                        side === "LONG" ? "bg-emerald-600 text-white" : "text-slate-700"
+                        side === "LONG" ? "bg-emerald-600 text-white" : "text-primary"
                       }`}
                     >
                       LONG
@@ -815,7 +850,7 @@ export function TradeEntryModal({
                       type="button"
                       onClick={() => setSide("SHORT")}
                       className={`rounded-lg text-sm font-semibold ${
-                        side === "SHORT" ? "bg-rose-600 text-white" : "text-slate-700"
+                        side === "SHORT" ? "bg-rose-600 text-white" : "text-primary"
                       }`}
                     >
                       SHORT
@@ -824,7 +859,7 @@ export function TradeEntryModal({
                 </div>
 
                 <label className="flex flex-col gap-2">
-                  <span className="text-sm font-medium text-slate-700">
+                  <span className="text-sm font-medium text-primary">
                     {assetClass === "FOREX" ? t("tradeDetail.quantity") + " (Lots)" : t("tradeDetail.quantity")} <span className="text-red-500">*</span>
                   </span>
                   <input
@@ -833,36 +868,36 @@ export function TradeEntryModal({
                     type="number"
                     min="0.000001"
                     step="0.000001"
-                    className="h-11 rounded-xl border border-slate-300 px-3 text-sm outline-none ring-sky-500 transition focus:ring-2"
+                    className="h-11 rounded-xl border border-border bg-surface-1 text-primary px-3 text-sm outline-none ring-brand-500 transition focus:ring-2"
                     required
                   />
                   {assetClass === "FOREX" && (
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-secondary">
                       {t("tradeModal.forexLotHint")}
                     </p>
                   )}
                 </label>
 
                 <label className="flex flex-col gap-2">
-                  <span className="text-sm font-medium text-slate-700">{t("tradeDetail.openedOn")} <span className="text-red-500">*</span></span>
+                  <span className="text-sm font-medium text-primary">{t("tradeDetail.openedOn")} <span className="text-red-500">*</span></span>
                   <input
                     value={openedAt}
                     onChange={(event) => setOpenedAt(event.target.value)}
                     type="datetime-local"
-                    className="h-11 rounded-xl border border-slate-300 px-3 text-sm outline-none ring-sky-500 transition focus:ring-2"
+                    className="h-11 rounded-xl border border-border bg-surface-1 text-primary px-3 text-sm outline-none ring-brand-500 transition focus:ring-2"
                     required
                   />
                 </label>
 
                 <label className="flex flex-col gap-2 sm:col-span-2">
-                  <span className="text-sm font-medium text-slate-700">{t("tradeDetail.entryPrice")} <span className="text-red-500">*</span></span>
+                  <span className="text-sm font-medium text-primary">{t("tradeDetail.entryPrice")} <span className="text-red-500">*</span></span>
                   <input
                     value={entryPrice}
                     onChange={(event) => setEntryPrice(event.target.value)}
                     type="number"
                     min="0"
                     step="0.000001"
-                    className="h-11 rounded-xl border border-slate-300 px-3 text-sm outline-none ring-sky-500 transition focus:ring-2"
+                    className="h-11 rounded-xl border border-border bg-surface-1 text-primary px-3 text-sm outline-none ring-brand-500 transition focus:ring-2"
                     required
                   />
                 </label>
@@ -872,44 +907,44 @@ export function TradeEntryModal({
             {currentStep === 2 ? (
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="flex flex-col gap-2">
-                  <span className="text-sm font-medium text-slate-700">{t("tradeDetail.stopLoss")}</span>
+                  <span className="text-sm font-medium text-primary">{t("tradeDetail.stopLoss")}</span>
                   <input
                     value={initialStopLoss}
                     onChange={(event) => setInitialStopLoss(event.target.value)}
                     type="number"
                     min="0"
                     step="0.000001"
-                    className="h-11 rounded-xl border border-slate-300 px-3 text-sm outline-none ring-sky-500 transition focus:ring-2"
+                    className="h-11 rounded-xl border border-border bg-surface-1 text-primary px-3 text-sm outline-none ring-brand-500 transition focus:ring-2"
                   />
                 </label>
 
                 <label className="flex flex-col gap-2">
-                  <span className="text-sm font-medium text-slate-700">{t("tradeDetail.takeProfit")}</span>
+                  <span className="text-sm font-medium text-primary">{t("tradeDetail.takeProfit")}</span>
                   <input
                     value={initialTakeProfit}
                     onChange={(event) => setInitialTakeProfit(event.target.value)}
                     type="number"
                     min="0"
                     step="0.000001"
-                    className="h-11 rounded-xl border border-slate-300 px-3 text-sm outline-none ring-sky-500 transition focus:ring-2"
+                    className="h-11 rounded-xl border border-border bg-surface-1 text-primary px-3 text-sm outline-none ring-brand-500 transition focus:ring-2"
                   />
                 </label>
 
                 <label className="flex flex-col gap-2">
-                  <span className="text-sm font-medium text-slate-700">{t("tradeDetail.riskAmount")}</span>
+                  <span className="text-sm font-medium text-primary">{t("tradeDetail.riskAmount")}</span>
                   <input
                     value={riskAmount}
                     onChange={(event) => setRiskAmount(event.target.value)}
                     type="number"
                     min="0"
                     step="0.000001"
-                    className="h-11 rounded-xl border border-slate-300 px-3 text-sm outline-none ring-sky-500 transition focus:ring-2"
+                    className="h-11 rounded-xl border border-border bg-surface-1 text-primary px-3 text-sm outline-none ring-brand-500 transition focus:ring-2"
                   />
                 </label>
 
                 {assetClass !== "FOREX" ? (
                   <label className="flex flex-col gap-2">
-                    <span className="text-sm font-medium text-slate-700">{t("tradeDetail.contractMultiplier")}</span>
+                    <span className="text-sm font-medium text-primary">{t("tradeDetail.contractMultiplier")}</span>
                     <input
                       value={contractMultiplier}
                       onChange={(event) => {
@@ -919,9 +954,9 @@ export function TradeEntryModal({
                       type="number"
                       min="0.000001"
                       step="0.000001"
-                      className="h-11 rounded-xl border border-slate-300 px-3 text-sm outline-none ring-sky-500 transition focus:ring-2"
+                      className="h-11 rounded-xl border border-border bg-surface-1 text-primary px-3 text-sm outline-none ring-brand-500 transition focus:ring-2"
                     />
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-secondary">
                       {t("tradeModal.multiplierHint")}
                     </p>
                   </label>
@@ -932,13 +967,13 @@ export function TradeEntryModal({
             {currentStep === 3 ? (
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="flex flex-col gap-2 sm:col-span-2">
-                  <span className="text-sm font-medium text-slate-700">{t("tradeModal.positionStatus")} *</span>
-                  <div className="grid h-11 grid-cols-2 rounded-xl border border-slate-300 p-1">
+                  <span className="text-sm font-medium text-primary">{t("tradeModal.positionStatus")} *</span>
+                  <div className="grid h-11 grid-cols-2 rounded-xl border border-border p-1">
                     <button
                       type="button"
                       onClick={() => setPositionStatus("OPEN")}
                       className={`rounded-lg text-sm font-semibold ${
-                        positionStatus === "OPEN" ? "bg-slate-900 text-white" : "text-slate-700"
+                        positionStatus === "OPEN" ? "bg-brand-500 text-white" : "text-primary"
                       }`}
                     >
                       {t("tradeModal.open")}
@@ -947,7 +982,7 @@ export function TradeEntryModal({
                       type="button"
                       onClick={() => setPositionStatus("CLOSED")}
                       className={`rounded-lg text-sm font-semibold ${
-                        positionStatus === "CLOSED" ? "bg-slate-900 text-white" : "text-slate-700"
+                        positionStatus === "CLOSED" ? "bg-brand-500 text-white" : "text-primary"
                       }`}
                     >
                       {t("tradeModal.closed")}
@@ -956,18 +991,18 @@ export function TradeEntryModal({
                 </div>
 
                 <label className="flex flex-col gap-2">
-                  <span className="text-sm font-medium text-slate-700">{t("tradeDetail.closedOn")} {positionStatus === "CLOSED" ? <span className="text-red-500">*</span> : ""}</span>
+                  <span className="text-sm font-medium text-primary">{t("tradeDetail.closedOn")} {positionStatus === "CLOSED" ? <span className="text-red-500">*</span> : ""}</span>
                   <input
                     value={closedAt}
                     onChange={(event) => setClosedAt(event.target.value)}
                     type="datetime-local"
                     disabled={positionStatus !== "CLOSED"}
-                    className="h-11 rounded-xl border border-slate-300 px-3 text-sm outline-none ring-sky-500 transition disabled:bg-slate-100 focus:ring-2"
+                    className="h-11 rounded-xl border border-border bg-surface-1 text-primary px-3 text-sm outline-none ring-brand-500 transition disabled:bg-surface-2 focus:ring-2"
                   />
                 </label>
 
                 <label className="flex flex-col gap-2">
-                  <span className="text-sm font-medium text-slate-700">{t("tradeDetail.exitPrice")} {positionStatus === "CLOSED" ? <span className="text-red-500">*</span> : ""}</span>
+                  <span className="text-sm font-medium text-primary">{t("tradeDetail.exitPrice")} {positionStatus === "CLOSED" ? <span className="text-red-500">*</span> : ""}</span>
                   <input
                     value={exitPrice}
                     onChange={(event) => setExitPrice(event.target.value)}
@@ -975,56 +1010,56 @@ export function TradeEntryModal({
                     min="0"
                     step="0.000001"
                     disabled={positionStatus !== "CLOSED"}
-                    className="h-11 rounded-xl border border-slate-300 px-3 text-sm outline-none ring-sky-500 transition disabled:bg-slate-100 focus:ring-2"
+                    className="h-11 rounded-xl border border-border bg-surface-1 text-primary px-3 text-sm outline-none ring-brand-500 transition disabled:bg-surface-2 focus:ring-2"
                   />
                 </label>
 
                 <label className="flex flex-col gap-2">
-                  <span className="text-sm font-medium text-slate-700">{t("tradeDetail.fees")}</span>
+                  <span className="text-sm font-medium text-primary">{t("tradeDetail.fees")}</span>
                   <input
                     value={fees}
                     onChange={(event) => setFees(event.target.value)}
                     type="number"
                     min="0"
                     step="0.000001"
-                    className="h-11 rounded-xl border border-slate-300 px-3 text-sm outline-none ring-sky-500 transition focus:ring-2"
+                    className="h-11 rounded-xl border border-border bg-surface-1 text-primary px-3 text-sm outline-none ring-brand-500 transition focus:ring-2"
                   />
                 </label>
 
                 <label className="flex flex-col gap-2">
-                  <span className="text-sm font-medium text-slate-700">{t("journalModal.netPnl")}</span>
+                  <span className="text-sm font-medium text-primary">{t("journalModal.netPnl")}</span>
                   <input
                     value={netPnl}
                     onChange={(event) => setNetPnl(event.target.value)}
                     type="number"
                     step="0.000001"
                     disabled={positionStatus !== "CLOSED"}
-                    className="h-11 rounded-xl border border-slate-300 px-3 text-sm outline-none ring-sky-500 transition disabled:bg-slate-100 focus:ring-2"
+                    className="h-11 rounded-xl border border-border bg-surface-1 text-primary px-3 text-sm outline-none ring-brand-500 transition disabled:bg-surface-2 focus:ring-2"
                   />
                 </label>
 
-                <div className="sm:col-span-2 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">{t("tradeModal.netPnlPreview")}</p>
+<div className="sm:col-span-2 rounded-2xl border border-border bg-surface-2 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-secondary">{t("tradeModal.netPnlPreview")}</p>
                   <p
                     className={`mt-2 text-3xl font-black tabular-nums ${
                       previewNetPnl == null
-                        ? "text-slate-500"
+                        ? "text-secondary"
                         : previewNetPnl > 0
                           ? "text-emerald-600"
                           : previewNetPnl < 0
                             ? "text-rose-600"
-                            : "text-slate-700"
+                            : "text-primary"
                     }`}
                   >
                     {previewNetPnl == null
                       ? t("tradeModal.fillManually")
                       : formatPreviewNetPnl(previewNetPnl)}
                   </p>
-                  <p className="mt-1 text-sm text-slate-600">
+                  <p className="mt-1 text-sm text-secondary">
                     {t("tradeModal.tradeStatus")}: {previewOutcome ?? "N/A"} {previewOutcome ? t("tradeModal.fromPnl") : ""}
                   </p>
                   {previewPipInfo ? (
-                    <p className="mt-1 text-xs text-slate-500 font-medium">
+                    <p className="mt-1 text-xs text-secondary font-medium">
                       {previewPipInfo.unit === "pips" ? t("tradeModal.pipValue") : t("tradeModal.valuePt")}: {formatPreviewNetPnl(previewPipInfo.unitValue)} | {t("tradeModal.move")}:{" "}
                       {previewPipInfo.unitsMove > 0 ? "+" : ""}
                       {previewPipInfo.unitsMove.toFixed(1)} {previewPipInfo.unit}
@@ -1037,21 +1072,21 @@ export function TradeEntryModal({
             {currentStep === 4 ? (
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="flex flex-col gap-2">
-                  <span className="text-sm font-medium text-slate-700">{t("tradeModal.setupName")}</span>
+                  <span className="text-sm font-medium text-primary">{t("tradeModal.setupName")}</span>
                   <input
                     value={setupName}
                     onChange={(event) => setSetupName(event.target.value)}
                     placeholder={t("tradeModal.setupPlaceholder")}
-                    className="h-11 rounded-xl border border-slate-300 px-3 text-sm outline-none ring-sky-500 transition focus:ring-2"
+                    className="h-11 rounded-xl border border-border bg-surface-1 text-primary px-3 text-sm outline-none ring-brand-500 transition focus:ring-2"
                   />
                 </label>
 
                 <label className="flex flex-col gap-2">
-                  <span className="text-sm font-medium text-slate-700">{t("tradeModal.entryTimeframe")}</span>
+                  <span className="text-sm font-medium text-primary">{t("tradeModal.entryTimeframe")}</span>
                   <select
                     value={entryTimeframe}
                     onChange={(event) => setEntryTimeframe(event.target.value)}
-                    className="h-11 rounded-xl border border-slate-300 px-3 text-sm outline-none ring-sky-500 transition focus:ring-2"
+                    className="h-11 rounded-xl border border-border bg-surface-1 text-primary px-3 text-sm outline-none ring-brand-500 transition focus:ring-2"
                   >
                     <option value="">{t("tradeModal.selectTimeframe")}</option>
                     {timeframeOptions.map((item) => (
@@ -1063,11 +1098,11 @@ export function TradeEntryModal({
                 </label>
 
                 <label className="flex flex-col gap-2">
-                  <span className="text-sm font-medium text-slate-700">{t("tradeModal.htfTrend")}</span>
+                  <span className="text-sm font-medium text-primary">{t("tradeModal.htfTrend")}</span>
                   <select
                     value={higherTimeframeBias}
                     onChange={(event) => setHigherTimeframeBias(event.target.value)}
-                    className="h-11 rounded-xl border border-slate-300 px-3 text-sm outline-none ring-sky-500 transition focus:ring-2"
+                    className="h-11 rounded-xl border border-border bg-surface-1 text-primary px-3 text-sm outline-none ring-brand-500 transition focus:ring-2"
                   >
                     <option value="">{t("tradeModal.selectTrend")}</option>
                     {htfTrendOptions.map((item) => (
@@ -1079,17 +1114,17 @@ export function TradeEntryModal({
                 </label>
 
                 <label className="flex flex-col gap-2">
-                  <span className="text-sm font-medium text-slate-700">{t("tradeModal.strategyTag")}</span>
+                  <span className="text-sm font-medium text-primary">{t("tradeModal.strategyTag")}</span>
                   <input
                     value={strategyTag}
                     onChange={(event) => setStrategyTag(event.target.value)}
                     placeholder={t("tradeModal.strategyPlaceholder")}
-                    className="h-11 rounded-xl border border-slate-300 px-3 text-sm outline-none ring-sky-500 transition focus:ring-2"
+                    className="h-11 rounded-xl border border-border bg-surface-1 text-primary px-3 text-sm outline-none ring-brand-500 transition focus:ring-2"
                   />
                 </label>
 
                 <div className="sm:col-span-2">
-                  <p className="text-sm font-medium text-slate-700">{t("tradeDetail.confluences")}</p>
+                  <p className="text-sm font-medium text-primary">{t("tradeDetail.confluences")}</p>
                   <div className="mt-2 flex flex-wrap gap-2">
                     {confluenceOptions.map((item) => {
                       const selected = confluences.includes(item);
@@ -1100,8 +1135,8 @@ export function TradeEntryModal({
                           onClick={() => toggleConfluence(item)}
                           className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
                             selected
-                              ? "border-cyan-600 bg-cyan-600 text-white"
-                              : "border-slate-300 bg-white text-slate-700"
+                              ? "border-brand-600 bg-brand-600 text-white"
+                              : "border-border bg-surface-1 text-primary"
                           }`}
                         >
                           {item}
@@ -1116,11 +1151,11 @@ export function TradeEntryModal({
             {currentStep === 5 ? (
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="flex flex-col gap-2">
-                  <span className="text-sm font-medium text-slate-700">{t("tradeDetail.emotionalState")}</span>
+                  <span className="text-sm font-medium text-primary">{t("tradeDetail.emotionalState")}</span>
                   <select
                     value={emotionalState}
                     onChange={(event) => setEmotionalState(event.target.value)}
-                    className="h-11 rounded-xl border border-slate-300 px-3 text-sm outline-none ring-sky-500 transition focus:ring-2"
+                    className="h-11 rounded-xl border border-border bg-surface-1 text-primary px-3 text-sm outline-none ring-brand-500 transition focus:ring-2"
                   >
                     <option value="">{t("tradeModal.selectEmotion")}</option>
                     {emotionOptions.map((item) => (
@@ -1132,7 +1167,7 @@ export function TradeEntryModal({
                 </label>
 
                 <label className="flex flex-col gap-2">
-                  <span className="text-sm font-medium text-slate-700">{t("tradeDetail.executionRating")} (1-10)</span>
+                  <span className="text-sm font-medium text-primary">{t("tradeDetail.executionRating")} (1-10)</span>
                   <input
                     value={executionRating}
                     onChange={(event) => setExecutionRating(event.target.value)}
@@ -1142,17 +1177,17 @@ export function TradeEntryModal({
                     step="1"
                     className="h-11"
                   />
-                  <span className="text-xs font-semibold text-slate-500">{executionRating}/10</span>
+                  <span className="text-xs font-semibold text-secondary">{executionRating}/10</span>
                 </label>
 
                 <div className="flex flex-col gap-2 sm:col-span-2">
-                  <span className="text-sm font-medium text-slate-700">{t("tradeDetail.planFollowed")}</span>
-                  <div className="grid h-11 grid-cols-2 rounded-xl border border-slate-300 p-1">
+                  <span className="text-sm font-medium text-primary">{t("tradeDetail.planFollowed")}</span>
+                  <div className="grid h-11 grid-cols-2 rounded-xl border border-border p-1">
                     <button
                       type="button"
                       onClick={() => setPlanFollowed(true)}
                       className={`rounded-lg text-sm font-semibold ${
-                        planFollowed === true ? "bg-emerald-600 text-white" : "text-slate-700"
+                        planFollowed === true ? "bg-emerald-600 text-white" : "text-primary"
                       }`}
                     >
                       {t("tradeDetail.yes")}
@@ -1161,7 +1196,7 @@ export function TradeEntryModal({
                       type="button"
                       onClick={() => setPlanFollowed(false)}
                       className={`rounded-lg text-sm font-semibold ${
-                        planFollowed === false ? "bg-rose-600 text-white" : "text-slate-700"
+                        planFollowed === false ? "bg-rose-600 text-white" : "text-primary"
                       }`}
                     >
                       {t("tradeDetail.no")}
@@ -1170,7 +1205,7 @@ export function TradeEntryModal({
                 </div>
 
                 <div className="sm:col-span-2">
-                  <span className="text-sm font-medium text-slate-700">{t("tradeDetail.screenshots")} {t("tradeModal.screenshotHint")}</span>
+                  <span className="text-sm font-medium text-primary">{t("tradeDetail.screenshots")} {t("tradeModal.screenshotHint")}</span>
                   <div className="mt-2 grid gap-3 sm:grid-cols-3">
                     {[
                       {
@@ -1193,7 +1228,7 @@ export function TradeEntryModal({
                       },
                     ].map((item) => (
                       <div key={item.slot} className="flex flex-col gap-2">
-                        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">{item.label}</p>
+                        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-secondary">{item.label}</p>
                         <div
                           onDragOver={(event) => {
                             event.preventDefault();
@@ -1203,8 +1238,8 @@ export function TradeEntryModal({
                           onDrop={(event) => handleSlotDrop(item.slot, event)}
                           className={`rounded-xl border-2 border-dashed p-3 text-center transition ${
                             dragOverSlot === item.slot
-                              ? "border-cyan-500 bg-cyan-50"
-                              : "border-slate-300 bg-slate-50"
+                              ? "border-brand-500 bg-brand-500/10"
+                              : "border-border bg-surface-2"
                           }`}
                         >
                           <label className="block cursor-pointer">
@@ -1222,7 +1257,7 @@ export function TradeEntryModal({
                                 setSlotFile(item.slot, file);
                               }}
                             />
-                            <p className="text-xs text-slate-600">{t("tradeModal.dragDrop")}</p>
+                            <p className="text-xs text-secondary">{t("tradeModal.dragDrop")}</p>
                             {item.preview ? (
                               // eslint-disable-next-line @next/next/no-img-element
                               <img
@@ -1231,11 +1266,11 @@ export function TradeEntryModal({
                                 className="mt-2 h-24 w-full rounded-lg object-cover"
                               />
                             ) : (
-                              <div className="mt-2 flex h-24 items-center justify-center rounded-lg border border-slate-200 bg-white text-[11px] font-medium text-slate-400">
+                              <div className="mt-2 flex h-24 items-center justify-center rounded-lg border border-border bg-surface-2 text-[11px] font-medium text-secondary">
                                 {t("tradeModal.placeholder")} {item.label}
                               </div>
                             )}
-                            <p className="mt-2 truncate text-xs font-semibold text-slate-800">
+                            <p className="mt-2 truncate text-xs font-semibold text-primary">
                               {item.file ? item.file.name : item.preview ? `${t("tradeModal.existingScreenshot")} ${item.label}` : `${item.label} ${t("tradeModal.screenshot")}`}
                             </p>
                           </label>
@@ -1244,53 +1279,53 @@ export function TradeEntryModal({
                     ))}
                   </div>
                   {existingScreenshotUrls.length > 0 ? (
-                    <p className="mt-2 text-xs text-slate-500">
+                    <p className="mt-2 text-xs text-secondary">
                       {existingScreenshotUrls.length} {t("tradeModal.existingScreenshotsKept")}
                     </p>
                   ) : null}
                 </div>
 
                 <label className="flex flex-col gap-2 sm:col-span-2">
-                  <span className="text-sm font-medium text-slate-700">{t("tradeDetail.entryReason")}</span>
+                  <span className="text-sm font-medium text-primary">{t("tradeDetail.entryReason")}</span>
                   <textarea
                     value={entryReason}
                     onChange={(event) => setEntryReason(event.target.value)}
                     rows={3}
                     placeholder=""
-                    className="rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none ring-sky-500 transition focus:ring-2"
+                    className="rounded-xl border border-border bg-surface-1 text-primary px-3 py-2 text-sm outline-none ring-brand-500 transition focus:ring-2"
                   />
                 </label>
 
                 <label className="flex flex-col gap-2 sm:col-span-2">
-                  <span className="text-sm font-medium text-slate-700">{t("tradeDetail.exitReason")}</span>
+                  <span className="text-sm font-medium text-primary">{t("tradeDetail.exitReason")}</span>
                   <textarea
                     value={exitReason}
                     onChange={(event) => setExitReason(event.target.value)}
                     rows={3}
                     placeholder=""
-                    className="rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none ring-sky-500 transition focus:ring-2"
+                    className="rounded-xl border border-border bg-surface-1 text-primary px-3 py-2 text-sm outline-none ring-brand-500 transition focus:ring-2"
                   />
                 </label>
 
                 <label className="flex flex-col gap-2 sm:col-span-2">
-                  <span className="text-sm font-medium text-slate-700">{t("tradeDetail.lessonLearned")}</span>
+                  <span className="text-sm font-medium text-primary">{t("tradeDetail.lessonLearned")}</span>
                   <textarea
                     value={lessonLearned}
                     onChange={(event) => setLessonLearned(event.target.value)}
                     rows={3}
                     placeholder=""
-                    className="rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none ring-sky-500 transition focus:ring-2"
+                    className="rounded-xl border border-border bg-surface-1 text-primary px-3 py-2 text-sm outline-none ring-brand-500 transition focus:ring-2"
                   />
                 </label>
 
                 <label className="flex flex-col gap-2 sm:col-span-2">
-                  <span className="text-sm font-medium text-slate-700">{t("tradeDetail.notes")}</span>
+                  <span className="text-sm font-medium text-primary">{t("tradeDetail.notes")}</span>
                   <textarea
                     value={notes}
                     onChange={(event) => setNotes(event.target.value)}
                     rows={4}
                     placeholder=""
-                    className="rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none ring-sky-500 transition focus:ring-2"
+                    className="rounded-xl border border-border bg-surface-1 text-primary px-3 py-2 text-sm outline-none ring-brand-500 transition focus:ring-2"
                   />
                 </label>
               </div>
@@ -1299,22 +1334,22 @@ export function TradeEntryModal({
             {error ? (
               <p
                 ref={errorMessageRef}
-                className="mt-4 rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700"
+                className="mt-4 rounded-lg bg-rose-500/10 px-3 py-2 text-sm text-rose-600 dark:text-rose-400"
               >
                 {error}
               </p>
             ) : null}
           </div>
 
-          <div className="flex flex-col gap-3 border-t border-slate-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="text-xs text-slate-500">
+          <div className="flex flex-col gap-3 border-t border-border px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="text-xs text-secondary">
               {t("tradeModal.step")} {currentStep}/5 · {currentStep <= 3 ? t("tradeModal.essentialFirst") : t("tradeModal.optionalContext")}
             </div>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
               <button
                 type="button"
                 onClick={onClose}
-                className="inline-flex h-11 items-center justify-center rounded-xl border border-slate-300 px-5 text-sm font-medium text-slate-700 hover:bg-slate-100"
+                className="inline-flex h-11 items-center justify-center rounded-xl border border-border px-5 text-sm font-medium text-primary hover:bg-surface-2"
               >
                 {t("accounts.formCancelBtn")}
               </button>
@@ -1322,20 +1357,22 @@ export function TradeEntryModal({
                 type="button"
                 onClick={() => moveStep("prev")}
                 disabled={currentStep === 1}
-                className="inline-flex h-11 items-center justify-center rounded-xl border border-slate-300 px-5 text-sm font-medium text-slate-700 disabled:opacity-50"
+                className="inline-flex h-11 items-center justify-center rounded-xl border border-border px-5 text-sm font-medium text-primary disabled:opacity-50"
               >
                 {t("tradeDetail.previous")}
               </button>
               {currentStep < 5 ? (
                 <button
+                  key="next-btn"
                   type="button"
                   onClick={() => moveStep("next")}
-                  className="inline-flex h-11 items-center justify-center rounded-xl bg-slate-900 px-5 text-sm font-semibold text-white hover:bg-slate-700"
+                  className="inline-flex h-11 items-center justify-center rounded-xl bg-brand-500 px-5 text-sm font-semibold text-white hover:bg-brand-600"
                 >
                   {t("tradeDetail.next")}
                 </button>
               ) : (
                 <button
+                  key="submit-btn"
                   type="submit"
                   disabled={isSubmitting}
                   className="inline-flex h-11 items-center justify-center rounded-xl bg-cyan-600 px-5 text-sm font-semibold text-white transition hover:bg-cyan-700 disabled:cursor-not-allowed disabled:opacity-50"

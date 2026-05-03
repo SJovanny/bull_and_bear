@@ -444,7 +444,8 @@ export function TradeChart({
     resizeObserverRef.current?.disconnect();
 
     const chart = createChart(container, {
-      autoSize: true,
+      autoSize: false,
+      width: container.clientWidth,
       height: container.clientHeight,
       layout: {
         background: { type: ColorType.Solid, color: palette.background },

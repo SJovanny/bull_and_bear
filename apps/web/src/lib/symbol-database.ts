@@ -189,16 +189,43 @@ export const INDEX_SYMBOL_ALIASES: Record<string, string[]> = {
   XAUUSD: ["XAU/USD"],
 };
 
-export const SYMBOL_SUGGESTIONS = {
-  CFD: ["XAUUSD", "XAGUSD", "US500", "NAS100", "USOIL"],
-  CRYPTO: ["BTCUSD", "ETHUSD", "SOLUSD", "XRPUSD", "ADAUSD", "DOGEUSD"],
-  ETF: ["SPY", "QQQ", "IWM", "DIA", "XLF"],
-  FOREX: ["EURUSD", "GBPUSD", "USDJPY", "AUDUSD", "USDCAD", "USDCHF"],
-  FUTURES: ["NQ", "MNQ", "ES", "MES", "CL", "GC", "MGC"],
-  INDEX: ["US500", "NAS100", "US30", "GER40", "UK100", "JP225"],
-  OPTIONS: ["AAPL 200C", "TSLA 180P", "SPY 500C", "QQQ 430P"],
-  OTHER: ["CUSTOM1", "CUSTOM2"],
-  STOCK: ["AAPL", "TSLA", "NVDA", "MSFT", "AMZN"],
+export const SYMBOL_SUGGESTIONS: Record<string, readonly string[]> = {
+  STOCK: [
+    "AAPL", "MSFT", "NVDA", "AMZN", "GOOGL", "META", "TSLA", "AMD", "NFLX", "CRM",
+    "AVGO", "ORCL", "ADBE", "INTC", "PYPL", "DIS", "BA", "JPM",
+  ],
+  FOREX: [
+    "EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "USDCAD", "NZDUSD",
+    "EURGBP", "EURJPY", "GBPJPY", "AUDJPY", "EURAUD", "EURNZD", "GBPAUD", "GBPCAD",
+    "USDNOK", "USDSEK", "USDMXN", "USDTRY", "USDSGD",
+  ],
+  CRYPTO: [
+    "BTCUSD", "ETHUSD", "SOLUSD", "XRPUSD", "ADAUSD", "DOGEUSD", "DOTUSD",
+    "AVAXUSD", "LINKUSD", "MATICUSD", "UNIUSD", "ATOMUSD", "LTCUSD", "NEARUSD", "APTUSD", "SUIUSD",
+  ],
+  FUTURES: [
+    "ES", "NQ", "MES", "MNQ", "RTY", "YM",
+    "CL", "GC", "SI", "NG",
+    "ZB", "ZN", "ZC", "ZS", "ZW",
+  ],
+  INDEX: [
+    "US500", "NAS100", "US30", "GER40", "UK100", "JP225",
+    "CAC40", "FRA40", "AUS200", "HK50", "CN50",
+    "EU50", "EUSTX50", "VIX", "SPX",
+  ],
+  ETF: [
+    "SPY", "QQQ", "IWM", "DIA", "XLF", "XLK", "XLE", "XLV",
+    "XLY", "XLP", "GLD", "SLV", "TLT", "HYG",
+  ],
+  CFD: [
+    "XAUUSD", "XAGUSD", "USOIL", "UKOIL", "US500", "NAS100",
+    "US30", "NATGAS", "COPPER", "XCUUSD", "XPTUSD", "XPDUSD",
+  ],
+  OPTIONS: [
+    "AAPL 200C", "TSLA 180P", "SPY 500C", "QQQ 430P",
+    "NVDA 120C", "AMZN 190P", "META 500C", "MSFT 420P",
+  ],
+  OTHER: ["CUSTOM"],
 } as const;
 
 function normalizeSymbol(value: string) {

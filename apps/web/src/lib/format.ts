@@ -36,3 +36,14 @@ export function pnlBgClass(value: number) {
   if (value < 0) return "bg-pnl-negative";
   return "bg-slate-400";
 }
+
+export function safeJsonArray(value: unknown): string[] {
+  if (Array.isArray(value)) return value;
+  if (typeof value === "string") {
+    try {
+      const parsed = JSON.parse(value);
+      if (Array.isArray(parsed)) return parsed;
+    } catch {}
+  }
+  return [];
+}
