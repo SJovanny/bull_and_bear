@@ -14,7 +14,6 @@ export function AnimatedChartBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number | null>(null);
   const offsetRef = useRef(0);
-  const candlesRef = useRef<CandleData[]>([]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -31,8 +30,8 @@ export function AnimatedChartBackground() {
     resizeCanvas();
     window.addEventListener("resize", resizeCanvas);
 
-    // Generate initial candles
-    const generateCandles = (count: number, startX: number): CandleData[] => {
+    // Generate candles with a bias towards bullish or bearish
+    const generateCandles = (count: number, startX: number, bullishBias: number): CandleData[] => {
       const candles: CandleData[] = [];
       let price = 100 + Math.random() * 50;
       const candleWidth = 12;
@@ -40,7 +39,8 @@ export function AnimatedChartBackground() {
 
       for (let i = 0; i < count; i++) {
         const volatility = 2 + Math.random() * 4;
-        const direction = Math.random() > 0.5 ? 1 : -1;
+        // bullishBias: 0.7 = 70% bullish, 0.3 = 30% bullish (70% bearish)
+        const direction = Math.random() < bullishBias ? 1 : -1;
         const change = direction * volatility;
 
         const open = price;
@@ -61,9 +61,11 @@ export function AnimatedChartBackground() {
       return candles;
     };
 
-    // Generate enough candles to fill multiple screens
+    // Generate 3 different candle sets with different biases
     const totalCandles = Math.ceil((window.innerWidth * 3) / 16);
-    candlesRef.current = generateCandles(totalCandles, 0);
+    const bullishCandles = generateCandles(totalCandles, 0, 0.75); // 75% bullish - strong uptrend
+    const bearishCandles = generateCandles(totalCandles, 0, 0.25); // 25% bullish - strong downtrend  
+    const mixedCandles = generateCandles(totalCandles, 0, 0.5);    // 50% - choppy market
 
     const drawCandle = (
       ctx: CanvasRenderingContext2D,
@@ -144,20 +146,20 @@ export function AnimatedChartBackground() {
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Draw multiple chart layers at different speeds and positions
+      // Draw multiple chart layers at different speeds, positions, and market conditions
       const layers = [
-        { y: canvas.height * 0.25, scale: 3, speed: 0.3, opacity: 0.5 },
-        { y: canvas.height * 0.5, scale: 4, speed: 0.5, opacity: 0.7 },
-        { y: canvas.height * 0.75, scale: 3.5, speed: 0.7, opacity: 0.5 },
+        { y: canvas.height * 0.25, scale: 3, speed: 0.3, opacity: 0.5, candles: bullishCandles },
+        { y: canvas.height * 0.5, scale: 4, speed: 0.5, opacity: 0.7, candles: bearishCandles },
+        { y: canvas.height * 0.75, scale: 3.5, speed: 0.7, opacity: 0.5, candles: mixedCandles },
       ];
 
       layers.forEach((layer) => {
         const localOffset = offsetRef.current * layer.speed;
-        const loopWidth = candlesRef.current.length * 16;
+        const loopWidth = layer.candles.length * 16;
         const wrappedOffset = localOffset % loopWidth;
 
         // Draw candles
-        candlesRef.current.forEach((candle) => {
+        layer.candles.forEach((candle) => {
           drawCandle(ctx, candle, wrappedOffset, layer.y, layer.scale, layer.opacity);
           // Draw wrapped version for seamless loop
           drawCandle(
@@ -171,7 +173,7 @@ export function AnimatedChartBackground() {
         });
 
         // Draw line chart overlay
-        drawLine(ctx, candlesRef.current, wrappedOffset, layer.y, layer.scale, layer.opacity);
+        drawLine(ctx, layer.candles, wrappedOffset, layer.y, layer.scale, layer.opacity);
       });
 
       // Add gradient overlay at top and bottom for light mode
