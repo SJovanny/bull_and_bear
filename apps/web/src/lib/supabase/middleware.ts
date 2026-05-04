@@ -48,7 +48,9 @@ export async function updateSession(request: NextRequest, response?: NextRespons
     pathname === "/" ||
     pathname.startsWith("/legal/") ||
     pathname === "/faq" ||
-    pathname === "/contact";
+    pathname === "/contact" ||
+    pathname === "/sitemap.xml" ||
+    pathname === "/robots.txt";
   const isAuthPage = pathname.startsWith("/auth/login") || pathname.startsWith("/auth/signup") || pathname.startsWith("/auth/forgot-password") || pathname.startsWith("/auth/reset-password");
   const isAuthCallback = pathname.startsWith("/auth/callback");
 

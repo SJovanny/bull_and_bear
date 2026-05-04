@@ -15,12 +15,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1.0,
     },
     {
-      url: `${BASE_URL}/pricing`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.9,
-    },
-    {
       url: `${BASE_URL}/faq`,
       lastModified: new Date(),
       changeFrequency: "monthly",
@@ -31,18 +25,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(),
       changeFrequency: "yearly",
       priority: 0.6,
-    },
-    {
-      url: `${BASE_URL}/auth/login`,
-      lastModified: new Date(),
-      changeFrequency: "yearly",
-      priority: 0.5,
-    },
-    {
-      url: `${BASE_URL}/auth/signup`,
-      lastModified: new Date(),
-      changeFrequency: "yearly",
-      priority: 0.5,
     },
     {
       url: `${BASE_URL}/legal/privacy-policy`,
