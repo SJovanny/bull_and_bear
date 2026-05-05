@@ -13,6 +13,8 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: "*",
         allow: [
           "/",
+          "/blog",
+          "/blog/",
           "/faq",
           "/contact",
           "/legal/",
