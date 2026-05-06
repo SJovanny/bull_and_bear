@@ -258,6 +258,7 @@ export const fr: TranslationKeys = {
   "recentTrades.qty": "Qté",
   "recentTrades.netPnl": "Net PnL",
   "recentTrades.empty": "Aucun trade.",
+  "recentTrades.seeAll": "Voir tous les trades",
 
   // ─── Journal ────────────────────────────────────────────────
   "journal.title": "Carnet de bord",
@@ -290,6 +291,19 @@ export const fr: TranslationKeys = {
   "calendar.view": "Détail",
   "calendar.edit": "Éditer",
   "calendar.deleteConfirm": "Supprimer le trade",
+  "calendar.tradesBoard.title": "Tous les trades du mois",
+  "calendar.tradesBoard.searchPlaceholder": "Chercher par symbole, sens ou date…",
+  "calendar.tradesBoard.date": "Date",
+  "calendar.tradesBoard.status": "Statut",
+  "calendar.tradesBoard.actions": "Actions",
+  "calendar.tradesBoard.noTrades": "Aucun trade ce mois-ci.",
+  "calendar.tradesBoard.noResults": "Aucun résultat.",
+  "calendar.tradesBoard.page": "Page",
+  "calendar.tradesBoard.from": "Du",
+  "calendar.tradesBoard.to": "Au",
+  "calendar.tradesBoard.clearDates": "Effacer les dates",
+  "calendar.tradesBoard.prevPage": "Page précédente",
+  "calendar.tradesBoard.nextPage": "Page suivante",
 
   // ─── Stats ──────────────────────────────────────────────────
   "stats.title": "Statistiques",

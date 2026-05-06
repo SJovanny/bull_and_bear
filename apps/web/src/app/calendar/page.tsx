@@ -103,6 +103,13 @@ function CalendarPageContent() {
   const [deletingTradeId, setDeletingTradeId] = useState<string | null>(null);
   const [isDayPanelHighlighted, setIsDayPanelHighlighted] = useState(false);
 
+  // Trades board state
+  const [boardSearch, setBoardSearch] = useState("");
+  const [boardDateFrom, setBoardDateFrom] = useState("");
+  const [boardDateTo, setBoardDateTo] = useState("");
+  const [boardPage, setBoardPage] = useState(1);
+  const BOARD_PAGE_SIZE = 10;
+
   const [trades, setTrades] = useState<Trade[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -163,6 +170,40 @@ function CalendarPageContent() {
     return tradesByDay.get(selectedDate) ?? [];
   }, [tradesByDay, selectedDate]);
 
+  // Trades board: filter to current month + search query
+  const boardFilteredTrades = useMemo(() => {
+    const monthTrades = (boardDateFrom || boardDateTo)
+      ? displayTrades
+      : displayTrades.filter((trade) => {
+          const d = new Date(trade.openedAt);
+          return d.getFullYear() === firstDay.getFullYear() && d.getMonth() === firstDay.getMonth();
+        });
+
+    const q = boardSearch.trim().toLowerCase();
+    const afterTextFilter = q
+      ? monthTrades.filter(
+          (trade) =>
+            trade.symbol.toLowerCase().includes(q) ||
+            trade.side.toLowerCase().includes(q) ||
+            toDateKey(new Date(trade.openedAt)).includes(q)
+        )
+      : monthTrades;
+
+    return afterTextFilter.filter((trade) => {
+      const dateKey = toDateKey(new Date(trade.openedAt));
+      if (boardDateFrom && dateKey < boardDateFrom) return false;
+      if (boardDateTo && dateKey > boardDateTo) return false;
+      return true;
+    });
+  }, [displayTrades, firstDay, boardSearch, boardDateFrom, boardDateTo]);
+
+  const boardTotalPages = Math.max(1, Math.ceil(boardFilteredTrades.length / BOARD_PAGE_SIZE));
+
+  const boardPageTrades = useMemo(() => {
+    const start = (boardPage - 1) * BOARD_PAGE_SIZE;
+    return boardFilteredTrades.slice(start, start + BOARD_PAGE_SIZE);
+  }, [boardFilteredTrades, boardPage, BOARD_PAGE_SIZE]);
+
   const loadTrades = useCallback(async () => {
     if (!tradesEndpoint) {
       setLoading(false);
@@ -191,6 +232,11 @@ function CalendarPageContent() {
   useEffect(() => {
     loadTrades();
   }, [loadTrades]);
+
+  // Reset board page when month or filters change
+  useEffect(() => {
+    setBoardPage(1);
+  }, [currentMonth, boardSearch, boardDateFrom, boardDateTo]);
 
   function openTradeModal(dateKey: string) {
     setTradeModalDate(dateKey);
@@ -517,6 +563,203 @@ function CalendarPageContent() {
                   </article>
                 );
               })}
+            </div>
+          )}
+        </section>
+
+        {/* ── Trades Board ── */}
+        <section className="mt-4 rounded-2xl border border-border bg-surface-1 p-6 shadow-sm">
+          <div className="mb-5 flex flex-col gap-4">
+            {/* Board header row */}
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-brand-500 font-sans">
+                  {t("calendar.title")}
+                </p>
+                <h3 className="mt-1 text-lg font-semibold text-primary font-sans">
+                  {t("calendar.tradesBoard.title")}
+                </h3>
+                <p className="mt-0.5 text-sm text-secondary font-sans">
+                  {boardFilteredTrades.length} {boardFilteredTrades.length === 1 ? t("common.trade") : t("common.trades")}
+                </p>
+              </div>
+
+              {/* Search */}
+              <div className="relative w-full sm:w-64">
+                <svg
+                  viewBox="0 0 24 24"
+                  className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-secondary"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="M21 21l-4.35-4.35" />
+                </svg>
+                <input
+                  type="text"
+                  placeholder={t("calendar.tradesBoard.searchPlaceholder")}
+                  value={boardSearch}
+                  onChange={(e) => setBoardSearch(e.target.value)}
+                  className="h-10 w-full rounded-lg border border-border bg-surface-2 pl-9 pr-3 text-sm text-primary placeholder:text-secondary outline-none focus:ring-2 focus:ring-brand-500 font-sans"
+                />
+              </div>
+            </div>
+
+            {/* Date range row */}
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-2">
+                <label className="text-xs font-semibold uppercase tracking-[0.1em] text-secondary font-sans shrink-0">
+                  {t("calendar.tradesBoard.from")}
+                </label>
+                <input
+                  type="date"
+                  value={boardDateFrom}
+                  max={boardDateTo || undefined}
+                  onChange={(e) => setBoardDateFrom(e.target.value)}
+                  className="h-9 rounded-lg border border-border bg-surface-2 px-3 text-sm text-primary outline-none focus:ring-2 focus:ring-brand-500 font-sans"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <label className="text-xs font-semibold uppercase tracking-[0.1em] text-secondary font-sans shrink-0">
+                  {t("calendar.tradesBoard.to")}
+                </label>
+                <input
+                  type="date"
+                  value={boardDateTo}
+                  min={boardDateFrom || undefined}
+                  onChange={(e) => setBoardDateTo(e.target.value)}
+                  className="h-9 rounded-lg border border-border bg-surface-2 px-3 text-sm text-primary outline-none focus:ring-2 focus:ring-brand-500 font-sans"
+                />
+              </div>
+              {(boardDateFrom || boardDateTo) && (
+                <button
+                  type="button"
+                  onClick={() => { setBoardDateFrom(""); setBoardDateTo(""); }}
+                  className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border px-3 text-xs font-medium text-secondary hover:bg-surface-2 hover:text-primary transition-colors font-sans"
+                >
+                  <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M18 6L6 18M6 6l12 12" />
+                  </svg>
+                  {t("calendar.tradesBoard.clearDates")}
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Table */}
+          <div className="overflow-x-auto rounded-xl border border-border">
+            <table className="min-w-full divide-y divide-border text-sm">
+              <thead className="bg-surface-2 text-[11px] uppercase tracking-wide text-secondary font-sans">
+                <tr>
+                  <th className="px-4 py-3 text-left font-semibold">{t("calendar.tradesBoard.date")}</th>
+                  <th className="px-4 py-3 text-left font-semibold">{t("recentTrades.symbol")}</th>
+                  <th className="px-4 py-3 text-left font-semibold">{t("recentTrades.side")}</th>
+                  <th className="px-4 py-3 text-left font-semibold">{t("recentTrades.qty")}</th>
+                  <th className="px-4 py-3 text-left font-semibold">{t("recentTrades.netPnl")}</th>
+                  <th className="px-4 py-3 text-left font-semibold">{t("calendar.tradesBoard.status")}</th>
+                  <th className="px-4 py-3 text-left font-semibold">{t("calendar.tradesBoard.actions")}</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border bg-surface-1">
+                {boardPageTrades.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="px-4 py-10 text-center text-secondary font-sans text-sm">
+                      {boardSearch ? t("calendar.tradesBoard.noResults") : t("calendar.tradesBoard.noTrades")}
+                    </td>
+                  </tr>
+                ) : (
+                  boardPageTrades.map((trade) => {
+                    const pnlValue = Number(trade.netPnl ?? 0);
+                    return (
+                      <tr key={trade.id} className="hover:bg-surface-2 transition-colors">
+                        <td className="px-4 py-3 text-secondary font-mono text-xs">
+                          {toDateKey(new Date(trade.openedAt))}
+                        </td>
+                        <td className="px-4 py-3 font-semibold text-primary font-sans">{trade.symbol}</td>
+                        <td className="px-4 py-3 text-secondary font-sans">{trade.side}</td>
+                        <td className="px-4 py-3 text-secondary font-mono text-xs">
+                          {Number(trade.quantity ?? 0).toLocaleString(undefined, { maximumFractionDigits: 4 })}
+                        </td>
+                        <td className={`px-4 py-3 font-medium font-mono text-xs ${pnlValue >= 0 ? "text-pnl-positive" : "text-pnl-negative"}`}>
+                          {pnlValue > 0 ? "+" : ""}
+                          {pnlValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span
+                            className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold font-sans ${
+                              trade.status === "OPEN"
+                                ? "bg-brand-500/10 text-brand-500"
+                                : "bg-surface-2 text-secondary"
+                            }`}
+                          >
+                            {trade.status}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2">
+                            <Link
+                              href={`/trades/${trade.id}`}
+                              className="inline-flex h-7 items-center justify-center rounded-lg border border-border px-2.5 text-xs font-medium text-secondary hover:bg-surface-2 hover:text-primary transition-colors font-sans"
+                            >
+                              {t("calendar.view")}
+                            </Link>
+                            <button
+                              type="button"
+                              onClick={() => openEditTradeModal(trade)}
+                              className="inline-flex h-7 items-center justify-center rounded-lg border border-brand-500/30 px-2.5 text-xs font-medium text-brand-500 hover:bg-brand-500/10 transition-colors font-sans"
+                            >
+                              {t("calendar.edit")}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => deleteTrade(trade)}
+                              disabled={deletingTradeId === trade.id}
+                              aria-label={`Delete trade ${trade.symbol}`}
+                              className="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-pnl-negative/30 text-pnl-negative hover:bg-pnl-negative/10 disabled:opacity-50 transition-colors"
+                            >
+                              <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M3 6h18" />
+                                <path d="M8 6V4h8v2" />
+                                <path d="M19 6l-1 14H6L5 6" />
+                                <path d="M10 11v6" />
+                                <path d="M14 11v6" />
+                              </svg>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination */}
+          {boardTotalPages > 1 && (
+            <div className="mt-4 flex items-center justify-between">
+              <p className="text-xs text-secondary font-sans">
+                {t("calendar.tradesBoard.page")} {boardPage} / {boardTotalPages}
+              </p>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setBoardPage((p) => Math.max(1, p - 1))}
+                  disabled={boardPage === 1}
+                  className="inline-flex h-8 items-center justify-center rounded-lg border border-border px-3 text-xs font-medium text-secondary hover:bg-surface-2 hover:text-primary transition-colors font-sans disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  {t("calendar.tradesBoard.prevPage")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setBoardPage((p) => Math.min(boardTotalPages, p + 1))}
+                  disabled={boardPage === boardTotalPages}
+                  className="inline-flex h-8 items-center justify-center rounded-lg border border-border px-3 text-xs font-medium text-secondary hover:bg-surface-2 hover:text-primary transition-colors font-sans disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  {t("calendar.tradesBoard.nextPage")}
+                </button>
+              </div>
             </div>
           )}
         </section>

@@ -258,6 +258,7 @@ export type TranslationKeys = {
   "recentTrades.qty": string;
   "recentTrades.netPnl": string;
   "recentTrades.empty": string;
+  "recentTrades.seeAll": string;
 
   // ─── Journal ────────────────────────────────────────────────
   "journal.title": string;
@@ -290,6 +291,19 @@ export type TranslationKeys = {
   "calendar.view": string;
   "calendar.edit": string;
   "calendar.deleteConfirm": string;
+  "calendar.tradesBoard.title": string;
+  "calendar.tradesBoard.searchPlaceholder": string;
+  "calendar.tradesBoard.date": string;
+  "calendar.tradesBoard.status": string;
+  "calendar.tradesBoard.actions": string;
+  "calendar.tradesBoard.noTrades": string;
+  "calendar.tradesBoard.noResults": string;
+  "calendar.tradesBoard.page": string;
+  "calendar.tradesBoard.from": string;
+  "calendar.tradesBoard.to": string;
+  "calendar.tradesBoard.clearDates": string;
+  "calendar.tradesBoard.prevPage": string;
+  "calendar.tradesBoard.nextPage": string;
 
   // ─── Stats ──────────────────────────────────────────────────
   "stats.title": string;
