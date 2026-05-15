@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { DashboardShell } from "@/components/dashboard-shell";
+import { PublicShell } from "@/components/public-shell";
 import { useTranslation } from "@/lib/i18n/context";
 import type { TranslationKeys } from "@/lib/i18n/types";
 
@@ -25,8 +25,8 @@ export default function FaqPage() {
   }
 
   return (
-    <DashboardShell title={t("faq.title")} subtitle={t("faq.subtitle")} skipSubscriptionCheck>
-      <div className="mx-auto max-w-2xl px-4 py-8">
+    <PublicShell title={t("faq.title")} subtitle={t("faq.subtitle")}>
+      <div className="mx-auto max-w-2xl">
         {/* Accordion */}
         <div className="space-y-2">
           {FAQ_KEYS.map((n) => {
@@ -37,12 +37,12 @@ export default function FaqPage() {
             return (
               <div
                 key={n}
-                className="rounded-xl border border-border bg-surface-1 overflow-hidden"
+                className="rounded-xl border border-slate-200 bg-white overflow-hidden shadow-sm"
               >
                 <button
                   type="button"
                   onClick={() => toggle(n)}
-                  className="flex w-full items-center justify-between px-5 py-4 text-left text-sm font-medium text-primary transition-colors hover:bg-surface-2"
+                  className="flex w-full items-center justify-between px-5 py-4 text-left text-sm font-medium text-slate-900 transition-colors hover:bg-slate-50"
                 >
                   <span>{t(qKey)}</span>
                   <svg
@@ -50,7 +50,7 @@ export default function FaqPage() {
                     fill="none"
                     stroke="currentColor"
                     strokeWidth={2}
-                    className={`h-4 w-4 shrink-0 text-secondary transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+                    className={`h-4 w-4 shrink-0 text-slate-400 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
                   >
                     <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
                   </svg>
@@ -60,7 +60,7 @@ export default function FaqPage() {
                   className={`grid transition-all duration-200 ease-in-out ${isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
                 >
                   <div className="overflow-hidden">
-                    <p className="px-5 pb-4 text-sm leading-relaxed text-secondary">
+                    <p className="px-5 pb-4 text-sm leading-relaxed text-slate-600">
                       {t(aKey)}
                     </p>
                   </div>
@@ -71,18 +71,18 @@ export default function FaqPage() {
         </div>
 
         {/* Contact section */}
-        <div className="mt-10 rounded-xl border border-border bg-surface-1 p-6 text-center">
-          <h3 className="text-base font-semibold text-primary">{t("faq.contact.title")}</h3>
-          <p className="mt-2 text-sm text-secondary">{t("faq.contact.description")}</p>
+        <div className="mt-10 rounded-xl border border-slate-200 bg-slate-50 p-6 text-center">
+          <h3 className="text-base font-semibold text-slate-900">{t("faq.contact.title")}</h3>
+          <p className="mt-2 text-sm text-slate-600">{t("faq.contact.description")}</p>
 
           <div className="mt-4 flex items-center justify-center gap-3">
-            <span className="rounded-lg bg-surface-2 px-4 py-2 text-sm font-mono text-primary">
+            <span className="rounded-lg bg-white border border-slate-200 px-4 py-2 text-sm font-mono text-slate-900">
               {SUPPORT_EMAIL}
             </span>
             <button
               type="button"
               onClick={() => void copyEmail()}
-              className="flex items-center gap-1.5 rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-600"
+              className="flex items-center gap-1.5 rounded-lg bg-cyan-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-cyan-400"
             >
               {copied ? (
                 <>
@@ -103,6 +103,6 @@ export default function FaqPage() {
           </div>
         </div>
       </div>
-    </DashboardShell>
+    </PublicShell>
   );
 }

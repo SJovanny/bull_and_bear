@@ -17,12 +17,13 @@ export default function robots(): MetadataRoute.Robots {
           "/blog/",
           "/faq",
           "/contact",
+          "/pricing",
           "/legal/",
           "/sitemap.xml",
         ],
         disallow: [
-          "/pricing",
           "/dashboard",
+
           "/journal",
           "/calendar",
           "/stats",

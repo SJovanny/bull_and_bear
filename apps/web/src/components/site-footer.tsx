@@ -3,7 +3,7 @@ import Image from "next/image";
 import { useTranslation } from "@/lib/i18n/context";
 
 export function SiteFooter() {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const currentYear = new Date().getFullYear();
 
   return (
@@ -39,6 +39,34 @@ export function SiteFooter() {
                 <a href="#features" className="text-sm text-slate-900 transition hover:text-cyan-600">
                   {t("footer.links.features")}
                 </a>
+              </li>
+              <li>
+                <Link href="/pricing" className="text-sm text-slate-900 transition hover:text-cyan-600">
+                  {locale === "fr" ? "Tarifs" : "Pricing"}
+                </Link>
+              </li>
+              <li>
+                <Link href="/blog" className="text-sm text-slate-900 transition hover:text-cyan-600">
+                  Blog
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-900">
+              Support
+            </h3>
+            <ul className="mt-4 flex flex-col gap-3">
+              <li>
+                <Link href="/faq" className="text-sm text-slate-900 transition hover:text-cyan-600">
+                  FAQ
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact" className="text-sm text-slate-900 transition hover:text-cyan-600">
+                  {t("nav.contact")}
+                </Link>
               </li>
               <li>
                 <Link href="/auth/signup" className="text-sm text-slate-900 transition hover:text-cyan-600">

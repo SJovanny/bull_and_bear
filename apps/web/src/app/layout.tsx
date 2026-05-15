@@ -87,10 +87,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    // Default lang="en" — primary audience. The i18n provider handles runtime
-    // translation; a per-user lang attribute would require middleware or a
-    // client-side effect (future improvement).
-    <html lang="en" suppressHydrationWarning>
+    // Default lang="fr" matches the server-side initial locale in LanguageProvider.
+    // The LanguageProvider updates document.documentElement.lang on the client
+    // once the user's saved preference is loaded from localStorage.
+    <html lang="fr" suppressHydrationWarning>
       <head>
         <JsonLd
           data={{

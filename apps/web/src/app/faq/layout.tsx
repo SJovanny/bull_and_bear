@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { JsonLd } from "@/components/json-ld";
 
 export const metadata: Metadata = {
-  title: "FAQ — Trading Journal Questions Answered",
+  title: "FAQ — Questions fréquentes sur Bull & Bear Trading Journal",
   description:
     "Got questions about Bull & Bear? Find answers about trade imports, subscription plans, data security, supported brokers like cTrader and MetaTrader, and more.",
   keywords: [
@@ -15,10 +15,18 @@ export const metadata: Metadata = {
     canonical: "https://bullandbear.pro/faq",
   },
   openGraph: {
+    title: "FAQ — Questions fréquentes · Bull & Bear Trading Journal",
+    description:
+      "Answers to common questions about Bull & Bear trading journal: trade imports, subscription, data security, supported brokers like cTrader and MetaTrader.",
+    url: "https://bullandbear.pro/faq",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Bull & Bear - Trading Journal" }],
+  },
+  twitter: {
+    card: "summary_large_image",
     title: "FAQ — Bull & Bear Trading Journal",
     description:
-      "Answers to common questions about Bull & Bear — the trading journal for serious traders.",
-    url: "https://bullandbear.pro/faq",
+      "Answers to common questions: trade imports, subscription, data security, cTrader & MetaTrader support.",
+    images: ["/og-image.png"],
   },
 };
 

@@ -5,9 +5,9 @@ import { BLOG_POSTS } from "@/lib/blog/posts";
 import { ArticleCard } from "@/components/blog/article-card";
 
 export const metadata: Metadata = {
-  title: "Trading Journal Blog — Tips, Guides & Insights",
+  title: "Blog — Trading Journal Tips, Guides & Performance Insights",
   description:
-    "Learn how to keep a trading journal, improve your performance, and make the most of tools like cTrader. Guides and insights from the Bull & Bear team.",
+    "Learn how to keep a trading journal, improve your performance, and make the most of tools like cTrader. Practical guides and insights from the Bull & Bear team.",
   keywords: [
     "trading journal blog",
     "trading tips",
@@ -17,10 +17,18 @@ export const metadata: Metadata = {
   ],
   alternates: { canonical: "https://bullandbear.pro/blog" },
   openGraph: {
-    title: "Trading Journal Blog — Bull & Bear",
+    title: "Blog — Trading Journal Tips, Guides & Performance Insights",
     description:
-      "Guides, tips, and insights on trading journals and performance analytics.",
+      "Practical guides on how to journal your trades, analyze your performance, and become a more consistent trader. From the Bull & Bear team.",
     url: "https://bullandbear.pro/blog",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Bull & Bear Blog" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Blog — Trading Journal Guides · Bull & Bear",
+    description:
+      "Practical guides on how to journal your trades, analyze your performance, and become a more consistent trader.",
+    images: ["/og-image.png"],
   },
 };
 
@@ -49,6 +57,8 @@ export default function BlogPage() {
           <nav className="flex items-center gap-4 text-sm">
             <Link href="/" className="text-slate-500 transition hover:text-slate-900">Home</Link>
             <Link href="/faq" className="text-slate-500 transition hover:text-slate-900">FAQ</Link>
+            <Link href="/pricing" className="text-slate-500 transition hover:text-slate-900">Pricing</Link>
+            <Link href="/contact" className="text-slate-500 transition hover:text-slate-900">Contact</Link>
             <Link
               href="/auth/signup"
               className="rounded-full bg-blue-500 px-4 py-2 text-xs font-semibold text-white transition hover:bg-blue-400"
@@ -134,8 +144,12 @@ export default function BlogPage() {
       <footer className="border-t border-slate-200 px-4 py-8 sm:px-6">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 text-sm text-slate-500 sm:flex-row">
           <p>© {new Date().getFullYear()} Bull &amp; Bear. All rights reserved.</p>
-          <div className="flex gap-6">
+          <div className="flex flex-wrap gap-4 justify-center">
             <Link href="/" className="transition hover:text-blue-600">Home</Link>
+            <Link href="/blog" className="transition hover:text-blue-600">Blog</Link>
+            <Link href="/faq" className="transition hover:text-blue-600">FAQ</Link>
+            <Link href="/pricing" className="transition hover:text-blue-600">Pricing</Link>
+            <Link href="/contact" className="transition hover:text-blue-600">Contact</Link>
             <Link href="/legal/privacy-policy" className="transition hover:text-blue-600">Privacy Policy</Link>
             <Link href="/legal/terms" className="transition hover:text-blue-600">Terms</Link>
           </div>

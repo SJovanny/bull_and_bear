@@ -4,7 +4,7 @@ import LandingPage from "@/components/landing/landing-page";
 export const metadata: Metadata = {
   title: "Bull & Bear — Trading Journal & Performance Analytics",
   description:
-    "Track every trade, analyze your performance, and become a better trader. Bull & Bear is the trading journal built for serious day traders — supports cTrader, MetaTrader, CSV & XLSX imports.",
+    "Track every trade, analyze your performance, and become a better trader. Bull & Bear is the trading journal built for serious day traders. Supports cTrader, MetaTrader & CSV imports.",
   keywords: [
     "trading journal",
     "trade tracker",

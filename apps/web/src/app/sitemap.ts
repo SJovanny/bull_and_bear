@@ -18,42 +18,46 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
       url: BASE_URL,
-      lastModified: new Date(),
+      lastModified: new Date("2026-05-10"),
       changeFrequency: "weekly",
       priority: 1.0,
     },
     {
       url: `${BASE_URL}/blog`,
-      lastModified: new Date(),
+      lastModified: new Date("2026-05-05"),
       changeFrequency: "weekly",
       priority: 0.9,
     },
     ...blogEntries,
     {
+      url: `${BASE_URL}/pricing`,
+      lastModified: new Date("2026-05-01"),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    {
       url: `${BASE_URL}/faq`,
-      lastModified: new Date(),
+      lastModified: new Date("2026-05-01"),
       changeFrequency: "monthly",
       priority: 0.8,
     },
     {
       url: `${BASE_URL}/contact`,
-      lastModified: new Date(),
+      lastModified: new Date("2026-04-15"),
       changeFrequency: "yearly",
       priority: 0.6,
     },
     {
       url: `${BASE_URL}/legal/privacy-policy`,
-      lastModified: new Date(),
+      lastModified: new Date("2026-04-15"),
       changeFrequency: "yearly",
       priority: 0.3,
     },
     {
       url: `${BASE_URL}/legal/terms`,
-      lastModified: new Date(),
+      lastModified: new Date("2026-04-15"),
       changeFrequency: "yearly",
       priority: 0.3,
     },
   ];
 }
-
-
