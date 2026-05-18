@@ -1,6 +1,6 @@
 # Bull & Bear — Infrastructure Costs Summary
 
-> Last updated: April 2026
+> Last updated: May 2026
 
 ---
 
@@ -36,17 +36,28 @@
 
 ---
 
+## Pricing
+
+| Plan | Price | Equivalent |
+|---|---|---|
+| **Monthly** | €2.99/month | — |
+| **Yearly** | €26.99/year | ~€2.25/month (25% off) |
+
+---
+
 ## Stripe Revenue Math
 
-With a 5€/month subscription:
+With a €2.99/month subscription:
 
 | Metric | Value |
 |---|---|
-| Price per user | 5€/month or 50€/year |
-| Stripe fee (EU card) | 1.4% + 0.25€ = ~0.32€ per monthly charge |
-| You keep (monthly) | ~4.68€/user/month |
-| You keep (yearly) | ~49.05€/user/year |
-| Break-even (monthly costs ~105€) | ~23 paying monthly users |
+| Monthly price | €2.99/month |
+| Yearly price | €26.99/year |
+| Stripe fee — monthly (EU card) | 1.4% × €2.99 + €0.25 = ~€0.29 |
+| Stripe fee — yearly (EU card) | 1.4% × €26.99 + €0.25 = ~€0.63 |
+| You keep (monthly) | ~€2.70/user/month |
+| You keep (yearly) | ~€26.36/user/year |
+| Break-even (monthly infra ~€105) | **~39 paying monthly subscribers** |
 
 ---
 

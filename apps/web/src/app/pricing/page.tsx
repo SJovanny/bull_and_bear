@@ -32,8 +32,8 @@ export default function PricingPage() {
     }
   }
 
-  const monthlyPrice = 5;
-  const yearlyPrice = 45;
+  const monthlyPrice = 2.99;
+  const yearlyPrice = 26.99;
   const yearlyMonthly = (yearlyPrice / 12).toFixed(2);
 
   return (
