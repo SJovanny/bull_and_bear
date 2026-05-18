@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useRef, useMemo, useState } from "react";
 import Image from "next/image";
+import HCaptcha from "@hcaptcha/react-hcaptcha";
 
 import { supabaseClient } from "@/lib/supabase/client";
 import { useTranslation } from "@/lib/i18n/context";
@@ -35,6 +36,8 @@ export default function SignupPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const captchaRef = useRef<HCaptcha>(null);
   const { t } = useTranslation();
   const strength = useMemo(() => computePasswordStrength(password), [password]);
 
@@ -53,18 +56,27 @@ export default function SignupPage() {
     setError(null);
     setMessage(null);
 
+    if (!captchaToken) {
+      setError("Please complete the CAPTCHA verification.");
+      setIsSubmitting(false);
+      return;
+    }
+
     const { error: authError } = await supabaseClient.auth.signUp({
       email: email.trim(),
       password,
       options: {
         emailRedirectTo: `${window.location.origin}/auth/callback`,
         data: userMetadata,
+        captchaToken,
       },
     });
 
     if (authError) {
       setError(authError.message);
       setIsSubmitting(false);
+      captchaRef.current?.resetCaptcha();
+      setCaptchaToken(null);
       return;
     }
 
@@ -240,6 +252,16 @@ export default function SignupPage() {
                 {message}
               </p>
             ) : null}
+
+            <div className="flex justify-center">
+              <HCaptcha
+                ref={captchaRef}
+                sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY!}
+                onVerify={(token) => setCaptchaToken(token)}
+                onExpire={() => setCaptchaToken(null)}
+                theme="dark"
+              />
+            </div>
 
             <button
               type="submit"

@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
+import HCaptcha from "@hcaptcha/react-hcaptcha";
 
 import { supabaseClient } from "@/lib/supabase/client";
 import { sanitizeRedirectPath } from "@/lib/validation";
@@ -17,20 +18,31 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const captchaRef = useRef<HCaptcha>(null);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSubmitting(true);
     setError(null);
 
+    if (!captchaToken) {
+      setError("Please complete the CAPTCHA verification.");
+      setIsSubmitting(false);
+      return;
+    }
+
     const { error: authError } = await supabaseClient.auth.signInWithPassword({
       email: email.trim(),
       password,
+      options: { captchaToken },
     });
 
     if (authError) {
       setError(authError.message);
       setIsSubmitting(false);
+      captchaRef.current?.resetCaptcha();
+      setCaptchaToken(null);
       return;
     }
 
@@ -119,6 +131,16 @@ export default function LoginPage() {
                 {error}
               </p>
             ) : null}
+
+            <div className="flex justify-center">
+              <HCaptcha
+                ref={captchaRef}
+                sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY!}
+                onVerify={(token) => setCaptchaToken(token)}
+                onExpire={() => setCaptchaToken(null)}
+                theme="dark"
+              />
+            </div>
 
             <button
               type="submit"
