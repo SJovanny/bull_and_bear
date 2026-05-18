@@ -141,8 +141,8 @@ export default function RootLayout({
               },
               {
                 "@type": "Offer",
-                price: "9.99",
-                priceCurrency: "USD",
+                price: "2.99",
+                priceCurrency: "EUR",
                 name: "Monthly Plan",
                 billingIncrement: "P1M",
               },

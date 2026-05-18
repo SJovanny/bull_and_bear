@@ -439,7 +439,7 @@ export const en: TranslationKeys = {
   "pricing.trialBanner": "Free trial — {days} days remaining",
   "pricing.monthly": "Monthly",
   "pricing.yearly": "Yearly",
-  "pricing.yearlyBadge": "-17%",
+  "pricing.yearlyBadge": "-25%",
   "pricing.cardDesc": "Everything you need to become a more disciplined trader.",
   "pricing.perMonth": "mo",
   "pricing.billedYearly": "Billed {price}€ / year",

@@ -54,7 +54,7 @@ const PRICING_SCHEMA = {
     {
       "@type": "Offer",
       name: "Monthly Plan",
-      price: "9.99",
+      price: "2.99",
       priceCurrency: "EUR",
       description: "Full access to Bull & Bear, billed monthly.",
       availability: "https://schema.org/InStock",
@@ -63,9 +63,9 @@ const PRICING_SCHEMA = {
     {
       "@type": "Offer",
       name: "Yearly Plan",
-      price: "99.99",
+      price: "26.99",
       priceCurrency: "EUR",
-      description: "Full access to Bull & Bear, billed yearly. Save 17%.",
+      description: "Full access to Bull & Bear, billed yearly. Save 25%.",
       availability: "https://schema.org/InStock",
       url: "https://bullandbear.pro/pricing",
     },
