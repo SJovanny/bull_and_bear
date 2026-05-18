@@ -112,6 +112,7 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [tradesOpen, setTradesOpen] = useState(false);
 
   useEffect(() => {
     if (!isOpen || !dateStr) return;
@@ -261,7 +262,7 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
       onClick={onClose}
     >
       <div
-        className="flex h-[95vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl bg-surface-1 shadow-2xl ring-1 ring-border"
+        className="flex h-[95vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl bg-surface-1 shadow-2xl ring-1 ring-border md:h-[95vh]"
         data-tutorial="journal-modal"
         onClick={e => e.stopPropagation()}
         role="dialog"
@@ -271,7 +272,7 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
         <div className="flex shrink-0 items-center justify-between border-b border-border bg-surface-1/80 px-4 py-3 sm:px-6 backdrop-blur-md">
           <div>
             <h2 className="text-sm font-bold uppercase tracking-widest text-secondary font-sans">{t("journalModal.title")}</h2>
-            <p className="text-lg font-semibold text-primary capitalize">{displayDate}</p>
+            <p className="text-base sm:text-lg font-semibold text-primary capitalize">{displayDate}</p>
           </div>
           <div className="flex items-center gap-3">
             <button type="button" onClick={onClose}
@@ -285,12 +286,71 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
           </div>
         </div>
 
+        {/* ── Mobile: Compact summary bar ─────────────────────────────── */}
+        <div className="md:hidden shrink-0 border-b border-border bg-surface-2/60 backdrop-blur-sm">
+          {/* Summary row */}
+          <div className="flex items-center justify-between px-4 py-2.5 gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <span className={`text-base font-black font-mono tracking-tight ${pnlColorClass(dailyPnl)}`}>
+                {dailyPnl > 0 ? "+" : ""}{formatNumber(dailyPnl)}
+              </span>
+              <span className="text-xs text-secondary font-sans">
+                {trades.length} {trades.length === 1 ? t("common.trade") : t("common.trades")}
+              </span>
+            </div>
+            {trades.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setTradesOpen(o => !o)}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-1 px-3 py-1.5 text-xs font-semibold text-secondary hover:text-primary transition-colors font-sans shrink-0"
+              >
+                {tradesOpen ? t("journalModal.hideTrades") : t("journalModal.showTrades")}
+                <svg
+                  fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor"
+                  className={`h-3 w-3 transition-transform ${tradesOpen ? "rotate-180" : ""}`}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                </svg>
+              </button>
+            )}
+          </div>
+
+          {/* Collapsible trades list */}
+          {tradesOpen && trades.length > 0 && (
+            <div className="border-t border-border bg-surface-1 px-3 pb-3 pt-2 space-y-2 max-h-[35vh] overflow-y-auto">
+              {trades.map(trade => (
+                <Link
+                  key={trade.id}
+                  href={`/trades/${trade.id}`}
+                  onClick={onClose}
+                  className="block rounded-xl border border-border bg-surface-2 p-3 hover:border-brand-500 hover:shadow-sm transition-all group"
+                >
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="font-bold text-sm text-primary group-hover:text-brand-500 transition-colors font-sans">{trade.symbol}</span>
+                    <span className={`text-sm font-bold font-mono ${pnlColorClass(Number(trade.netPnl || 0))}`}>
+                      {Number(trade.netPnl || 0) > 0 ? "+" : ""}{compactPnl(Number(trade.netPnl || 0))}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs text-secondary font-sans">
+                    <span className={`px-1.5 py-0.5 rounded-md font-semibold ${trade.side === "LONG" ? "bg-emerald-500/10 text-emerald-600" : "bg-rose-500/10 text-rose-600"}`}>
+                      {trade.side === "LONG" ? t("journalModal.long") : t("journalModal.short")}
+                    </span>
+                    <span className="font-mono">
+                      {new Date(trade.openedAt).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+
         {/* ── Body ───────────────────────────────────────────────────────── */}
         <div className="flex flex-1 overflow-hidden flex-col md:flex-row bg-surface-2/30">
 
           {/* Left: Editor */}
-          <div className="flex-1 overflow-y-auto p-4 sm:p-8 scroll-smooth">
-            <div className="mx-auto max-w-3xl space-y-10">
+          <div className="flex-1 overflow-y-auto p-3 sm:p-8 scroll-smooth">
+            <div className="mx-auto max-w-3xl space-y-6 sm:space-y-10">
 
               {error && (
                 <div className="rounded-xl bg-pnl-negative/10 px-4 py-3 text-sm text-pnl-negative border border-pnl-negative/20 font-sans">
@@ -309,13 +369,13 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
                   <textarea
                     value={journal.notes}
                     onChange={e => setJournal({ ...journal, notes: e.target.value })}
-                    className="w-full resize-none bg-transparent text-xl font-medium text-primary placeholder:text-secondary/40 outline-none leading-relaxed min-h-[120px]"
+                    className="w-full resize-none bg-transparent text-base sm:text-xl font-medium text-primary placeholder:text-secondary/40 outline-none leading-relaxed min-h-[100px] sm:min-h-[120px]"
                     placeholder={t("journalModal.notesPlaceholder")}
                   />
                   </div>
 
                   {/* ── Pre-Market ──────────────────────────────────────── */}
-                  <div data-tutorial="journal-premarket" className="space-y-6 rounded-2xl bg-surface-1 p-6 shadow-sm border border-border/50">
+                  <div data-tutorial="journal-premarket" className="space-y-5 sm:space-y-6 rounded-2xl bg-surface-1 p-4 sm:p-6 shadow-sm border border-border/50">
                     <h3 className="flex items-center gap-2 text-sm font-bold text-primary font-sans">
                       <span className="flex h-6 w-6 items-center justify-center rounded bg-surface-2 text-xs">🌅</span>
                       {t("journalModal.preMarket")}
@@ -474,7 +534,7 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
                   </div>
 
                   {/* ── Execution ───────────────────────────────────────── */}
-                  <div data-tutorial="journal-execution" className="space-y-6 rounded-2xl bg-surface-1 p-6 shadow-sm border border-border/50">
+                  <div data-tutorial="journal-execution" className="space-y-5 sm:space-y-6 rounded-2xl bg-surface-1 p-4 sm:p-6 shadow-sm border border-border/50">
                     <h3 className="flex items-center gap-2 text-sm font-bold text-primary font-sans">
                       <span className="flex h-6 w-6 items-center justify-center rounded bg-surface-2 text-xs">🎯</span>
                       {t("journalModal.execution")}
@@ -487,7 +547,7 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
                             key={rating}
                             type="button"
                             onClick={() => setJournal({ ...journal, executionRating: rating })}
-                            className={`flex h-12 w-12 items-center justify-center rounded-xl border-2 text-lg font-bold transition-all duration-200 ${
+                            className={`flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl border-2 text-base sm:text-lg font-bold transition-all duration-200 ${
                               journal.executionRating === rating
                                 ? "border-brand-500 bg-brand-500 text-white shadow-md scale-105"
                                 : "border-border bg-surface-2 text-secondary hover:border-brand-400/50 hover:bg-surface-1"
@@ -520,7 +580,7 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
                   </div>
 
                   {/* ── Psychology ──────────────────────────────────────── */}
-                  <div data-tutorial="journal-psychology" className="space-y-6 rounded-2xl bg-surface-1 p-6 shadow-sm border border-border/50">
+                  <div data-tutorial="journal-psychology" className="space-y-5 sm:space-y-6 rounded-2xl bg-surface-1 p-4 sm:p-6 shadow-sm border border-border/50">
                     <h3 className="flex items-center gap-2 text-sm font-bold text-primary font-sans">
                       <span className="flex h-6 w-6 items-center justify-center rounded bg-surface-2 text-xs">🧠</span>
                       {t("journalModal.psychology")}
@@ -554,7 +614,7 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
                   </div>
 
                   {/* ── Lessons ─────────────────────────────────────────── */}
-                  <div data-tutorial="journal-lessons" className="space-y-4 rounded-2xl bg-brand-500/5 p-6 border border-brand-500/20">
+                  <div data-tutorial="journal-lessons" className="space-y-4 rounded-2xl bg-brand-500/5 p-4 sm:p-6 border border-brand-500/20">
                     <h3 className="flex items-center gap-2 text-sm font-bold text-brand-600 font-sans">
                       <span className="flex h-6 w-6 items-center justify-center rounded bg-brand-500 text-white text-xs">💡</span>
                       {t("journalModal.lessons")}
@@ -572,13 +632,13 @@ export function JournalEntryModal({ isOpen, dateStr, accountId, onClose, onSaved
           </div>
 
           {/* Right: Trades sidebar */}
-          <div data-tutorial="journal-trades-sidebar" className="w-full md:w-80 shrink-0 border-t md:border-t-0 md:border-l border-border bg-surface-1 flex flex-col">
-            <div className="p-5 sm:p-6 border-b border-border bg-surface-2/30">
+          <div data-tutorial="journal-trades-sidebar" className="hidden md:flex md:w-80 shrink-0 border-l border-border bg-surface-1 flex-col">
+            <div className="p-4 sm:p-6 border-b border-border bg-surface-2/30">
               <h3 className="text-xs font-bold uppercase tracking-widest text-secondary mb-4 font-sans">{t("journalModal.actualResult")}</h3>
               <div className="flex items-end justify-between">
                 <div>
                   <p className="text-[10px] uppercase font-bold text-secondary tracking-wider mb-1">{t("journalModal.netPnl")}</p>
-                  <p className={`text-3xl font-black font-mono tracking-tight ${pnlColorClass(dailyPnl)}`}>
+                  <p className={`text-2xl sm:text-3xl font-black font-mono tracking-tight ${pnlColorClass(dailyPnl)}`}>
                     {dailyPnl > 0 ? "+" : ""}{formatNumber(dailyPnl)}
                   </p>
                 </div>

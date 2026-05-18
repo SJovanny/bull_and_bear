@@ -546,6 +546,8 @@ export const en: TranslationKeys = {
   "journalModal.netPnl": "Net PnL",
   "journalModal.tradesList": "Trade list",
   "journalModal.noTrades": "No trades recorded on this date.",
+  "journalModal.showTrades": "See trades",
+  "journalModal.hideTrades": "Hide trades",
   "journalModal.closeEvent": "Remove event",
   "journalModal.forecastPlaceholder": "e.g. 200k, 0.3%, 2.5%",
   "journalModal.long": "Long",

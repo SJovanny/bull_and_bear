@@ -115,9 +115,9 @@ export default function NotesPage() {
 
   return (
     <DashboardShell title={t("notes.title")}>
-      <div className="mx-auto flex max-w-[960px] flex-col gap-4">
+      <div className="mx-auto flex max-w-[960px] flex-col gap-3 sm:gap-4">
         {/* Tabs */}
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <div className="flex rounded-lg border border-border bg-surface-1 p-1">
             <button
               type="button"
@@ -170,7 +170,7 @@ export default function NotesPage() {
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder={contentPlaceholder}
-              className="h-48 w-full resize-none rounded-lg border border-border bg-surface-2 px-3 py-2.5 text-sm text-primary outline-none transition focus:border-brand-500 focus:ring-1 focus:ring-brand-500 placeholder:text-secondary/50"
+              className="h-36 sm:h-48 w-full resize-none rounded-lg border border-border bg-surface-2 px-3 py-2.5 text-sm text-primary outline-none transition focus:border-brand-500 focus:ring-1 focus:ring-brand-500 placeholder:text-secondary/50"
               maxLength={10000}
             />
             <div className="mt-3 flex items-center justify-end gap-2">
@@ -232,7 +232,7 @@ export default function NotesPage() {
                     </p>
                   </div>
 
-                  <div className="flex shrink-0 items-center gap-1 opacity-0 transition group-hover:opacity-100">
+                  <div className="flex shrink-0 items-center gap-1 opacity-100 lg:opacity-0 transition lg:group-hover:opacity-100">
                     <button
                       type="button"
                       onClick={() => handleTogglePin(note)}

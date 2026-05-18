@@ -546,6 +546,8 @@ export type TranslationKeys = {
   "journalModal.netPnl": string;
   "journalModal.tradesList": string;
   "journalModal.noTrades": string;
+  "journalModal.showTrades": string;
+  "journalModal.hideTrades": string;
   "journalModal.closeEvent": string;
   "journalModal.forecastPlaceholder": string;
   "journalModal.long": string;

@@ -364,13 +364,13 @@ function CalendarPageContent() {
             onCompleted={() => markCompleted("calendar")}
           />
         )}
-        <section className="rounded-2xl border border-border bg-surface-1 p-3 sm:p-6 shadow-sm">
-          <div className="mb-5">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <section className="rounded-2xl border border-border bg-surface-1 p-2 sm:p-6 shadow-sm">
+          <div className="mb-3 sm:mb-5">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.12em] text-brand-500 font-sans">{t("calendar.title")}</p>
-                <h2 className="mt-2 text-2xl font-semibold text-primary font-sans">{formatMonthYearUpper(firstDay, locale)}</h2>
-                <p className="mt-1 text-sm text-secondary font-sans">
+                <h2 className="mt-1 sm:mt-2 text-xl sm:text-2xl font-semibold text-primary font-sans">{formatMonthYearUpper(firstDay, locale)}</h2>
+                <p className="hidden sm:block mt-1 text-sm text-secondary font-sans">
                   {t("calendar.description")}
                 </p>
               </div>
@@ -393,7 +393,7 @@ function CalendarPageContent() {
           {error ? <p className="mb-3 rounded-lg bg-pnl-negative/10 px-3 py-2 text-sm text-pnl-negative font-sans">{error}</p> : null}
           {loading && !shouldUseMock ? <LoadingSpinner /> : null}
 
-          <div className="grid grid-cols-7 gap-2 text-center text-xs font-semibold uppercase tracking-[0.08em] text-secondary font-sans">
+          <div className="grid grid-cols-7 gap-1 sm:gap-2 text-center text-[10px] sm:text-xs font-semibold uppercase tracking-[0.08em] text-secondary font-sans">
             {[t("calendar.days.mon"), t("calendar.days.tue"), t("calendar.days.wed"), t("calendar.days.thu"), t("calendar.days.fri"), t("calendar.days.sat"), t("calendar.days.sun")].map((label) => (
               <div key={label} className="py-2">
                 {label}
@@ -401,7 +401,7 @@ function CalendarPageContent() {
             ))}
           </div>
 
-          <div className="mt-2 grid grid-cols-7 gap-2" data-tutorial="calendar-grid">
+          <div className="mt-1 sm:mt-2 grid grid-cols-7 gap-1 sm:gap-2" data-tutorial="calendar-grid">
             {calendarDays.map((day) => {
               const key = toDateKey(day);
               const tradeCount = tradesByDay.get(key)?.length ?? 0;
@@ -428,22 +428,25 @@ function CalendarPageContent() {
               }
 
               return (
-                <div key={key} className={`relative rounded-xl border transition ${cellClass}`}>
+                <div key={key} className={`relative rounded-md sm:rounded-xl border transition ${cellClass}`}>
                   <button
                     type="button"
                     onClick={() => handleCalendarDayClick(key)}
-                    className="flex min-h-16 sm:min-h-24 w-full flex-col px-1.5 py-1.5 sm:px-2 sm:py-2 text-left"
+                    className="flex min-h-[80px] sm:min-h-24 w-full flex-col px-1.5 py-1.5 sm:px-2 sm:py-2 text-left"
                   >
                     <p className="text-xs font-semibold">{day.getDate()}</p>
 
                     {tradeCount > 0 && (
-                      <div className="mt-auto flex flex-col items-start gap-1">
-                        <p className="inline-flex rounded-full bg-black/5 px-2 py-0.5 text-[11px] font-medium">
+                      <div className="mt-auto flex flex-col items-start gap-0.5 sm:gap-1">
+                        <p className="hidden sm:inline-flex rounded-full bg-black/5 px-2 py-0.5 text-[11px] font-medium">
                           {tradeCount} {tradeCount > 1 ? t("common.trades") : t("common.trade")}
                         </p>
-                        <p className="inline-flex rounded-full bg-black/5 px-2 py-0.5 text-[11px] font-medium">
+                        <p className="inline-flex items-center justify-center rounded-full bg-black/5 px-1.5 py-0.5 text-[10px] sm:text-[11px] font-medium leading-tight">
                           {pnl > 0 ? "+" : ""}
-                          {pnl.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                          {pnl.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                        </p>
+                        <p className="inline-flex items-center justify-center rounded-full bg-black/5 px-1.5 py-0.5 text-[9px] font-medium leading-tight sm:hidden">
+                          {tradeCount}t
                         </p>
                       </div>
                     )}
@@ -467,7 +470,7 @@ function CalendarPageContent() {
 
         <section
           id="selected-day-panel"
-          className={`mt-4 rounded-2xl border border-border bg-surface-1 p-6 shadow-sm transition ${
+          className={`mt-4 rounded-2xl border border-border bg-surface-1 p-3 sm:p-6 shadow-sm transition ${
             isDayPanelHighlighted ? "ring-2 ring-brand-500 ring-offset-1" : ""
           }`}
         >
@@ -568,7 +571,7 @@ function CalendarPageContent() {
         </section>
 
         {/* ── Trades Board ── */}
-        <section className="mt-4 rounded-2xl border border-border bg-surface-1 p-6 shadow-sm">
+        <section className="mt-4 rounded-2xl border border-border bg-surface-1 p-3 sm:p-6 shadow-sm">
           <div className="mb-5 flex flex-col gap-4">
             {/* Board header row */}
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">

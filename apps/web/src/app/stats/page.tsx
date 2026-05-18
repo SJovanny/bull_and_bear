@@ -186,7 +186,7 @@ function StatsPageContent() {
             <div className="text-xs uppercase tracking-[0.1em] text-secondary font-sans">
               <MetricLabel label={t("stats.metrics.netPnl")} description={t("stats.metrics.netPnlDesc")} />
             </div>
-            <p className={`mt-2 text-3xl font-semibold font-mono ${pnlColorClass(displaySummary?.realized.netPnl ?? 0)}`}>
+            <p className={`mt-2 text-[clamp(1.25rem,2.5vw,1.875rem)] font-semibold font-mono ${pnlColorClass(displaySummary?.realized.netPnl ?? 0)}`}>
               {loading ? "..." : formatMoney(displaySummary?.realized.netPnl ?? 0)}
             </p>
             <p className="mt-2 text-xs text-secondary font-sans">{t("stats.metrics.netPnlNote")}</p>
@@ -199,7 +199,7 @@ function StatsPageContent() {
                 description={t("stats.metrics.expectancyDesc")}
               />
             </div>
-            <p className={`mt-2 text-3xl font-semibold font-mono ${pnlColorClass(displaySummary?.realized.expectancy ?? 0)}`}>
+            <p className={`mt-2 text-[clamp(1.25rem,2.5vw,1.875rem)] font-semibold font-mono ${pnlColorClass(displaySummary?.realized.expectancy ?? 0)}`}>
               {loading ? "..." : formatMoney(displaySummary?.realized.expectancy ?? 0)}
             </p>
             <p className="mt-2 text-xs text-secondary font-sans">{t("stats.metrics.expectancyNote")}</p>
@@ -212,7 +212,7 @@ function StatsPageContent() {
                 description={t("stats.metrics.maxDrawdownDesc")}
               />
             </div>
-            <p className={`mt-2 text-3xl font-semibold font-mono ${pnlColorClass(-(displaySummary?.realized.maxDrawdown ?? 0))}`}>
+            <p className={`mt-2 text-[clamp(1.25rem,2.5vw,1.875rem)] font-semibold font-mono ${pnlColorClass(-(displaySummary?.realized.maxDrawdown ?? 0))}`}>
               {loading ? "..." : drawdownDisplay}
             </p>
             <p className="mt-2 text-xs text-secondary font-sans">{t("stats.metrics.maxDrawdownNote")}</p>
@@ -222,7 +222,7 @@ function StatsPageContent() {
             <div className="text-xs uppercase tracking-[0.1em] text-secondary font-sans">
               <MetricLabel label={t("stats.metrics.avgHolding")} description={t("stats.metrics.avgHoldingDesc")} />
             </div>
-            <p className="mt-2 text-3xl font-semibold text-primary font-mono">
+            <p className="mt-2 text-[clamp(1.25rem,2.5vw,1.875rem)] font-semibold text-primary font-mono">
               {loading ? "..." : `${formatNumber(displaySummary?.realized.averageHoldingHours ?? 0)}h`}
             </p>
             <p className="mt-2 text-xs text-secondary font-sans">{t("stats.metrics.avgHoldingNote")}</p>
@@ -237,14 +237,14 @@ function StatsPageContent() {
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
               <div className="rounded-xl bg-surface-2 px-4 py-3">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-secondary font-sans">{t("stats.metrics.bestTrade")}</p>
-                <p className={`mt-2 text-2xl font-semibold font-mono ${pnlColorClass(displaySummary?.realized.bestTrade ?? 0)}`}>
+                <p className={`mt-2 text-xl sm:text-2xl font-semibold font-mono ${pnlColorClass(displaySummary?.realized.bestTrade ?? 0)}`}>
                   {loading ? "..." : formatMoney(displaySummary?.realized.bestTrade ?? 0)}
                 </p>
                 <p className="mt-2 text-xs text-secondary font-sans">{t("stats.metrics.bestTradeNote")}</p>
               </div>
               <div className="rounded-xl bg-surface-2 px-4 py-3">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-secondary font-sans">{t("stats.metrics.worstTrade")}</p>
-                <p className={`mt-2 text-2xl font-semibold font-mono ${pnlColorClass(displaySummary?.realized.worstTrade ?? 0)}`}>
+                <p className={`mt-2 text-xl sm:text-2xl font-semibold font-mono ${pnlColorClass(displaySummary?.realized.worstTrade ?? 0)}`}>
                   {loading ? "..." : formatMoney(displaySummary?.realized.worstTrade ?? 0)}
                 </p>
                 <p className="mt-2 text-xs text-secondary font-sans">{t("stats.metrics.worstTradeNote")}</p>
@@ -276,8 +276,8 @@ function StatsPageContent() {
         </section>
 
         <section className="grid gap-4 xl:grid-cols-[1.4fr_0.6fr]">
-          <article className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm" data-tutorial="stats-breakdown">
-            <div className="mb-4 flex items-center justify-between gap-3">
+          <article className="rounded-2xl border border-border bg-surface-1 p-4 sm:p-5 shadow-sm" data-tutorial="stats-breakdown">
+            <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
               <div>
                 <div className="text-sm font-semibold uppercase tracking-[0.08em] text-secondary font-sans">
                   <MetricLabel
@@ -328,8 +328,8 @@ function StatsPageContent() {
             </div>
           </article>
 
-          <article className="rounded-2xl border border-border bg-surface-1 p-5 shadow-sm" data-tutorial="stats-distribution">
-            <div className="mb-4 flex items-center justify-between gap-3">
+          <article className="rounded-2xl border border-border bg-surface-1 p-4 sm:p-5 shadow-sm" data-tutorial="stats-distribution">
+            <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
               <div>
                 <div className="text-sm font-semibold uppercase tracking-[0.08em] text-secondary font-sans">
                   <MetricLabel label={t("stats.distribution.title")} description={t("stats.distribution.desc")} />
@@ -349,7 +349,7 @@ function StatsPageContent() {
               </select>
             </div>
 
-            <div className="flex h-48 items-end gap-2 rounded-xl bg-surface-2 p-3">
+            <div className="flex h-36 sm:h-48 items-end gap-1 sm:gap-2 rounded-xl bg-surface-2 p-2 sm:p-3">
               {distributionBins.length === 0 ? (
                 <div className="flex h-full w-full items-center justify-center rounded-lg border border-dashed border-border px-4 text-center text-sm text-secondary font-sans">
                   {distributionEmptyMessage()}
