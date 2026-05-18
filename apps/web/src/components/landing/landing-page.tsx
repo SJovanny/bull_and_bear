@@ -312,31 +312,92 @@ export default function LandingPage() {
       </section>
 
       {/* About Section */}
-      <section id="about" className="relative z-10 px-4 py-32 sm:px-6 lg:px-10 lg:py-40">
+      <section id="about" className="relative z-10 overflow-hidden px-4 py-32 sm:px-6 lg:px-10 lg:py-40">
+        {/* Background glow blobs */}
+        <div className="pointer-events-none absolute inset-0 -z-10">
+          <div className="absolute -left-32 top-1/4 h-[500px] w-[500px] rounded-full bg-green-500/5 blur-[120px]" />
+          <div className="absolute -right-32 bottom-1/4 h-[500px] w-[500px] rounded-full bg-red-500/5 blur-[120px]" />
+        </div>
+
         <div className="mx-auto max-w-[1400px]">
-          <ScrollReveal className="mx-auto max-w-3xl text-center">
+          {/* Title */}
+          <ScrollReveal className="text-center">
             <h2 className="text-balance text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
               {t("landing.about.title")}
             </h2>
-            <p className="mt-10 text-pretty text-xl leading-relaxed text-slate-600">
-              {t("landing.about.description")}
-            </p>
           </ScrollReveal>
 
+          {/* Hook quote */}
+          <ScrollReveal delay={0.15} className="mx-auto mt-12 max-w-2xl">
+            <div className="relative rounded-2xl border border-slate-200 bg-white/60 px-8 py-7 shadow-sm backdrop-blur-sm">
+              {/* decorative quote mark */}
+              <span className="absolute -top-5 left-6 text-7xl font-serif leading-none text-slate-200 select-none">"</span>
+              <p className="relative text-center text-xl font-semibold leading-relaxed text-slate-800 sm:text-2xl">
+                {t("landing.about.hook")}
+              </p>
+            </div>
+          </ScrollReveal>
+
+          {/* Body paragraphs */}
+          <div className="mx-auto mt-10 max-w-2xl space-y-5">
+            <ScrollReveal delay={0.25}>
+              <p className="text-center text-lg leading-relaxed text-slate-500">
+                {t("landing.about.body1")}
+              </p>
+            </ScrollReveal>
+            <ScrollReveal delay={0.35}>
+              <p className="text-center text-lg leading-relaxed text-slate-500">
+                {t("landing.about.body2")}
+              </p>
+            </ScrollReveal>
+          </div>
+
+          {/* Stats row */}
+          <StaggerContainer staggerDelay={0.12} className="mx-auto mt-16 flex max-w-lg flex-col items-center justify-center gap-4 sm:flex-row sm:gap-6">
+            {[
+              { value: t("landing.about.stat1.value"), label: t("landing.about.stat1.label") },
+              { value: t("landing.about.stat2.value"), label: t("landing.about.stat2.label") },
+              { value: t("landing.about.stat3.value"), label: t("landing.about.stat3.label") },
+            ].map((stat) => (
+              <StaggerItem key={stat.label} className="flex flex-1 flex-col items-center rounded-2xl border border-slate-200 bg-white/70 px-6 py-5 shadow-sm backdrop-blur-sm">
+                <span className="text-3xl font-bold tracking-tight text-slate-900">{stat.value}</span>
+                <span className="mt-1 text-sm font-medium text-slate-500">{stat.label}</span>
+              </StaggerItem>
+            ))}
+          </StaggerContainer>
+
           {/* Bull & Bear Visual */}
-          <ScrollReveal delay={0.2} className="mt-24 flex items-center justify-center gap-10">
-            <div className="relative h-56 w-56 overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-green-500/10 to-transparent p-6 sm:h-72 sm:w-72">
+          <ScrollReveal delay={0.2} className="mt-24 flex items-center justify-center gap-6 sm:gap-10">
+            <div className="relative h-56 w-56 overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-green-500/10 to-transparent p-6 shadow-md transition-shadow duration-300 hover:shadow-green-100 sm:h-72 sm:w-72">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(34,197,94,0.15),transparent_70%)]" />
               <div className="flex h-full w-full flex-col items-center justify-center">
-                <TrendingUp className="h-20 w-20 text-green-500 sm:h-28 sm:w-28" />
-                <span className="mt-5 text-xl font-bold text-green-600">BULL</span>
+                <motion.div
+                  animate={{ y: [0, -8, 0] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  <TrendingUp className="h-20 w-20 text-green-500 sm:h-28 sm:w-28" />
+                </motion.div>
+                <span className="mt-5 text-xl font-bold tracking-widest text-green-600">BULL</span>
               </div>
             </div>
-            <div className="relative h-56 w-56 overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-red-500/10 to-transparent p-6 sm:h-72 sm:w-72">
+
+            {/* VS divider */}
+            <div className="flex flex-col items-center gap-2">
+              <div className="h-16 w-px bg-gradient-to-b from-transparent via-slate-300 to-transparent sm:h-24" />
+              <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold tracking-widest text-slate-400">VS</span>
+              <div className="h-16 w-px bg-gradient-to-b from-transparent via-slate-300 to-transparent sm:h-24" />
+            </div>
+
+            <div className="relative h-56 w-56 overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-red-500/10 to-transparent p-6 shadow-md transition-shadow duration-300 hover:shadow-red-100 sm:h-72 sm:w-72">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(239,68,68,0.15),transparent_70%)]" />
               <div className="flex h-full w-full flex-col items-center justify-center">
-                <TrendingDown className="h-20 w-20 text-red-500 sm:h-28 sm:w-28" />
-                <span className="mt-5 text-xl font-bold text-red-600">BEAR</span>
+                <motion.div
+                  animate={{ y: [0, 8, 0] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  <TrendingDown className="h-20 w-20 text-red-500 sm:h-28 sm:w-28" />
+                </motion.div>
+                <span className="mt-5 text-xl font-bold tracking-widest text-red-600">BEAR</span>
               </div>
             </div>
           </ScrollReveal>

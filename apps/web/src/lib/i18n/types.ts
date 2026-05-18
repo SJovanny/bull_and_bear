@@ -16,6 +16,15 @@ export type TranslationKeys = {
   "landing.nav.dashboard": string;
   "landing.about.title": string;
   "landing.about.description": string;
+  "landing.about.hook": string;
+  "landing.about.body1": string;
+  "landing.about.body2": string;
+  "landing.about.stat1.value": string;
+  "landing.about.stat1.label": string;
+  "landing.about.stat2.value": string;
+  "landing.about.stat2.label": string;
+  "landing.about.stat3.value": string;
+  "landing.about.stat3.label": string;
   "landing.showcase.eyebrow": string;
   "landing.showcase.title": string;
   "landing.showcase.description": string;
