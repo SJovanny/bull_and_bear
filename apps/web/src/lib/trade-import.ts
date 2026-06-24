@@ -33,6 +33,27 @@ export type ImportedTradeDraft = {
   notes: string | null;
 };
 
+/** Draft for a currently-open position fetched from the broker API. */
+export type OpenTradeDraft = {
+  importSource: TradeImportSource;
+  /** Always set for API-sourced open trades (the broker positionId). */
+  importSourceTradeId: string;
+  importFingerprint: string;
+  assetClass: AssetClass;
+  symbol: string;
+  side: TradeSide;
+  quantity: number;
+  entryPrice: number;
+  exitPrice: null;
+  fees: number;
+  contractMultiplier: number;
+  openedAt: Date;
+  closedAt: null;
+  status: "OPEN";
+  netPnl: null;
+  notes: string | null;
+};
+
 export type TradeImportPreviewRow = ImportedTradeDraft & {
   rowNumber: number;
   duplicateReason: "source_trade_id" | "fingerprint" | "same_file" | null;
@@ -347,7 +368,7 @@ function buildCTraderHeaderMap(headerCells: string[]): CTraderHeaderMap {
     if (header === "closing price" || header === "price de cloture" || header === "cours de cloture") map.closingPrice = index;
     if (header === "closing quantity" || header === "quantite de cloture") map.quantity = index;
     if (header === "commissions") map.commissions = index;
-    if (header === "swap" || header === "echange") map.swap = index;
+    if (header === "swap" || header === "swaps" || header === "echange") map.swap = index;
     if (header.startsWith("net ") || header.startsWith("net\u00a0") || header.endsWith(" nets") || header.endsWith("\u00a0nets")) map.net = index;
     if (header === "comment" || header === "commentaire") map.comment = index;
   });

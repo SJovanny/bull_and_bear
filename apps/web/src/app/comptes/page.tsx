@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useCallback, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { DashboardShell } from "@/components/dashboard-shell";
 import LoadingSpinner from "@/components/loading-spinner";
 import { useTranslation } from "@/lib/i18n/context";
@@ -8,6 +9,8 @@ import { formatNumber, pnlColorClass } from "@/lib/format";
 import { useTutorialStatus } from "@/hooks/use-tutorial-status";
 import { TutorialProvider } from "@/components/tutorial/tutorial-provider";
 import { tutorialStepsMap } from "@/config/tutorial-steps";
+import BrokerConnectModal from "@/components/broker-connect-modal";
+import ResyncButton, { type BrokerConnection } from "@/components/resync-button";
 
 type AccountType = "CASH" | "MARGIN" | "PROP" | "SIM";
 
@@ -41,8 +44,11 @@ const initialForm = {
 };
 
 export default function ComptesPage() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const [accounts, setAccounts] = useState<TradingAccount[]>([]);
   const [balances, setBalances] = useState<AccountBalance[]>([]);
+  const [connections, setConnections] = useState<Record<string, BrokerConnection>>({});
   const [loaded, setLoaded] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -53,9 +59,55 @@ export default function ComptesPage() {
   const [archiveTarget, setArchiveTarget] = useState<TradingAccount | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // Broker connect modal state
+  const [brokerConnectTarget, setBrokerConnectTarget] = useState<TradingAccount | null>(null);
+  const [oauthSelectPayload, setOauthSelectPayload] = useState<string | null>(null);
   const { t } = useTranslation();
   const { tutorialsCompleted, loaded: tutorialLoaded, markCompleted } = useTutorialStatus();
   const maxAccountsReached = accounts.length >= 5;
+
+  // Handle OAuth callback query params (?ctrader_success, ?ctrader_error, ?ctrader_select)
+  useEffect(() => {
+    const success = searchParams.get("ctrader_success");
+    const oauthError = searchParams.get("ctrader_error");
+    const selectPayload = searchParams.get("ctrader_select");
+
+    if (success === "linked") {
+      setMessage("cTrader account connected successfully.");
+      void loadConnections();
+      router.replace("/comptes");
+    } else if (oauthError) {
+      const msgs: Record<string, string> = {
+        cancelled: "cTrader authorization was cancelled.",
+        missing_params: "Invalid OAuth callback parameters.",
+        invalid_state: "OAuth state mismatch. Please try again.",
+        account_not_found: "Account not found. Please try again.",
+        not_configured: "cTrader integration is not configured on this server.",
+        token_exchange_failed: "Failed to exchange cTrader authorization code. Please try again.",
+      };
+      setError(msgs[oauthError] ?? `cTrader error: ${oauthError}`);
+      router.replace("/comptes");
+    } else if (selectPayload) {
+      // Multiple cTrader accounts – need user to pick one.
+      // We need to know which account was being connected.
+      // The accountId is encoded in the payload itself.
+      try {
+        const decoded = JSON.parse(
+          atob(selectPayload.replace(/-/g, "+").replace(/_/g, "/"))
+        ) as { accountId?: string };
+        if (decoded.accountId) {
+          setOauthSelectPayload(selectPayload);
+          // The modal will be shown once accounts are loaded
+          // and we can find the matching account
+          setLoaded(false); // trigger reload so accounts list is available
+        }
+      } catch {
+        setError("Failed to parse cTrader account selection data.");
+        router.replace("/comptes");
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const canSubmit = useMemo(
     () => form.name.trim().length > 1 && form.currency.trim().length === 3,
@@ -69,6 +121,28 @@ export default function ComptesPage() {
     }
     return map;
   }, [balances]);
+
+  async function loadConnections() {
+    // Fetch broker connections for all accounts in parallel
+    if (accounts.length === 0) return;
+    try {
+      const results = await Promise.all(
+        accounts.map((acc) =>
+          fetch(`/api/connections/ctrader/accounts?accountId=${encodeURIComponent(acc.id)}`)
+            .then((r) => r.json() as Promise<{ connection?: BrokerConnection | null }>)
+            .then(({ connection }) => ({ accountId: acc.id, connection }))
+            .catch(() => ({ accountId: acc.id, connection: null })),
+        ),
+      );
+      const map: Record<string, BrokerConnection> = {};
+      for (const { accountId, connection } of results) {
+        if (connection) map[accountId] = connection;
+      }
+      setConnections(map);
+    } catch {
+      // non-critical
+    }
+  }
 
   async function loadBalances() {
     try {
@@ -95,9 +169,47 @@ export default function ComptesPage() {
         throw new Error(accountsPayload.error ?? "Could not load accounts");
       }
 
-      setAccounts(accountsPayload.accounts ?? []);
+      const loadedAccounts = accountsPayload.accounts ?? [];
+      setAccounts(loadedAccounts);
       setBalances(balancesPayload.balances ?? []);
       setLoaded(true);
+
+      // Load broker connections after accounts are available
+      if (loadedAccounts.length > 0) {
+        const results = await Promise.all(
+          loadedAccounts.map((acc) =>
+            fetch(`/api/connections/ctrader/accounts?accountId=${encodeURIComponent(acc.id)}`)
+              .then((r) => r.json() as Promise<{ connection?: BrokerConnection | null }>)
+              .then(({ connection }) => ({ accountId: acc.id, connection }))
+              .catch(() => ({ accountId: acc.id, connection: null })),
+          ),
+        );
+        const map: Record<string, BrokerConnection> = {};
+        for (const { accountId, connection } of results) {
+          if (connection) map[accountId] = connection;
+        }
+        setConnections(map);
+
+        // If we have a ctrader_select payload waiting, open the modal for the right account
+        const selectPayload = searchParams.get("ctrader_select");
+        if (selectPayload) {
+          try {
+            const decoded = JSON.parse(
+              atob(selectPayload.replace(/-/g, "+").replace(/_/g, "/"))
+            ) as { accountId?: string };
+            if (decoded.accountId) {
+              const target = loadedAccounts.find((a) => a.id === decoded.accountId);
+              if (target) {
+                setBrokerConnectTarget(target);
+                setOauthSelectPayload(selectPayload);
+              }
+            }
+          } catch {
+            // ignore
+          }
+          router.replace("/comptes");
+        }
+      }
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : "Unexpected error");
       setLoaded(true);
@@ -110,6 +222,7 @@ export default function ComptesPage() {
     if (!loaded) {
       void loadAccounts();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaded]);
 
   function resetForm() {
@@ -356,6 +469,43 @@ export default function ComptesPage() {
                           {isDeletingId === account.id ? t("accounts.deletingBtn") : t("accounts.deleteBtn")}
                         </button>
                       </div>
+
+                      {/* Broker connection / resync section */}
+                      {connections[account.id] ? (
+                        <ResyncButton
+                          connection={connections[account.id]}
+                          onSynced={({ imported }) => {
+                            if (imported > 0) {
+                              setMessage(`${imported} new trade${imported === 1 ? "" : "s"} synced from cTrader.`);
+                              void loadBalances();
+                            } else {
+                              setMessage("Trades already up to date.");
+                            }
+                          }}
+                          onDisconnected={() => {
+                            setConnections((prev) => {
+                              const next = { ...prev };
+                              delete next[account.id];
+                              return next;
+                            });
+                            setMessage("cTrader disconnected.");
+                          }}
+                        />
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setBrokerConnectTarget(account);
+                            setOauthSelectPayload(null);
+                          }}
+                          className="mt-3 inline-flex h-8 w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-border bg-surface-1 px-3 text-xs font-semibold text-secondary transition hover:border-brand-500 hover:text-brand-500"
+                        >
+                          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+                          </svg>
+                          Connect cTrader for auto-sync
+                        </button>
+                      )}
                     </article>
                   );
                 })}
@@ -468,6 +618,25 @@ export default function ComptesPage() {
           </>
         )}
       </div>
+
+      {/* Broker connect modal */}
+      {brokerConnectTarget && (
+        <BrokerConnectModal
+          isOpen={true}
+          accountId={brokerConnectTarget.id}
+          accountName={brokerConnectTarget.name}
+          selectPayload={oauthSelectPayload}
+          onClose={() => {
+            setBrokerConnectTarget(null);
+            setOauthSelectPayload(null);
+          }}
+          onConnected={() => {
+            setBrokerConnectTarget(null);
+            setOauthSelectPayload(null);
+            void loadConnections();
+          }}
+        />
+      )}
 
       {/* Archive confirmation modal */}
       {archiveTarget ? (

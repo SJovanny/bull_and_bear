@@ -313,3 +313,12 @@ export const tradeImportConfirmSchema = z.strictObject({
   fileName: requiredShortText("fileName"),
   fileContent: z.string().trim().min(1, "fileContent is required").max(MAX_IMPORT_FILE_CONTENT),
 });
+
+// ─── Broker connections ─────────────────────────────────────────────────────
+
+export const ctraderCallbackSchema = z.object({
+  code: z.string().trim().min(1, "Authorization code is required"),
+  accountId: uuidValue,
+  ctidTraderAccountId: z.string().trim().min(1, "cTrader account ID is required"),
+  isLive: z.union([z.boolean(), z.string()]).transform((v) => v === true || v === "true"),
+});

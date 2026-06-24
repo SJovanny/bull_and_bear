@@ -2,6 +2,7 @@
 
 import { ReactNode, Suspense } from "react";
 import { AccountSwitcher } from "./account-switcher";
+import { HeaderResyncButton } from "./header-resync-button";
 
 type HeaderBarProps = {
   title: string;
@@ -21,8 +22,11 @@ export function HeaderBar({ title, subtitle, actions }: HeaderBarProps) {
           </h1>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2">
           {actions && <div className="flex items-center gap-2">{actions}</div>}
+          <Suspense>
+            <HeaderResyncButton />
+          </Suspense>
           <div>
             <Suspense>
               <AccountSwitcher />
