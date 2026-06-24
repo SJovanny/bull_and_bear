@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { DashboardShell } from "@/components/dashboard-shell";
 import LoadingSpinner from "@/components/loading-spinner";
@@ -43,9 +43,73 @@ const initialForm = {
   initialBalance: "",
 };
 
-export default function ComptesPage() {
+// ─── OAuth callback handler ──────────────────────────────────────────────────
+// Isolated into its own component so useSearchParams() sits inside a
+// Suspense boundary (required by Next.js App Router during static generation).
+
+type OAuthHandlerProps = {
+  accounts: TradingAccount[];
+  onSuccess: (msg: string) => void;
+  onError: (msg: string) => void;
+  onSelectPayload: (payload: string, accountId: string, target: TradingAccount) => void;
+  onReloadConnections: () => void;
+};
+
+function CTraderOAuthHandler({
+  accounts,
+  onSuccess,
+  onError,
+  onSelectPayload,
+  onReloadConnections,
+}: OAuthHandlerProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
+
+  useEffect(() => {
+    const success = searchParams.get("ctrader_success");
+    const oauthError = searchParams.get("ctrader_error");
+    const selectPayload = searchParams.get("ctrader_select");
+
+    if (success === "linked") {
+      onSuccess("cTrader account connected successfully.");
+      onReloadConnections();
+      router.replace("/comptes");
+    } else if (oauthError) {
+      const msgs: Record<string, string> = {
+        cancelled: "cTrader authorization was cancelled.",
+        missing_params: "Invalid OAuth callback parameters.",
+        invalid_state: "OAuth state mismatch. Please try again.",
+        account_not_found: "Account not found. Please try again.",
+        not_configured: "cTrader integration is not configured on this server.",
+        token_exchange_failed: "Failed to exchange cTrader authorization code. Please try again.",
+      };
+      onError(msgs[oauthError] ?? `cTrader error: ${oauthError}`);
+      router.replace("/comptes");
+    } else if (selectPayload) {
+      try {
+        const decoded = JSON.parse(
+          atob(selectPayload.replace(/-/g, "+").replace(/_/g, "/"))
+        ) as { accountId?: string };
+        if (decoded.accountId) {
+          const target = accounts.find((a) => a.id === decoded.accountId);
+          if (target) {
+            onSelectPayload(selectPayload, decoded.accountId, target);
+          }
+        }
+      } catch {
+        onError("Failed to parse cTrader account selection data.");
+      }
+      router.replace("/comptes");
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return null;
+}
+
+// ─── Main page ───────────────────────────────────────────────────────────────
+
+export default function ComptesPage() {
   const [accounts, setAccounts] = useState<TradingAccount[]>([]);
   const [balances, setBalances] = useState<AccountBalance[]>([]);
   const [connections, setConnections] = useState<Record<string, BrokerConnection>>({});
@@ -59,55 +123,11 @@ export default function ComptesPage() {
   const [archiveTarget, setArchiveTarget] = useState<TradingAccount | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  // Broker connect modal state
   const [brokerConnectTarget, setBrokerConnectTarget] = useState<TradingAccount | null>(null);
   const [oauthSelectPayload, setOauthSelectPayload] = useState<string | null>(null);
   const { t } = useTranslation();
   const { tutorialsCompleted, loaded: tutorialLoaded, markCompleted } = useTutorialStatus();
   const maxAccountsReached = accounts.length >= 5;
-
-  // Handle OAuth callback query params (?ctrader_success, ?ctrader_error, ?ctrader_select)
-  useEffect(() => {
-    const success = searchParams.get("ctrader_success");
-    const oauthError = searchParams.get("ctrader_error");
-    const selectPayload = searchParams.get("ctrader_select");
-
-    if (success === "linked") {
-      setMessage("cTrader account connected successfully.");
-      void loadConnections();
-      router.replace("/comptes");
-    } else if (oauthError) {
-      const msgs: Record<string, string> = {
-        cancelled: "cTrader authorization was cancelled.",
-        missing_params: "Invalid OAuth callback parameters.",
-        invalid_state: "OAuth state mismatch. Please try again.",
-        account_not_found: "Account not found. Please try again.",
-        not_configured: "cTrader integration is not configured on this server.",
-        token_exchange_failed: "Failed to exchange cTrader authorization code. Please try again.",
-      };
-      setError(msgs[oauthError] ?? `cTrader error: ${oauthError}`);
-      router.replace("/comptes");
-    } else if (selectPayload) {
-      // Multiple cTrader accounts – need user to pick one.
-      // We need to know which account was being connected.
-      // The accountId is encoded in the payload itself.
-      try {
-        const decoded = JSON.parse(
-          atob(selectPayload.replace(/-/g, "+").replace(/_/g, "/"))
-        ) as { accountId?: string };
-        if (decoded.accountId) {
-          setOauthSelectPayload(selectPayload);
-          // The modal will be shown once accounts are loaded
-          // and we can find the matching account
-          setLoaded(false); // trigger reload so accounts list is available
-        }
-      } catch {
-        setError("Failed to parse cTrader account selection data.");
-        router.replace("/comptes");
-      }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const canSubmit = useMemo(
     () => form.name.trim().length > 1 && form.currency.trim().length === 3,
@@ -189,26 +209,6 @@ export default function ComptesPage() {
           if (connection) map[accountId] = connection;
         }
         setConnections(map);
-
-        // If we have a ctrader_select payload waiting, open the modal for the right account
-        const selectPayload = searchParams.get("ctrader_select");
-        if (selectPayload) {
-          try {
-            const decoded = JSON.parse(
-              atob(selectPayload.replace(/-/g, "+").replace(/_/g, "/"))
-            ) as { accountId?: string };
-            if (decoded.accountId) {
-              const target = loadedAccounts.find((a) => a.id === decoded.accountId);
-              if (target) {
-                setBrokerConnectTarget(target);
-                setOauthSelectPayload(selectPayload);
-              }
-            }
-          } catch {
-            // ignore
-          }
-          router.replace("/comptes");
-        }
       }
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : "Unexpected error");
@@ -339,6 +339,20 @@ export default function ComptesPage() {
   return (
     <DashboardShell title={t("accounts.title")} >
       <div className="mx-auto flex max-w-6xl flex-col gap-4">
+        {/* OAuth callback handler — useSearchParams must be inside Suspense */}
+        <Suspense fallback={null}>
+          <CTraderOAuthHandler
+            accounts={accounts}
+            onSuccess={(msg) => { setMessage(msg); void loadConnections(); }}
+            onError={(msg) => setError(msg)}
+            onSelectPayload={(payload, _accountId, target) => {
+              setBrokerConnectTarget(target);
+              setOauthSelectPayload(payload);
+            }}
+            onReloadConnections={() => void loadConnections()}
+          />
+        </Suspense>
+
         {tutorialLoaded && (
           <TutorialProvider
             page="comptes"

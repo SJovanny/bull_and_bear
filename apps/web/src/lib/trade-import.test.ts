@@ -200,4 +200,60 @@ describe("parseImportedTrades", () => {
     expect(preview.rows[0]?.openedAt.toISOString()).toBe("2026-03-10T07:00:00.000Z");
     expect(preview.rows[0]?.closedAt.toISOString()).toBe("2026-03-10T08:00:00.000Z");
   });
+
+  it("parses Swaps column (plural) from new-format cTrader CSV", () => {
+    // New cTrader export format uses 'Swaps' (with s) instead of 'Swap'
+    const csv = [
+      '"Symbol","Opening direction","Opening time (UTC+2)","Closing time (UTC+2)","Entry price","Closing price","Closing Quantity","Swaps","Net €","Balance €"',
+      '"EURUSD","Sell","09/06/2026 13:19:58.959","10/06/2026 14:13:59.532","1.15699","1.15416","0.25 Lots","0.13","60.35","9901.84"',
+      '"XAUUSD","Buy","09/06/2026 17:31:45.457","10/06/2026 01:31:35.097","4272.58","4221.96","0.04 Lots","-3.09","-178.83","9841.49"',
+    ].join("\n");
+
+    const preview = parseImportedTrades(csv, "CTRADER");
+
+    expect(preview.errors).toEqual([]);
+    expect(preview.rows).toHaveLength(2);
+
+    // EURUSD: swap +0.13 credit, net 60.35 — broker net is used directly
+    expect(preview.rows[0]).toMatchObject({
+      symbol: "EURUSD",
+      side: "SHORT",
+      quantity: 0.25,
+      netPnl: 60.35,
+      fees: 0.13, // swap credit still stored as fee value in CSV import
+    });
+
+    // XAUUSD: swap -3.09 debit, net -178.83
+    expect(preview.rows[1]).toMatchObject({
+      symbol: "XAUUSD",
+      side: "LONG",
+      quantity: 0.04,
+      netPnl: -178.83,
+      fees: 3.09,
+    });
+  });
+
+  it("parses Opening time and Closing time with same timezone offset", () => {
+    const csv = [
+      '"Symbol","Opening direction","Opening time (UTC+2)","Closing time (UTC+2)","Entry price","Closing price","Closing Quantity","Net €","Balance €"',
+      '"EURUSD","Buy","23/06/2026 09:09:39.901","23/06/2026 12:51:13.368","1.14344","1.13990","0.80 Lots","-251.94","9287.09"',
+    ].join("\n");
+
+    const preview = parseImportedTrades(csv, "CTRADER");
+
+    expect(preview.errors).toEqual([]);
+    expect(preview.rows[0]).toMatchObject({
+      symbol: "EURUSD",
+      side: "LONG",
+      quantity: 0.8,
+      netPnl: -251.94,
+    });
+
+    // Opening time should be before closing time
+    expect(preview.rows[0]!.openedAt.getTime()).toBeLessThan(preview.rows[0]!.closedAt.getTime());
+    // UTC+2: 09:09 → 07:09 UTC
+    expect(preview.rows[0]!.openedAt.toISOString()).toBe("2026-06-23T07:09:39.901Z");
+    // UTC+2: 12:51 → 10:51 UTC
+    expect(preview.rows[0]!.closedAt.toISOString()).toBe("2026-06-23T10:51:13.368Z");
+  });
 });
