@@ -64,7 +64,9 @@ function CTraderOAuthHandler({
 }: OAuthHandlerProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const [pendingPayload, setPendingPayload] = useState<string | null>(null);
 
+  // On mount: handle success/error immediately, and store select payload for later
   useEffect(() => {
     const success = searchParams.get("ctrader_success");
     const oauthError = searchParams.get("ctrader_error");
@@ -86,23 +88,33 @@ function CTraderOAuthHandler({
       onError(msgs[oauthError] ?? `cTrader error: ${oauthError}`);
       router.replace("/comptes");
     } else if (selectPayload) {
-      try {
-        const decoded = JSON.parse(
-          atob(selectPayload.replace(/-/g, "+").replace(/_/g, "/"))
-        ) as { accountId?: string };
-        if (decoded.accountId) {
-          const target = accounts.find((a) => a.id === decoded.accountId);
-          if (target) {
-            onSelectPayload(selectPayload, decoded.accountId, target);
-          }
-        }
-      } catch {
-        onError("Failed to parse cTrader account selection data.");
-      }
+      // Store the payload and clear the URL — we'll process it once accounts are loaded
+      setPendingPayload(selectPayload);
       router.replace("/comptes");
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Once accounts are loaded and we have a pending payload, open the modal
+  useEffect(() => {
+    if (!pendingPayload || accounts.length === 0) return;
+    try {
+      const decoded = JSON.parse(
+        atob(pendingPayload.replace(/-/g, "+").replace(/_/g, "/"))
+      ) as { accountId?: string };
+      if (decoded.accountId) {
+        const target = accounts.find((a) => a.id === decoded.accountId);
+        if (target) {
+          onSelectPayload(pendingPayload, decoded.accountId, target);
+        } else {
+          onError("Failed to find the matching account. Please try again.");
+        }
+      }
+    } catch {
+      onError("Failed to parse cTrader account selection data.");
+    }
+    setPendingPayload(null);
+  }, [pendingPayload, accounts]);  // eslint-disable-line react-hooks/exhaustive-deps
 
   return null;
 }
