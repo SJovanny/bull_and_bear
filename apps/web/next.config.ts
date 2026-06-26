@@ -1,8 +1,4 @@
 import type { NextConfig } from "next";
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-
-const configDir = dirname(fileURLToPath(import.meta.url));
 
 // CSP is now generated per-request in middleware.ts (with a nonce), so it is
 // intentionally omitted from these static headers.
@@ -24,9 +20,6 @@ const nextConfig: NextConfig = {
         hostname: "res.cloudinary.com",
       },
     ],
-  },
-  turbopack: {
-    root: configDir,
   },
   async headers() {
     return [
