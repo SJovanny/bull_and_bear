@@ -21,20 +21,21 @@ export const metadata: Metadata = {
     description:
       "Start with a free 14-day trial. No credit card required. Full access to all features: trade tracking, statistics, journal, cTrader import and more.",
     url: "https://www.bullandbear.pro/pricing",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Bull & Bear - Trading Journal Pricing" }],
+    images: [{ url: "https://www.bullandbear.pro/og-image.png", width: 1200, height: 630, alt: "Bull & Bear - Trading Journal Pricing" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Pricing — Free 14-Day Trial · Bull & Bear",
     description:
       "Start with a free 14-day trial. No credit card required. Full access to all features: trade tracking, statistics, journal, cTrader import.",
-    images: ["/og-image.png"],
+    images: ["https://www.bullandbear.pro/og-image.png"],
   },
 };
 
 const PRICING_SCHEMA = {
   "@context": "https://schema.org",
   "@type": "Product",
+  "@id": "https://www.bullandbear.pro/#product",
   name: "Bull & Bear Trading Journal",
   description:
     "A trading journal and analytics platform for day traders. Track trades, review statistics, keep a daily journal. Supports cTrader and MetaTrader imports.",
@@ -48,7 +49,7 @@ const PRICING_SCHEMA = {
     {
       "@type": "Offer",
       name: "Free Trial",
-      price: "0",
+      price: 0,
       priceCurrency: "EUR",
       description: "14-day free trial with access to all features. No credit card required.",
       availability: "https://schema.org/InStock",
@@ -61,7 +62,7 @@ const PRICING_SCHEMA = {
     {
       "@type": "Offer",
       name: "Monthly Plan",
-      price: "2.99",
+      price: 2.99,
       priceCurrency: "EUR",
       description: "Full access to Bull & Bear, billed monthly.",
       availability: "https://schema.org/InStock",
@@ -74,7 +75,7 @@ const PRICING_SCHEMA = {
     {
       "@type": "Offer",
       name: "Yearly Plan",
-      price: "26.99",
+      price: 26.99,
       priceCurrency: "EUR",
       description: "Full access to Bull & Bear, billed yearly. Save 25%.",
       availability: "https://schema.org/InStock",

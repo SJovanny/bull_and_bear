@@ -26,6 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       canonical: `https://www.bullandbear.pro/blog/${post.slug}`,
     },
     openGraph: {
+      siteName: "Bull & Bear",
       title: post.title,
       description: post.description,
       url: `https://www.bullandbear.pro/blog/${post.slug}`,
@@ -34,7 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       authors: [post.author],
       images: [
         {
-          url: "/og-image.png",
+          url: "https://www.bullandbear.pro/og-image.png",
           width: 1200,
           height: 630,
           alt: post.title,
@@ -60,11 +61,12 @@ export default async function ArticlePage({ params }: Props) {
   const articleSchema = {
     "@context": "https://schema.org",
     "@type": "Article",
+    "@id": `https://www.bullandbear.pro/blog/${post.slug}#article`,
     headline: post.title,
     description: post.description,
+    // post.author is always "Bull & Bear Team" — reference the canonical Organization entity
     author: {
-      "@type": "Person",
-      name: post.author,
+      "@id": "https://www.bullandbear.pro/#organization",
     },
     publisher: {
       "@id": "https://www.bullandbear.pro/#organization",

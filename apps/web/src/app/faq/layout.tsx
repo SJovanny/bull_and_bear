@@ -21,14 +21,14 @@ export const metadata: Metadata = {
     description:
       "Answers to common questions about Bull & Bear trading journal: trade imports, subscription, data security, supported brokers like cTrader and MetaTrader.",
     url: "https://www.bullandbear.pro/faq",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Bull & Bear - Trading Journal" }],
+    images: [{ url: "https://www.bullandbear.pro/og-image.png", width: 1200, height: 630, alt: "Bull & Bear - Trading Journal" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "FAQ — Bull & Bear Trading Journal",
     description:
       "Answers to common questions: trade imports, subscription, data security, cTrader & MetaTrader support.",
-    images: ["/og-image.png"],
+    images: ["https://www.bullandbear.pro/og-image.png"],
   },
 };
 

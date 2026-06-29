@@ -1,20 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
+import { isPublicRoute } from "@/lib/public-routes";
 
 export async function middleware(request: NextRequest) {
-  const pathname = request.nextUrl.pathname;
-  const isPublicPage =
-    pathname === "/" ||
-    pathname.startsWith("/legal/") ||
-    pathname === "/faq" ||
-    pathname === "/contact" ||
-    pathname === "/pricing" ||
-    pathname === "/blog" ||
-    pathname.startsWith("/blog/") ||
-    pathname === "/sitemap.xml" ||
-    pathname === "/robots.txt";
-
-  if (isPublicPage) {
+  if (isPublicRoute(request.nextUrl.pathname)) {
     return NextResponse.next({ request });
   }
 
@@ -23,5 +12,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|api/|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|/api/|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
 };

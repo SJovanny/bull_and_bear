@@ -2,6 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { requireEnv } from "@/lib/env";
+import { isPublicRoute } from "@/lib/public-routes";
 
 /**
  * Refreshes the Supabase session and enforces auth redirects.
@@ -44,16 +45,7 @@ export async function updateSession(request: NextRequest, response?: NextRespons
   } = await supabase.auth.getUser();
 
   const pathname = request.nextUrl.pathname;
-  const isPublicPage =
-    pathname === "/" ||
-    pathname.startsWith("/legal/") ||
-    pathname === "/faq" ||
-    pathname === "/contact" ||
-    pathname === "/pricing" ||
-    pathname === "/blog" ||
-    pathname.startsWith("/blog/") ||
-    pathname === "/sitemap.xml" ||
-    pathname === "/robots.txt";
+  const isPublicPage = isPublicRoute(pathname);
   const isAuthPage = pathname.startsWith("/auth/login") || pathname.startsWith("/auth/signup") || pathname.startsWith("/auth/forgot-password") || pathname.startsWith("/auth/reset-password");
   const isAuthCallback = pathname.startsWith("/auth/callback");
 

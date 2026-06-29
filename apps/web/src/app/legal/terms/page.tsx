@@ -14,14 +14,14 @@ export const metadata: Metadata = {
     description:
       "Terms of Service governing access to and use of Bull & Bear. Read our subscription terms, acceptable use policy, and your rights as a user.",
     url: "https://www.bullandbear.pro/legal/terms",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Bull & Bear - Terms of Service" }],
+    images: [{ url: "https://www.bullandbear.pro/og-image.png", width: 1200, height: 630, alt: "Bull & Bear - Terms of Service" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Terms of Service — Bull & Bear",
     description:
       "Terms of Service for Bull & Bear trading journal. Subscription terms, acceptable use and your rights as a user.",
-    images: ["/og-image.png"],
+    images: ["https://www.bullandbear.pro/og-image.png"],
   },
 };
 

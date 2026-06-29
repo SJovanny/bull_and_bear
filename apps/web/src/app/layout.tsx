@@ -53,7 +53,7 @@ export const metadata: Metadata = {
       "Track, analyze, and improve your trading performance. Import trades, view statistics, and keep a daily journal.",
     images: [
       {
-        url: "/og-image.png",
+        url: "https://www.bullandbear.pro/og-image.png",
         width: 1200,
         height: 630,
         alt: "Bull & Bear — Trading Journal",
@@ -67,7 +67,7 @@ export const metadata: Metadata = {
     title: "Bull & Bear — Trading Journal & Analytics",
     description:
       "Track, analyze, and improve your trading performance.",
-    images: ["/og-image.png"],
+    images: ["https://www.bullandbear.pro/og-image.png"],
   },
   robots: {
     index: true,
@@ -75,7 +75,7 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/favicon.ico", sizes: "48x48" },
+      { url: "/favicon.ico", sizes: "16x16 32x32 48x48", type: "image/x-icon" },
       { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
     ],
     shortcut: "/favicon.ico",
@@ -118,6 +118,7 @@ export default function RootLayout({
           data={{
             "@context": "https://schema.org",
             "@type": "WebSite",
+            "@id": "https://www.bullandbear.pro/#website",
             name: "Bull & Bear",
             url: "https://www.bullandbear.pro",
             description:
@@ -128,6 +129,7 @@ export default function RootLayout({
           data={{
             "@context": "https://schema.org",
             "@type": "SoftwareApplication",
+            "@id": "https://www.bullandbear.pro/#software",
             name: "Bull & Bear",
             applicationCategory: "FinanceApplication",
             operatingSystem: "Web",

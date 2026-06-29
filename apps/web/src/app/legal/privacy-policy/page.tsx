@@ -14,14 +14,14 @@ export const metadata: Metadata = {
     description:
       "How Bull & Bear collects, uses, and protects your personal data. GDPR compliant, no advertising cookies, no data selling.",
     url: "https://www.bullandbear.pro/legal/privacy-policy",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Bull & Bear - Privacy Policy" }],
+    images: [{ url: "https://www.bullandbear.pro/og-image.png", width: 1200, height: 630, alt: "Bull & Bear - Privacy Policy" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Privacy Policy — Bull & Bear",
     description:
       "How Bull & Bear protects your personal data. GDPR compliant, no advertising cookies, no data selling.",
-    images: ["/og-image.png"],
+    images: ["https://www.bullandbear.pro/og-image.png"],
   },
 };
 
