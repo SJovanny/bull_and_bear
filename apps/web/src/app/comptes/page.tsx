@@ -132,7 +132,7 @@ export default function ComptesPage() {
   const [form, setForm] = useState(initialForm);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
-  const [archiveTarget, setArchiveTarget] = useState<TradingAccount | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<TradingAccount | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [brokerConnectTarget, setBrokerConnectTarget] = useState<TradingAccount | null>(null);
@@ -317,21 +317,21 @@ export default function ComptesPage() {
     }
   }
 
-  async function confirmArchive() {
-    if (!archiveTarget) return;
+  async function confirmDelete() {
+    if (!deleteTarget) return;
 
-    const account = archiveTarget;
-    setArchiveTarget(null);
+    const account = deleteTarget;
+    setDeleteTarget(null);
     setIsDeletingId(account.id);
     setError(null);
     setMessage(null);
 
     try {
-      const response = await fetch(`/api/accounts/${account.id}`, { method: "DELETE" });
+      const response = await fetch(`/api/accounts/${account.id}?permanent=true`, { method: "DELETE" });
 
       if (!response.ok) {
         const data = (await response.json()) as { error?: string };
-        throw new Error(data.error ?? "Could not archive account");
+        throw new Error(data.error ?? "Could not delete account");
       }
 
       setAccounts((current) => current.filter((item) => item.id !== account.id));
@@ -488,7 +488,7 @@ export default function ComptesPage() {
                         </button>
                         <button
                           type="button"
-                          onClick={() => setArchiveTarget(account)}
+                          onClick={() => setDeleteTarget(account)}
                           disabled={isDeletingId === account.id}
                           className="inline-flex h-9 items-center justify-center rounded-lg border border-pnl-negative/20 bg-pnl-negative/5 px-3 text-sm font-semibold text-pnl-negative transition hover:bg-pnl-negative/10 disabled:opacity-50"
                         >
@@ -664,13 +664,13 @@ export default function ComptesPage() {
         />
       )}
 
-      {/* Archive confirmation modal */}
-      {archiveTarget ? (
+      {/* Delete confirmation modal */}
+      {deleteTarget ? (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-3"
           onClick={(event) => {
             if (event.target === event.currentTarget) {
-              setArchiveTarget(null);
+              setDeleteTarget(null);
             }
           }}
           aria-hidden="true"
@@ -696,26 +696,26 @@ export default function ComptesPage() {
             </div>
 
             <p className="mt-4 text-sm text-secondary font-sans">
-              {t("accounts.deleteModalDesc").replace("{name}", archiveTarget.name)}
+              {t("accounts.deleteModalDesc").replace("{name}", deleteTarget.name)}
             </p>
 
-            {(archiveTarget._count?.trades ?? 0) > 0 ? (
-              <p className="mt-2 rounded-lg bg-amber-500/10 border border-amber-500/20 px-3 py-2 text-sm font-medium text-amber-600 font-sans">
-                {t("accounts.deleteModalTradeCount").replace("{count}", String(archiveTarget._count?.trades ?? 0))}
+            {(deleteTarget._count?.trades ?? 0) > 0 ? (
+              <p className="mt-2 rounded-lg bg-pnl-negative/10 border border-pnl-negative/20 px-3 py-2 text-sm font-medium text-pnl-negative font-sans">
+                {t("accounts.deleteModalTradeCount").replace("{count}", String(deleteTarget._count?.trades ?? 0))}
               </p>
             ) : null}
 
             <div className="mt-6 flex justify-end gap-3">
               <button
                 type="button"
-                onClick={() => setArchiveTarget(null)}
+                onClick={() => setDeleteTarget(null)}
                 className="inline-flex h-10 items-center justify-center rounded-xl border border-border bg-surface-1 px-4 text-sm font-semibold text-primary transition hover:bg-surface-2"
               >
                 {t("accounts.formCancelBtn")}
               </button>
               <button
                 type="button"
-                onClick={() => void confirmArchive()}
+                onClick={() => void confirmDelete()}
                 className="inline-flex h-10 items-center justify-center rounded-xl bg-pnl-negative px-4 text-sm font-semibold text-white transition hover:bg-pnl-negative/90"
               >
                 {t("accounts.deleteModalConfirmBtn")}
