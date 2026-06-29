@@ -6,12 +6,14 @@ export const metadata: Metadata = {
   title: "Privacy Policy — Data Protection & GDPR · Bull & Bear",
   description:
     "How Bull & Bear collects, uses, and protects your personal data in compliance with GDPR. No advertising cookies, no data selling. Hosted in the EU. You can delete your account at any time.",
-  alternates: { canonical: "https://bullandbear.pro/legal/privacy-policy" },
+  alternates: { canonical: "https://www.bullandbear.pro/legal/privacy-policy" },
   openGraph: {
+    type: "website",
+    siteName: "Bull & Bear",
     title: "Privacy Policy — Data Protection & GDPR · Bull & Bear",
     description:
       "How Bull & Bear collects, uses, and protects your personal data. GDPR compliant, no advertising cookies, no data selling.",
-    url: "https://bullandbear.pro/legal/privacy-policy",
+    url: "https://www.bullandbear.pro/legal/privacy-policy",
     images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Bull & Bear - Privacy Policy" }],
   },
   twitter: {

@@ -8,6 +8,7 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/legal/") ||
     pathname === "/faq" ||
     pathname === "/contact" ||
+    pathname === "/pricing" ||
     pathname === "/blog" ||
     pathname.startsWith("/blog/") ||
     pathname === "/sitemap.xml" ||

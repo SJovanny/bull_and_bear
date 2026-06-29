@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { JsonLd } from "@/components/json-ld";
 
 export const metadata: Metadata = {
-  title: "FAQ — Questions fréquentes sur Bull & Bear Trading Journal",
+  title: "FAQ — Frequently Asked Questions · Bull & Bear Trading Journal",
   description:
     "Got questions about Bull & Bear? Find answers about trade imports, subscription plans, data security, supported brokers like cTrader and MetaTrader, and more.",
   keywords: [
@@ -12,13 +12,15 @@ export const metadata: Metadata = {
     "trading journal questions",
   ],
   alternates: {
-    canonical: "https://bullandbear.pro/faq",
+    canonical: "https://www.bullandbear.pro/faq",
   },
   openGraph: {
-    title: "FAQ — Questions fréquentes · Bull & Bear Trading Journal",
+    type: "website",
+    siteName: "Bull & Bear",
+    title: "FAQ — Frequently Asked Questions · Bull & Bear Trading Journal",
     description:
       "Answers to common questions about Bull & Bear trading journal: trade imports, subscription, data security, supported brokers like cTrader and MetaTrader.",
-    url: "https://bullandbear.pro/faq",
+    url: "https://www.bullandbear.pro/faq",
     images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Bull & Bear - Trading Journal" }],
   },
   twitter: {
@@ -48,6 +50,14 @@ const FAQ_SCHEMA = {
       acceptedAnswer: {
         "@type": "Answer",
         text: "When you sign up, you get a 14-day free trial with access to all features. No payment is required until the trial ends. You can subscribe to a monthly or yearly plan at any time.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "What happens when my trial ends?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Your data is preserved, but you won't be able to access the app features until you subscribe. You can pick a plan on the pricing page to continue where you left off.",
       },
     },
     {
@@ -96,6 +106,14 @@ const FAQ_SCHEMA = {
       acceptedAnswer: {
         "@type": "Answer",
         text: "If you're not satisfied within the first 7 days of your paid subscription, contact us by email and we'll process a full refund.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "What currencies are supported?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "You can set any currency (USD, EUR, GBP, etc.) per trading account. All statistics and PnL are displayed in the currency of the selected account.",
       },
     },
   ],

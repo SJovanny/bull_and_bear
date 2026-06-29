@@ -6,12 +6,14 @@ export const metadata: Metadata = {
   title: "Terms of Service — Usage Conditions · Bull & Bear Trading Journal",
   description:
     "Terms of Service governing access to and use of the Bull & Bear trading journal. Read our subscription terms, acceptable use policy, and your rights as a user.",
-  alternates: { canonical: "https://bullandbear.pro/legal/terms" },
+  alternates: { canonical: "https://www.bullandbear.pro/legal/terms" },
   openGraph: {
+    type: "website",
+    siteName: "Bull & Bear",
     title: "Terms of Service — Usage Conditions · Bull & Bear",
     description:
       "Terms of Service governing access to and use of Bull & Bear. Read our subscription terms, acceptable use policy, and your rights as a user.",
-    url: "https://bullandbear.pro/legal/terms",
+    url: "https://www.bullandbear.pro/legal/terms",
     images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Bull & Bear - Terms of Service" }],
   },
   twitter: {

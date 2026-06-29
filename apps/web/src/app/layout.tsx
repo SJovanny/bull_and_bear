@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     process.env.NEXT_PUBLIC_APP_URL
     || (process.env.VERCEL_PROJECT_PRODUCTION_URL
       ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-      : "https://bullandbear.pro")
+      : "https://www.bullandbear.pro")
   ),
   title: {
     default: "Bull & Bear — Trading Journal & Analytics",
@@ -45,9 +45,8 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     type: "website",
-    locale: "fr_FR",
-    alternateLocale: "en_US",
-    url: "https://bullandbear.pro",
+    locale: "en_US",
+    url: "https://www.bullandbear.pro",
     siteName: "Bull & Bear",
     title: "Bull & Bear — Trading Journal & Analytics",
     description:
@@ -90,18 +89,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    // Default lang="fr" matches the server-side initial locale in LanguageProvider.
+    // lang="en" — English is the primary server-rendered language indexed by Google.
     // The LanguageProvider updates document.documentElement.lang on the client
-    // once the user's saved preference is loaded from localStorage.
-    <html lang="fr" suppressHydrationWarning>
-      <head>
+    // when a user switches to French via the toggle (stored in localStorage).
+    <html lang="en" suppressHydrationWarning>
+      <body
+        className={`${plusJakartaSans.variable} ${jetBrainsMono.variable} font-sans antialiased`}
+        suppressHydrationWarning
+      >
+        {/* Global JSON-LD structured data — placed in body, fully valid per Google guidelines */}
         <JsonLd
           data={{
             "@context": "https://schema.org",
             "@type": "Organization",
+            "@id": "https://www.bullandbear.pro/#organization",
             name: "Bull & Bear",
-            url: "https://bullandbear.pro",
-            logo: "https://bullandbear.pro/BB_logo.png",
+            url: "https://www.bullandbear.pro",
+            logo: "https://www.bullandbear.pro/BB_logo.png",
             sameAs: ["https://twitter.com/bnbearjournal"],
             contactPoint: {
               "@type": "ContactPoint",
@@ -115,7 +119,7 @@ export default function RootLayout({
             "@context": "https://schema.org",
             "@type": "WebSite",
             name: "Bull & Bear",
-            url: "https://bullandbear.pro",
+            url: "https://www.bullandbear.pro",
             description:
               "Track, analyze, and improve your trading performance. Bull & Bear is the trading journal for serious traders.",
           }}
@@ -127,38 +131,12 @@ export default function RootLayout({
             name: "Bull & Bear",
             applicationCategory: "FinanceApplication",
             operatingSystem: "Web",
-            url: "https://bullandbear.pro",
+            url: "https://www.bullandbear.pro",
             description:
               "A trading journal and analytics platform for day traders and forex traders. Track trades, review statistics, and keep a daily trading journal. Supports cTrader and MetaTrader imports.",
-            screenshot: "https://bullandbear.pro/dashboard_example.png",
-            offers: [
-              {
-                "@type": "Offer",
-                price: "0",
-                priceCurrency: "USD",
-                name: "Free Trial",
-                description: "14-day free trial with access to all features",
-              },
-              {
-                "@type": "Offer",
-                price: "2.99",
-                priceCurrency: "EUR",
-                name: "Monthly Plan",
-                billingIncrement: "P1M",
-              },
-            ],
-            aggregateRating: {
-              "@type": "AggregateRating",
-              ratingValue: "4.8",
-              reviewCount: "120",
-            },
+            screenshot: "https://www.bullandbear.pro/dashboard_example.png",
           }}
         />
-      </head>
-      <body
-        className={`${plusJakartaSans.variable} ${jetBrainsMono.variable} font-sans antialiased`}
-        suppressHydrationWarning
-      >
         <LanguageProvider>
           <TutorialContextProvider>
             {children}

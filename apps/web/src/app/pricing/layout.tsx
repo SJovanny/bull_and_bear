@@ -12,13 +12,15 @@ export const metadata: Metadata = {
     "trade tracker plans",
   ],
   alternates: {
-    canonical: "https://bullandbear.pro/pricing",
+    canonical: "https://www.bullandbear.pro/pricing",
   },
   openGraph: {
+    type: "website",
+    siteName: "Bull & Bear",
     title: "Pricing — Free 14-Day Trial · Bull & Bear Trading Journal",
     description:
       "Start with a free 14-day trial. No credit card required. Full access to all features: trade tracking, statistics, journal, cTrader import and more.",
-    url: "https://bullandbear.pro/pricing",
+    url: "https://www.bullandbear.pro/pricing",
     images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Bull & Bear - Trading Journal Pricing" }],
   },
   twitter: {
@@ -36,7 +38,8 @@ const PRICING_SCHEMA = {
   name: "Bull & Bear Trading Journal",
   description:
     "A trading journal and analytics platform for day traders. Track trades, review statistics, keep a daily journal. Supports cTrader and MetaTrader imports.",
-  url: "https://bullandbear.pro/pricing",
+  url: "https://www.bullandbear.pro/pricing",
+  image: "https://www.bullandbear.pro/og-image.png",
   brand: {
     "@type": "Brand",
     name: "Bull & Bear",
@@ -49,7 +52,11 @@ const PRICING_SCHEMA = {
       priceCurrency: "EUR",
       description: "14-day free trial with access to all features. No credit card required.",
       availability: "https://schema.org/InStock",
-      url: "https://bullandbear.pro/auth/signup",
+      priceValidUntil: "2027-01-01",
+      url: "https://www.bullandbear.pro/auth/signup",
+      seller: {
+        "@id": "https://www.bullandbear.pro/#organization",
+      },
     },
     {
       "@type": "Offer",
@@ -58,7 +65,11 @@ const PRICING_SCHEMA = {
       priceCurrency: "EUR",
       description: "Full access to Bull & Bear, billed monthly.",
       availability: "https://schema.org/InStock",
-      url: "https://bullandbear.pro/pricing",
+      priceValidUntil: "2027-01-01",
+      url: "https://www.bullandbear.pro/pricing",
+      seller: {
+        "@id": "https://www.bullandbear.pro/#organization",
+      },
     },
     {
       "@type": "Offer",
@@ -67,14 +78,13 @@ const PRICING_SCHEMA = {
       priceCurrency: "EUR",
       description: "Full access to Bull & Bear, billed yearly. Save 25%.",
       availability: "https://schema.org/InStock",
-      url: "https://bullandbear.pro/pricing",
+      priceValidUntil: "2027-01-01",
+      url: "https://www.bullandbear.pro/pricing",
+      seller: {
+        "@id": "https://www.bullandbear.pro/#organization",
+      },
     },
   ],
-  aggregateRating: {
-    "@type": "AggregateRating",
-    ratingValue: "4.8",
-    reviewCount: "120",
-  },
 };
 
 export default function PricingLayout({

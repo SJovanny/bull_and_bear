@@ -49,6 +49,7 @@ export async function updateSession(request: NextRequest, response?: NextRespons
     pathname.startsWith("/legal/") ||
     pathname === "/faq" ||
     pathname === "/contact" ||
+    pathname === "/pricing" ||
     pathname === "/blog" ||
     pathname.startsWith("/blog/") ||
     pathname === "/sitemap.xml" ||

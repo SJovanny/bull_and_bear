@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     process.env.NEXT_PUBLIC_APP_URL ||
     (process.env.VERCEL_PROJECT_PRODUCTION_URL
       ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-      : "https://bullandbear.pro");
+      : "https://www.bullandbear.pro");
 
   return {
     rules: [
@@ -14,12 +14,10 @@ export default function robots(): MetadataRoute.Robots {
         allow: [
           "/",
           "/blog",
-          "/blog/",
           "/faq",
           "/contact",
           "/pricing",
           "/legal/",
-          "/sitemap.xml",
         ],
         disallow: [
           "/dashboard",

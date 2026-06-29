@@ -1,23 +1,12 @@
-"use client";
-
-import { useState } from "react";
 import { PublicShell } from "@/components/public-shell";
-import { useTranslation } from "@/lib/i18n/context";
+import { CopyEmailButton } from "@/components/copy-email-button";
+import { en } from "@/lib/i18n/translations/en";
 
 const SUPPORT_EMAIL = "bullandbear.journal@gmail.com";
 
 export default function ContactPage() {
-  const { t } = useTranslation();
-  const [copied, setCopied] = useState(false);
-
-  async function copyEmail() {
-    await navigator.clipboard.writeText(SUPPORT_EMAIL);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }
-
   return (
-    <PublicShell title={t("contact.title")} subtitle={t("contact.subtitle")}>
+    <PublicShell title={en["contact.title"]} subtitle={en["contact.subtitle"]}>
       <div className="mx-auto max-w-xl py-4">
         {/* Icon */}
         <div className="flex justify-center">
@@ -30,13 +19,13 @@ export default function ContactPage() {
 
         {/* Description */}
         <p className="mt-6 text-center text-base leading-relaxed text-slate-600">
-          {t("contact.description")}
+          {en["contact.description"]}
         </p>
 
         {/* Email card */}
         <div className="mt-10 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-widest text-slate-400">
-            {t("contact.email.label")}
+            {en["contact.email.label"]}
           </p>
 
           <div className="mt-3 flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -45,28 +34,11 @@ export default function ContactPage() {
             </span>
 
             <div className="flex gap-2">
-              {/* Copy button */}
-              <button
-                type="button"
-                onClick={() => void copyEmail()}
-                className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
-              >
-                {copied ? (
-                  <>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4 text-green-500">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                    </svg>
-                    {t("contact.copied")}
-                  </>
-                ) : (
-                  <>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="h-4 w-4">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9.75a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
-                    </svg>
-                    {t("contact.copy")}
-                  </>
-                )}
-              </button>
+              <CopyEmailButton
+                email={SUPPORT_EMAIL}
+                labelCopy={en["contact.copy"]}
+                labelCopied={en["contact.copied"]}
+              />
 
               {/* Mailto button */}
               <a
@@ -76,7 +48,7 @@ export default function ContactPage() {
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="h-4 w-4">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
                 </svg>
-                {t("contact.mailto")}
+                {en["contact.mailto"]}
               </a>
             </div>
           </div>
@@ -84,7 +56,7 @@ export default function ContactPage() {
 
         {/* Response time note */}
         <p className="mt-4 text-center text-sm text-slate-500">
-          {t("contact.response")}
+          {en["contact.response"]}
         </p>
       </div>
     </PublicShell>

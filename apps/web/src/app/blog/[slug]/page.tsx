@@ -15,7 +15,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const post = getPostBySlug(slug);
-  if (!post) return {};
+  if (!post) return { robots: { index: false, follow: false } };
 
   return {
     title: post.title,
@@ -23,12 +23,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     keywords: post.keywords,
     authors: [{ name: post.author }],
     alternates: {
-      canonical: `https://bullandbear.pro/blog/${post.slug}`,
+      canonical: `https://www.bullandbear.pro/blog/${post.slug}`,
     },
     openGraph: {
       title: post.title,
       description: post.description,
-      url: `https://bullandbear.pro/blog/${post.slug}`,
+      url: `https://www.bullandbear.pro/blog/${post.slug}`,
       type: "article",
       publishedTime: post.publishedAt,
       authors: [post.author],
@@ -45,6 +45,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       card: "summary_large_image",
       title: post.title,
       description: post.description,
+      images: ["https://www.bullandbear.pro/og-image.png"],
     },
   };
 }
@@ -62,26 +63,19 @@ export default async function ArticlePage({ params }: Props) {
     headline: post.title,
     description: post.description,
     author: {
-      "@type": "Organization",
+      "@type": "Person",
       name: post.author,
-      url: "https://bullandbear.pro",
     },
     publisher: {
-      "@type": "Organization",
-      name: "Bull & Bear",
-      url: "https://bullandbear.pro",
-      logo: {
-        "@type": "ImageObject",
-        url: "https://bullandbear.pro/BB_logo.png",
-      },
+      "@id": "https://www.bullandbear.pro/#organization",
     },
     datePublished: post.publishedAt,
     dateModified: post.publishedAt,
-    url: `https://bullandbear.pro/blog/${post.slug}`,
-    image: "https://bullandbear.pro/og-image.png",
+    url: `https://www.bullandbear.pro/blog/${post.slug}`,
+    image: "https://www.bullandbear.pro/og-image.png",
     mainEntityOfPage: {
       "@type": "WebPage",
-      "@id": `https://bullandbear.pro/blog/${post.slug}`,
+      "@id": `https://www.bullandbear.pro/blog/${post.slug}`,
     },
   };
 
