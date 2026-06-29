@@ -154,7 +154,7 @@ export async function GET(request: Request) {
       `${APP_URL}/comptes?ctrader_select=${payload}`,
     );
   } catch (err) {
-    console.error("[cTrader OAuth callback]", err);
+    console.error("[cTrader OAuth callback] token_exchange_failed:", err instanceof Error ? err.message : err);
     return NextResponse.redirect(`${APP_URL}/comptes?ctrader_error=token_exchange_failed`);
   }
 }
