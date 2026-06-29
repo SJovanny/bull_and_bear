@@ -68,7 +68,13 @@ export type TranslationKeys = {
   "landing.stats.tradesAnalyzed": string;
   "landing.stats.tradersOnboard": string;
   "landing.stats.brokersIntegrated": string;
+  "landing.stats.platformsSupported": string;
   "landing.stats.dataPoints": string;
+  "landing.stats.autoSync": string;
+  "landing.stats.csvImport": string;
+  "landing.stats.languages": string;
+  "landing.stats.startingFrom": string;
+  "landing.stats.importMethods": string;
   "landing.cta.headline": string;
   "landing.cta.subtitle": string;
   "landing.cta.button": string;

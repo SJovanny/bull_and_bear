@@ -1,5 +1,4 @@
 import type { StatsSummary } from "@/types";
-import { computeNetPnl } from "@/lib/trade-calc";
 import { formatRange } from "./serializers";
 
 

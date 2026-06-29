@@ -36,6 +36,7 @@ export function HeaderResyncButton() {
   // Load connection whenever the selected account changes
   useEffect(() => {
     if (!accountId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setConnection(null);
       return;
     }

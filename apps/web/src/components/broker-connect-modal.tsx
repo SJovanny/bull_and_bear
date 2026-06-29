@@ -46,6 +46,7 @@ export default function BrokerConnectModal({
           accounts?: CTraderAccount[];
         };
         if (decoded.accounts && decoded.accounts.length > 0) {
+          // eslint-disable-next-line react-hooks/set-state-in-effect
           setCtraderAccounts(decoded.accounts);
           setStep("selecting");
           return;

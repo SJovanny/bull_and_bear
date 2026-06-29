@@ -25,6 +25,7 @@ export function DashboardNotesPopover({ open }: DashboardNotesPopoverProps) {
 
   useEffect(() => {
     if (!open || fetched) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
 
     fetch("/api/notes")

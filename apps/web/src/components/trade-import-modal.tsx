@@ -97,6 +97,7 @@ export function TradeImportModal({ isOpen, accountId, onClose, onImported }: Tra
 
   useEffect(() => {
     if (!isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSource("CTRADER");
       setFileName("");
       setFileContent("");
@@ -117,7 +118,7 @@ export function TradeImportModal({ isOpen, accountId, onClose, onImported }: Tra
     return t("importModal.mismatchFile")
       .replace("{detected}", config[preview.detectedSource].label)
       .replace("{selected}", config[source].label);
-  }, [preview?.detectedSource, source, t]);
+  }, [preview, source, t]);
 
   if (!isOpen) {
     return null;

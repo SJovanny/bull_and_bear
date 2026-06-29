@@ -41,7 +41,7 @@ export const POST = withAuth(async (request, { user }) => {
     const isNewUser = !user.subscriptionId && user.subscriptionStatus === "INACTIVE";
     const hasExistingTrial = user.subscriptionStatus === "TRIALING" && user.trialEndsAt;
 
-    let subscriptionData: Record<string, unknown> = { metadata: { userId: user.id } };
+    const subscriptionData: Record<string, unknown> = { metadata: { userId: user.id } };
     if (!skipTrial) {
       if (isNewUser) {
         subscriptionData.trial_period_days = 14;

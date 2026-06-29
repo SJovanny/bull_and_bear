@@ -42,6 +42,7 @@ export default function NotesPage() {
   }, [tab]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     fetchNotes();
   }, [fetchNotes]);

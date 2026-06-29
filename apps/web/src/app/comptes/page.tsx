@@ -89,6 +89,7 @@ function CTraderOAuthHandler({
       router.replace("/comptes");
     } else if (selectPayload) {
       // Store the payload and clear the URL — we'll process it once accounts are loaded
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPendingPayload(selectPayload);
       router.replace("/comptes");
     }
@@ -113,6 +114,7 @@ function CTraderOAuthHandler({
     } catch {
       onError("Failed to parse cTrader account selection data.");
     }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPendingPayload(null);
   }, [pendingPayload, accounts]);  // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -232,9 +234,9 @@ export default function ComptesPage() {
 
   useEffect(() => {
     if (!loaded) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       void loadAccounts();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaded]);
 
   function resetForm() {

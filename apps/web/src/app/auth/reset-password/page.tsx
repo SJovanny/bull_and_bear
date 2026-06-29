@@ -44,6 +44,7 @@ export default function ResetPasswordPage() {
     const params = new URLSearchParams(window.location.search);
     const errorDesc = params.get("error_description");
     if (errorDesc) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSessionError(errorDesc);
     }
 

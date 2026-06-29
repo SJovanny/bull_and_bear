@@ -297,9 +297,9 @@ export default function LandingPage() {
         <div className="mx-auto max-w-[1400px] px-4 py-20 sm:px-6 lg:px-10">
           <StaggerContainer className="grid grid-cols-1 gap-10 md:grid-cols-3 justify-items-center">
             {[
-              { value: "50K+", label: t("landing.stats.tradesAnalyzed") },
-              { value: "1,200+", label: t("landing.stats.tradersOnboard") },
-              { value: "1M+", label: t("landing.stats.dataPoints") },
+              { value: "2", label: t("landing.stats.platformsSupported") },
+              { value: "3×", label: t("landing.stats.importMethods") },
+              { value: "€2.99", label: t("landing.stats.startingFrom") },
             ].map((stat) => (
               <StaggerItem key={stat.label} className="text-center">
                 <div className="text-4xl font-bold text-blue-600 sm:text-5xl">{stat.value}</div>
@@ -330,7 +330,7 @@ export default function LandingPage() {
           <ScrollReveal delay={0.15} className="mx-auto mt-12 max-w-2xl">
             <div className="relative rounded-2xl border border-slate-200 bg-white/60 px-8 py-7 shadow-sm backdrop-blur-sm">
               {/* decorative quote mark */}
-              <span className="absolute -top-5 left-6 text-7xl font-serif leading-none text-slate-200 select-none">"</span>
+              <span className="absolute -top-5 left-6 text-7xl font-serif leading-none text-slate-200 select-none">&ldquo;</span>
               <p className="relative text-center text-xl font-semibold leading-relaxed text-slate-800 sm:text-2xl">
                 {t("landing.about.hook")}
               </p>

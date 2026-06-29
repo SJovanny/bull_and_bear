@@ -44,7 +44,7 @@ const FR = (
     <h2 id="controller">1. Responsable du traitement</h2>
     <p>
       Bull &amp; Bear est un journal de trading en ligne édité par <strong>Bull &amp; Bear</strong>,
-      situé à <strong>Strasbourg, France</strong>.
+      situé à <strong>Bas-Rhin, France</strong>.
     </p>
     <p>
       Pour toute question relative à la protection de vos données :{" "}
@@ -182,7 +182,7 @@ const EN = (
     <h2 id="controller">1. Data Controller</h2>
     <p>
       Bull &amp; Bear is an online trading journal published by <strong>Bull &amp; Bear</strong>,
-      based in <strong>Strasbourg, France</strong>.
+      based in <strong>Bas-Rhin, France</strong>.
     </p>
     <p>
       For any questions regarding the protection of your personal data:{" "}

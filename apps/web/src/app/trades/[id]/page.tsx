@@ -9,7 +9,6 @@ import { ImageLightbox } from "@/components/image-lightbox";
 import { TradeChart } from "@/components/trade-chart";
 import { TradeEntryModal } from "@/components/trade-entry-modal";
 import { TutorialProvider } from "@/components/tutorial/tutorial-provider";
-import { useTutorialContext } from "@/components/tutorial/tutorial-context";
 import { useTutorialStatus } from "@/hooks/use-tutorial-status";
 import { tutorialStepsMap } from "@/config/tutorial-steps";
 import { mockTradeDetail } from "@/config/tutorial-mock-data";
@@ -259,7 +258,6 @@ function ScreenshotGrid({ screenshots, onClickImage, t }: { screenshots: string[
 export default function TradeDetailPage() {
   const { t } = useTranslation();
   const { tutorialsCompleted, loaded: tutorialLoaded } = useTutorialStatus();
-  const { isTutorialActive, activePage } = useTutorialContext();
 
   const params = useParams<{ id: string }>();
   const tradeId = params.id;
@@ -303,6 +301,7 @@ export default function TradeDetailPage() {
   }, [tradeId]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (tradeId) loadTrade();
   }, [tradeId, loadTrade]);
 

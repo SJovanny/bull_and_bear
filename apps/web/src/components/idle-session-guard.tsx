@@ -32,7 +32,7 @@ export function IdleSessionGuard() {
   const { t } = useTranslation();
   const [remainingMs, setRemainingMs] = useState(IDLE_TIMEOUT_MS);
   const logoutStartedRef = useRef(false);
-  const lastActivityRef = useRef(Date.now());
+  const lastActivityRef = useRef(0);
   const lastBroadcastRef = useRef(0);
 
   const signOutForInactivity = useCallback(async (broadcastLogout: boolean) => {
@@ -75,6 +75,7 @@ export function IdleSessionGuard() {
 
     lastActivityRef.current = initialLastActivity;
     lastBroadcastRef.current = initialLastActivity;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setRemainingMs(IDLE_TIMEOUT_MS - (Date.now() - initialLastActivity));
 
     if (!storedLastActivity) {
