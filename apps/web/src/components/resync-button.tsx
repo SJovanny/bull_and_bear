@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 
 export type BrokerConnection = {
   id: string;
@@ -116,9 +117,11 @@ export default function ResyncButton({ connection, onSynced, onDisconnected }: R
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-border bg-surface-2 overflow-hidden">
-            <img
+            <Image
               src="https://res.cloudinary.com/ddvabefhf/image/upload/v1773440476/ctrader_logo_full_pwcbdz.png"
               alt="cTrader"
+              width={16}
+              height={16}
               className="h-4 w-4 object-contain"
             />
           </div>

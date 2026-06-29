@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 type CTraderAccount = {
   ctidTraderAccountId: string;
@@ -136,9 +137,11 @@ export default function BrokerConnectModal({
           <div className="flex items-center gap-3">
             {/* cTrader logo placeholder */}
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border bg-surface-2 overflow-hidden">
-              <img
+              <Image
                 src="https://res.cloudinary.com/ddvabefhf/image/upload/v1773440476/ctrader_logo_full_pwcbdz.png"
                 alt="cTrader"
+                width={28}
+                height={28}
                 className="h-7 w-7 object-contain"
               />
             </div>

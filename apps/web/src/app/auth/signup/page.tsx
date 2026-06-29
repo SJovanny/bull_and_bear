@@ -3,7 +3,10 @@
 import Link from "next/link";
 import { useRef, useMemo, useState } from "react";
 import Image from "next/image";
-import HCaptcha from "@hcaptcha/react-hcaptcha";
+import dynamic from "next/dynamic";
+import type HCaptchaType from "@hcaptcha/react-hcaptcha";
+
+const HCaptcha = dynamic(() => import("@hcaptcha/react-hcaptcha"), { ssr: false });
 
 import { supabaseClient } from "@/lib/supabase/client";
 import { useTranslation } from "@/lib/i18n/context";
@@ -37,7 +40,7 @@ export default function SignupPage() {
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
-  const captchaRef = useRef<HCaptcha>(null);
+  const captchaRef = useRef<HCaptchaType>(null);
   const { t } = useTranslation();
   const strength = useMemo(() => computePasswordStrength(password), [password]);
 
