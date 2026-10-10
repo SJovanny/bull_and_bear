@@ -8,6 +8,7 @@ import { TrendingUp, TrendingDown, BarChart3, Zap, Shield, LineChart, Calendar, 
 
 import { AnimatedChartBackground } from "@/components/landing/animated-chart-background";
 import { ScrollReveal, StaggerContainer, StaggerItem } from "@/components/landing/scroll-reveal";
+import { InstallAppSection } from "@/components/landing/install-app-section";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { SiteFooter } from "@/components/site-footer";
 import { useTranslation } from "@/lib/i18n/context";
@@ -752,6 +753,9 @@ export default function LandingPage() {
           </StaggerContainer>
         </div>
       </section>
+
+      {/* Install as app (PWA) */}
+      <InstallAppSection />
 
       {/* CTA Section */}
       <section className="relative z-10 px-4 py-32 sm:px-6 lg:px-10 lg:py-40">

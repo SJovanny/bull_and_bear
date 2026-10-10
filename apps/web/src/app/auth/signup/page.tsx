@@ -6,7 +6,11 @@ import Image from "next/image";
 import dynamic from "next/dynamic";
 import type HCaptchaType from "@hcaptcha/react-hcaptcha";
 
-const HCaptcha = dynamic(() => import("@hcaptcha/react-hcaptcha"), { ssr: false });
+// next/dynamic's wrapper type drops the `ref` prop; at runtime (React 19) the
+// ref is forwarded to the loaded component, so restore the original typing.
+const HCaptcha = dynamic(() => import("@hcaptcha/react-hcaptcha"), {
+  ssr: false,
+}) as unknown as typeof HCaptchaType;
 
 import { supabaseClient } from "@/lib/supabase/client";
 import { useTranslation } from "@/lib/i18n/context";
