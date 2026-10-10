@@ -1,9 +1,10 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "@/lib/i18n/context";
 import { TutorialContextProvider } from "@/components/tutorial/tutorial-context";
 import { JsonLd } from "@/components/json-ld";
+import { PwaRegister } from "@/components/pwa/pwa-register";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-sans",
@@ -15,7 +16,17 @@ const jetBrainsMono = JetBrains_Mono({
   subsets: ["latin"],
 });
 
+export const viewport: Viewport = {
+  themeColor: "#3B82F6",
+};
+
 export const metadata: Metadata = {
+  applicationName: "Bull & Bear",
+  appleWebApp: {
+    capable: true,
+    title: "Bull & Bear",
+    statusBarStyle: "default",
+  },
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_APP_URL
     || (process.env.VERCEL_PROJECT_PRODUCTION_URL
@@ -139,6 +150,7 @@ export default function RootLayout({
             screenshot: "https://www.bullandbear.pro/dashboard_example.png",
           }}
         />
+        <PwaRegister />
         <LanguageProvider>
           <TutorialContextProvider>
             {children}

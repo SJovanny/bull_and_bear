@@ -7,6 +7,7 @@ import { DashboardShell } from "@/components/dashboard-shell";
 import { TutorialProvider } from "@/components/tutorial/tutorial-provider";
 import { TutorialSection } from "@/components/tutorial/tutorial-section";
 import LoadingSpinner from "@/components/loading-spinner";
+import { ReminderCard } from "@/components/pwa/reminder-card";
 import { useTutorialStatus } from "@/hooks/use-tutorial-status";
 import { useSubscription } from "@/hooks/use-subscription";
 import { useTranslation } from "@/lib/i18n/context";
@@ -261,6 +262,11 @@ export default function ProfilPage() {
               </div>
             </div>
           </article>
+        </section>
+
+        {/* ─── App install & daily journal reminder ─────────────── */}
+        <section>
+          <ReminderCard />
         </section>
 
         {/* ─── Billing / Subscription ────────────────────────────── */}

@@ -14,6 +14,11 @@ export function isPublicRoute(pathname: string): boolean {
     pathname === "/pricing" ||
     pathname === "/blog" ||
     pathname.startsWith("/blog/") ||
+    pathname === "/sw.js" ||
+    pathname === "/offline.html" ||
+    pathname === "/manifest.webmanifest" ||
+    // Self-authenticated with CRON_SECRET (no user session on cron calls)
+    pathname.startsWith("/api/cron/") ||
     pathname === "/sitemap.xml" ||
     pathname === "/robots.txt"
   );

@@ -82,6 +82,8 @@ model User {
   subscriptionStatus  SubscriptionStatus @default(INACTIVE)
   trialEndsAt         DateTime?
   currentPeriodEnd    DateTime?
+  // ─── Journal reminder (web push) ─────────────────────────────
+  journalReminderEnabled Boolean         @default(false)
   // ─────────────────────────────────────────────────────────────
   createdAt           DateTime           @default(now())
   updatedAt           DateTime           @updatedAt
@@ -90,6 +92,22 @@ model User {
   journals            DailyJournal[]
   notes               UserNote[]
   brokerConnections   BrokerConnection[]
+  pushSubscriptions   PushSubscription[]
+}
+
+model PushSubscription {
+  id         String    @id @default(uuid())
+  userId     String
+  endpoint   String    @unique
+  p256dh     String
+  auth       String
+  userAgent  String?
+  lastSentAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model Account {
