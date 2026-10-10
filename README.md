@@ -6,18 +6,21 @@ Film promotionnel de l'app **Bull & Bear** (journal de trading), généré **en 
 Message : *tenir un journal de trades, sans effort, aide à devenir plus discipliné et plus rentable.*
 Plan phare : le téléphone, le zoom dans l'écran, la connexion automatique de cTrader, la courbe qui monte et le PnL qui grimpe.
 
-## Où on en est (8 octobre 2026)
+## Où on en est (10 octobre 2026)
+
+Version **française** terminée : 9 lignes de voix (ElevenLabs v4, tutoiement), ≈ 30,4 s, deux formats — `Ad` (16:9, 1920×1080) et `AdVertical` (9:16, 1080×1920, réseaux sociaux).
+Accroche : « T'as encore cramé un compte, pas vrai ? ». Scènes : accroche → pas de journal / Notion → téléphone (cTrader) → MetaTrader → revue sur le vrai graphique TradingView
+(`lightweight-charts`) → fiche de trade du journal → installation de l'appli depuis le site (PWA) → logo « Le journal de trading fait pour toi ».
 
 | Étape | État |
 | --- | --- |
-| 1. Script (10 lignes de voix) | **Validé** (FR) : `VOIX-OFF.txt` ; **version anglaise rédigée** : `VOIX-OFF.en.txt` |
-| 2. Installation | **Faite** (Remotion 4.0.534, skills Remotion dans `.claude/skills/`) |
-| 3. Scènes animées, muettes | **Faites** : 10 chapitres, images clés dans `docs/stills-fr/` et `docs/stills-en/` (JPEG), planches `docs/planche-stills.jpg` et `docs/planche-stills-en.jpg` (les PNG se régénèrent dans `out/`) |
-| 4. Voix off | **À faire** : 10 fichiers ElevenLabs par langue, `public/voix/01.mp3` … `10.mp3` (FR) et `public/voix-en/01.mp3` … `10.mp3` (EN) |
-| 5. Calage sur la voix | À faire, **langue par langue** : `scripts/place-voice.sh` signale les lignes qui dépassent leur créneau ; on renseigne `dur` dans `src/timings.ts` (sous-titres exacts) |
-| 5 bis. Sous-titres | **Faits** (incrustés, dans la langue de la voix, durées estimées tant que la voix manque) ; désactivables : prop `subs` |
-| 6. Musique | À faire : un mp3 libre de droits dans `assets/music/` |
-| 7. Rendu final | À faire : 60 i/s, son à −14 LUFS |
+| Script FR (tutoiement, tags Eleven v4) | **Fait** : `VOIX-OFF.v5.txt` |
+| Voix FR | **Faites** : `public/voix/01..09.wav` (silences rognés ; bruts dans `public/voix-brut/`) ; `public/voix-longue/` = ancienne version de 54 s, non utilisée |
+| Calage | **Fait** : `src/timings.ts` (voix jouées à 1,08×) ; `scripts/place-voice.sh` |
+| Musique | **Faite** (synthèse, libre de droits) : `scripts/make-music.py`, calée sur les coupes |
+| Mix | `scripts/mix-audio.sh` (musique sous la voix, −14 LUFS) |
+| Version anglaise | **À faire** : voix EN, montage EN (chapitres et ancres d'origine), version verticale EN |
+| Rendu 60 i/s | À faire (rendu actuel à 30 i/s) |
 
 ## Tout se modifie dans cinq fichiers
 
@@ -27,17 +30,21 @@ Plan phare : le téléphone, le zoom dans l'écran, la connexion automatique de 
 - `src/tokens.ts` : couleurs et polices, reprises de `apps/web/src/app/globals.css` (thème sombre) et de `layout.tsx`.
 - `src/ui/PhoneScreens.tsx` : libellés exacts des écrans du téléphone (repris de `broker-connect-modal.tsx`, `resync-button.tsx`, `comptes/page.tsx`).
 
-Les chapitres sont dans `src/scenes/` : `Matter` (1), `Kinetic` (2), `PhoneScene` (3 et 4, un seul plan), `TwoPaths` (5), `Layers3D` (6),
-`Cards` (7), `Route` (8), `Numbers` (9), `LogoEnd` (10). L'assemblage est dans `src/Ad.tsx`.
+Les chapitres sont dans `src/scenes/` : `Matter` (accroche), `Kinetic` (pas de journal), `PhoneScene` (cTrader), `TwoPaths` (MetaTrader), `ChartReview` (vrai graphique TradingView),
+`Journal` (fiche de trade mock), `Install` (PWA), `LogoEnd`. Anciennes scènes de la version 54 s, toujours utilisées par l'anglais : `Layers3D`, `Cards`, `Route`, `Numbers`.
+Le format (16:9 ou vertical) est lu par `src/stage.ts` ; l'assemblage est dans `src/Ad.tsx`.
 
 ## Commandes
 
 ```bash
-npm run dev                                   # aperçu animé (Remotion Studio) : compositions « Ad » (FR) et « AdEn » (EN)
-node scripts/render-stills.mjs                # les 26 images clés FR -> out/stills (un préfixe en argument : « 04 » = chapitre 4)
-node scripts/render-stills.mjs --comp=AdEn    # idem en anglais -> out/stills-en
-npx remotion render src/index.ts Ad out/ad-muet.mp4 --codec=h264 --crf=18   # maquette muette
-scripts/place-voice.sh public/voix/{01..10}.mp3 out/voix-off-fr.wav         # pose les 10 lignes FR sur la frise (idem avec public/voix-en/ pour l'anglais)
+npm run dev                                   # aperçu animé (Remotion Studio) : « Ad » (FR), « AdVertical » (FR 9:16), « AdEn » (EN)
+python3 scripts/make-music.py out/musique-fond.wav 30.37        # musique de fond (durée en s)
+ATEMPO=1.08 TOTAL_MS=30370 OFFSETS="150 2110 4530 8240 12350 15290 17530 21820 25190" \
+  scripts/place-voice.sh public/voix/0{1..9}.wav out/voix-off-fr.wav      # pose les 9 lignes FR (OFFSETS = `at` de timings.ts, en ms)
+scripts/mix-audio.sh out/voix-off-fr.wav out/musique-fond.wav out/audio-mix.wav 30.37   # voix + musique, −14 LUFS
+npx remotion render src/index.ts Ad out/ad-16x9-muet.mp4 --codec=h264 --crf=16          # idem avec « AdVertical » pour le 9:16
+ffmpeg -i out/ad-16x9-muet.mp4 -i out/audio-mix.wav -c:v copy -c:a aac -b:a 256k -t 30.37 out/ad-fr-16x9.mp4
+node scripts/render-stills.mjs                # images clés (anciennes planches)
 ```
 
 Remotion lance un navigateur sans interface : dans Claude Code, ces commandes doivent s'exécuter **hors du bac à sable** (une autorisation sera demandée).

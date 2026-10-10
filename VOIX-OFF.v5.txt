@@ -1,0 +1,11 @@
+# Pub 29,4 s — script FR (tutoiement), Eleven v4. Fichiers déjà générés : public/voix-brut/ (bruts) et public/voix/NN.wav (silences rognés).
+# Restent à générer : 08 et 09 (déposer les fichiers : ils remplacent public/voix/08.wav et 09.wav).
+01 [deadpan, knowing smirk] T'as encore cramé un compte, pas vrai ?
+02 [beat, sharper] Pas de journal. [incredulous] Et tu t'étonnes de perdre ?
+03 [dry, sarcastic] Notion ? T'as essayé. T'as arrêté au bout d'une semaine.
+04 [energetic, fast] Avec Bull and Bear, branche cTrader : tes trades arrivent tout seuls.
+05 [punchy] Sur MetaTrader ? Glisse ton fichier. C'est fait.
+06 [excited, fast] Revois chaque trade sur le graphique TradingView.
+07 [building, excited] Ta courbe. Ton P N L. Tes erreurs. Enfin, tu vois tout.
+08 [warm, upbeat] Installe l'appli depuis le site : ton journal te suit partout.      <-- À GÉNÉRER
+09 [bold, warm] Bull and Bear. [short pause] Le journal de trading fait pour toi. [smiling] Commence gratuitement.      <-- À GÉNÉRER

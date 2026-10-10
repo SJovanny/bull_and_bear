@@ -5,6 +5,9 @@ import { loadFont as loadMono } from "@remotion/google-fonts/JetBrainsMono";
 export const FPS = 30;
 export const W = 1920;
 export const H = 1080;
+/** Vertical 9:16 (réseaux sociaux). */
+export const WV = 1080;
+export const HV = 1920;
 
 export const C = {
   bg: "#0F172A",

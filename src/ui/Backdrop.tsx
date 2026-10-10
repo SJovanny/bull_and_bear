@@ -1,10 +1,12 @@
 import React from "react";
 import { AbsoluteFill, useCurrentFrame } from "remotion";
-import { C, W, H } from "../tokens";
+import { C } from "../tokens";
+import { useStage } from "../stage";
 
 /** Fond commun : bleu nuit de l'app + halos très lents (aucun clignotement). */
 export const Backdrop: React.FC<{ tint?: "blue" | "green" | "neutral"; intensity?: number }> = ({ tint = "blue", intensity = 1 }) => {
   const f = useCurrentFrame();
+  const { w: W, h: H } = useStage();
   const a = tint === "green" ? C.pos : tint === "neutral" ? C.text2 : C.brand;
   const b = C.teal;
   return (

@@ -2,6 +2,7 @@
 // chaque ligne est découpée en groupes de 2 à 5 mots, répartis sur la durée de la ligne (mesurée si `dur` est renseigné, estimée sinon).
 import React from "react";
 import { useCurrentFrame, useVideoConfig } from "remotion";
+import { useStage } from "./stage";
 import { C, SANS } from "./tokens";
 import { tw } from "./motion";
 import { useTimings } from "./lang";
@@ -50,6 +51,7 @@ export const cuesFor = (line: VoiceLine, limit: number): Cue[] => {
 export const Subtitles: React.FC = () => {
   const f = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const { v } = useStage();
   const { voice, totalSec } = useTimings();
   const now = f / fps;
   const cues = voice.flatMap((line, i) => cuesFor(line, voice[i + 1]?.at ?? totalSec));
@@ -60,8 +62,8 @@ export const Subtitles: React.FC = () => {
   const followed = cues[i + 1] && cues[i + 1].from - cue.to < 0.06;
   const p = tw(now, cue.from, cue.from + 0.1) * (followed ? 1 : 1 - tw(now, cue.to - 0.1, cue.to));
   return (
-    <div style={{ position: "absolute", left: 0, right: 0, bottom: 72, display: "flex", justifyContent: "center", zIndex: 50, pointerEvents: "none", opacity: p }}>
-      <div style={{ maxWidth: 1500, textAlign: "center", fontFamily: SANS, fontWeight: 700, fontSize: 46, lineHeight: 1.2, letterSpacing: "-0.02em", color: "#fff", background: "rgba(10,16,32,0.74)", border: `1px solid ${C.border}`, borderRadius: 18, padding: "10px 26px", textShadow: "0 2px 12px rgba(0,0,0,0.6)" }}>
+    <div style={{ position: "absolute", left: 0, right: 0, bottom: v ? 250 : 72, display: "flex", justifyContent: "center", zIndex: 50, pointerEvents: "none", opacity: p }}>
+      <div style={{ maxWidth: v ? 940 : 1500, textAlign: "center", fontFamily: SANS, fontWeight: 700, fontSize: v ? 56 : 46, lineHeight: 1.2, letterSpacing: "-0.02em", color: "#fff", background: "rgba(10,16,32,0.74)", border: `1px solid ${C.border}`, borderRadius: 18, padding: "10px 26px", textShadow: "0 2px 12px rgba(0,0,0,0.6)" }}>
         {cue.text}
       </div>
     </div>

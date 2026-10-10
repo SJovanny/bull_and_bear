@@ -1,7 +1,8 @@
 // Chapitre 2 : typographie cinétique. Les mots arrivent un par un, puis « pourquoi ? » prend tout l'écran.
 import React from "react";
 import { AbsoluteFill, useCurrentFrame } from "remotion";
-import { C, SANS, MONO, W, H, sec } from "../tokens";
+import { C, SANS, MONO, sec } from "../tokens";
+import { useStage } from "../stage";
 import { useTimings, useCopy } from "../lang";
 import { OUT, tw, rand, INOUT } from "../motion";
 import { Backdrop } from "../ui/Backdrop";
@@ -46,6 +47,7 @@ export const Kinetic: React.FC = () => {
   const f = useCurrentFrame();
   const a = useTimings().A.typo;
   const L = useCopy().kinetic;
+  const { w: W, h: H, v } = useStage();
   const why = tw(f, sec(a.why) + 6, sec(a.why) + 32, 0, 1, OUT);
   const dim = tw(f, sec(a.why) - 16, sec(a.why) + 2, 1, 0, INOUT);
   const ring = tw(f, sec(a.why), sec(a.why) + 60, 0, 1, OUT);
@@ -79,10 +81,10 @@ export const Kinetic: React.FC = () => {
         );
       })}
 
-      <AbsoluteFill style={{ paddingLeft: 170, justifyContent: "center", opacity: dim, filter: `blur(${(1 - dim) * 5}px)` }}>
-        <Words at={sec(a.l1)} text={L.l1} size={96} weight={600} color={C.text2} />
-        <Words at={sec(a.l2)} text={L.l2} size={150} weight={800} color={C.text} />
-        <Words at={sec(a.l3)} text={L.l3} size={150} weight={800} color={C.text} accent={{ word: L.accent, color: C.neg }} />
+      <AbsoluteFill style={{ paddingLeft: v ? 70 : 170, paddingRight: v ? 50 : 0, justifyContent: "center", opacity: dim, filter: `blur(${(1 - dim) * 5}px)` }}>
+        <Words at={sec(a.l1)} text={L.l1} size={v ? 66 : 96} weight={600} color={C.text2} />
+        <Words at={sec(a.l2)} text={L.l2} size={v ? 100 : 150} weight={800} color={C.text} />
+        <Words at={sec(a.l3)} text={L.l3} size={v ? 100 : 150} weight={800} color={C.text} accent={{ word: L.accent, color: C.neg }} />
       </AbsoluteFill>
 
       <AbsoluteFill style={{ alignItems: "center", justifyContent: "center" }}>
@@ -100,7 +102,8 @@ export const Kinetic: React.FC = () => {
           style={{
             fontFamily: SANS,
             fontWeight: 800,
-            fontSize: 330,
+            fontSize: v ? 190 : 330,
+            whiteSpace: "nowrap",
             letterSpacing: "-0.055em",
             background: `linear-gradient(90deg, ${C.brand} 0%, #7cb0ff 55%, ${C.teal} 100%)`,
             WebkitBackgroundClip: "text",

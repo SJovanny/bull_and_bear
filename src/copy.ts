@@ -11,22 +11,25 @@ export interface Copy {
   cards: { journal: [string, string]; chart: [string, string]; calendar: [string, string]; stats: [string, string] };
   route: { l1: string; l2: string; accent: string; steps: [string, string, string, string]; loop: string };
   numbers: { title: [string, string]; win: string; pf: string; dd: string; example: string; exampleTarget: string; strip: { v: string; l: string }[] };
-  logo: { cta: string; legal: string };
+  logo: { cta: string; tagline: string; legal: string };
+  install: { site: string; btn: string; app: string; title: string; sub: string; always: string };
+  review: { badge: string; entry: string; exit: string; caption: string };
+  journal: { title: string; symbol: string; side: string; entry: string; exit: string; pnlLabel: string; setupLabel: string; setup: string; emotionLabel: string; emotions: string[]; emotion: string; noteLabel: string; note: string; mistakeLabel: string; mistake: string };
   legal: string;
 }
 
 export const COPY: Record<Lang, Copy> = {
   fr: {
-    matter: { l1a: "Tradez.", l1b: "Analysez.", l2: "Grandissez." },
-    kinetic: { l1: "Sans journal,", l2: "les mêmes erreurs.", l3: "les mêmes pertes.", accent: "pertes", why: "pourquoi ?" },
+    matter: { l1a: "T'as encore", l1b: "cramé un compte,", l2: "pas vrai ?" },
+    kinetic: { l1: "Pas de journal.", l2: "Notion, abandonné.", l3: "Tu perds. Sans savoir", accent: "perds", why: "pourquoi\u00a0?" },
     phone: {
-      c1: ["Connectez votre compte", "cTrader, en un clic"],
+      c1: ["Connecte ton compte", "cTrader, en un clic"],
       c2: ["Autorisez", "Lecture seule : aucun ordre, aucune modification."],
-      c3: ["Synchronisé", "Vos trades arrivent tout seuls."],
-      c4: ["Votre courbe", "enfin toute l'histoire."],
+      c3: ["Synchronisé", "Tes trades arrivent tout seuls."],
+      c4: ["Ta courbe", "enfin toute l'histoire."],
       pnl: "PnL net",
     },
-    paths: { autoTag: "Automatique", oneClickTag: "En un clic", autoTitle: "Synchronisation automatique", autoSub: "Connectez-vous une fois, c'est tout.", one: "Un seul journal.", same: "Mêmes statistiques." },
+    paths: { autoTag: "Automatique", oneClickTag: "En un clic", autoTitle: "Synchronisation automatique", autoSub: "Connecte-toi une fois, c'est tout.", one: "Un seul journal.", same: "Mêmes statistiques." },
     layers: { title: ["Tout au", "même endroit."], calendar: "Calendrier", trades: "Derniers trades", daily: "PnL journalier", curve: "Courbe de PnL", kpi: "Performances" },
     cards: {
       journal: ["Journal d'exécution", "Notes, captures d'écran, erreurs et émotions."],
@@ -48,7 +51,26 @@ export const COPY: Record<Lang, Copy> = {
         { v: "∞", l: "marge de progression" },
       ],
     },
-    logo: { cta: "Commencer gratuitement", legal: "Données de démonstration. Le trading comporte des risques de perte en capital ; les performances passées ne préjugent pas des performances futures." },
+    logo: { cta: "Commence gratuitement", tagline: "Le journal de trading fait pour toi.", legal: "Données de démonstration. Le trading comporte des risques de perte en capital ; les performances passées ne préjugent pas des performances futures." },
+    install: { site: "bullandbear.pro", btn: "Installer l'application", app: "Bull & Bear", title: "Installe-la depuis le site.", sub: "Gratuit, sans passer par un store.", always: "Ton journal, toujours avec toi." },
+    review: { badge: "Graphique TradingView", entry: "Entrée", exit: "Sortie", caption: "Le trade, tel qu'il était." },
+    journal: {
+      title: "Journal de trade",
+      symbol: "EURUSD",
+      side: "Long",
+      entry: "Entrée",
+      exit: "Sortie",
+      pnlLabel: "PnL net",
+      setupLabel: "Setup",
+      setup: "Cassure + retest",
+      emotionLabel: "Émotion",
+      emotions: ["Confiant", "Calme", "FOMO", "Revanche"],
+      emotion: "FOMO",
+      noteLabel: "Notes",
+      note: "Entré trop tôt, par FOMO. Stop déplacé. La prochaine fois : attendre la clôture de la bougie.",
+      mistakeLabel: "Erreur",
+      mistake: "Stop déplacé",
+    },
     legal: "Données de démonstration — résultats non garantis. Le trading comporte des risques de perte en capital.",
   },
   en: {
@@ -83,7 +105,26 @@ export const COPY: Record<Lang, Copy> = {
         { v: "∞", l: "room to improve" },
       ],
     },
-    logo: { cta: "Get started for free", legal: "Demo data. Trading involves a risk of capital loss; past performance does not guarantee future results." },
+    logo: { cta: "Get started for free", tagline: "The trading journal made for you.", legal: "Demo data. Trading involves a risk of capital loss; past performance does not guarantee future results." },
+    install: { site: "bullandbear.pro", btn: "Install the app", app: "Bull & Bear", title: "Install it from the site.", sub: "Free, no app store.", always: "Your journal, always with you." },
+    review: { badge: "TradingView chart", entry: "Entry", exit: "Exit", caption: "The trade, exactly as it was." },
+    journal: {
+      title: "Trade journal",
+      symbol: "EURUSD",
+      side: "Long",
+      entry: "Entry",
+      exit: "Exit",
+      pnlLabel: "Net PnL",
+      setupLabel: "Setup",
+      setup: "Breakout + retest",
+      emotionLabel: "Emotion",
+      emotions: ["Confident", "Calm", "FOMO", "Revenge"],
+      emotion: "FOMO",
+      noteLabel: "Notes",
+      note: "Entered too early, out of FOMO. Moved my stop. Next time: wait for the candle close.",
+      mistakeLabel: "Mistake",
+      mistake: "Moved stop",
+    },
     legal: "Demo data — results not guaranteed. Trading involves a risk of capital loss.",
   },
 };

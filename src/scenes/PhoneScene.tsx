@@ -6,23 +6,24 @@ import { C, SANS, MONO, sec } from "../tokens";
 import { useTimings, useCopy } from "../lang";
 import { OUT, INOUT, tw, fmt } from "../motion";
 import { Backdrop } from "../ui/Backdrop";
+import { useStage } from "../stage";
 import { PhoneFrame, Tap, SH } from "../ui/Phone";
 import { AccountsScreen, AuthScreen, ConnectModal, DashboardScreen, TAP, cumulativeAt } from "../ui/PhoneScreens";
 
-const Caption: React.FC<{ f: number; from: number; to: number; side: "left" | "right"; n?: string; title: string; sub?: string }> = ({ f, from, to, side, n, title, sub }) => {
+const Caption: React.FC<{ v: boolean; f: number; from: number; to: number; side: "left" | "right"; n?: string; title: string; sub?: string }> = ({ v, f, from, to, side, n, title, sub }) => {
   const p = tw(f, sec(from), sec(from) + 18, 0, 1, OUT) * (1 - tw(f, sec(to) - 14, sec(to), 0, 1));
   if (p <= 0) return null;
   return (
     <div
       style={{
         position: "absolute",
-        top: 430,
-        [side]: 90,
-        width: 340,
-        textAlign: side === "left" ? "left" : "right",
+        top: v ? 150 : 430,
+        ...(v ? { left: 60, right: 60, padding: "26px 34px", borderRadius: 32, background: "rgba(10,16,32,0.8)", border: `1.5px solid ${C.border}` } : { [side]: 90, width: 340 }),
+        textAlign: v ? "center" : side === "left" ? "left" : "right",
         opacity: p,
-        translate: `${(side === "left" ? -1 : 1) * (1 - p) * 40}px 0`,
+        translate: v ? `0 ${-(1 - p) * 40}px` : `${(side === "left" ? -1 : 1) * (1 - p) * 40}px 0`,
         fontFamily: SANS,
+        zIndex: 30,
       }}
     >
       {n && (
@@ -36,6 +37,7 @@ const Caption: React.FC<{ f: number; from: number; to: number; side: "left" | "r
 
 export const PhoneScene: React.FC = () => {
   const f = useCurrentFrame();
+  const { w, h, v } = useStage();
   const a = useTimings().A.telephone;
   const L = useCopy().phone;
   const S = (k: keyof typeof a) => sec(a[k]);
@@ -69,7 +71,7 @@ export const PhoneScene: React.FC = () => {
     <AbsoluteFill>
       <Backdrop />
       <AbsoluteFill style={{ perspective: 2600 }}>
-        <div style={{ position: "absolute", left: 960, top: 540, width: 0, height: 0, transform: `scale(${s}) translate(0px, ${-(fy - SH / 2)}px)` }}>
+        <div style={{ position: "absolute", left: w / 2, top: h / 2, width: 0, height: 0, transform: `scale(${s}) translate(0px, ${-(fy - SH / 2)}px)` }}>
           <div style={{ position: "absolute", left: -520, top: -520, width: 1040, height: 1040, borderRadius: "50%", background: `radial-gradient(circle, ${C.brand}40, transparent 62%)`, opacity: 0.8 * enter }} />
           <div style={{ transformStyle: "preserve-3d", transform: `rotateY(${rotY}deg) rotateX(${rotX}deg)`, opacity: enter, translate: `0 ${(1 - enter) * 70}px` }}>
             <PhoneFrame>
@@ -92,17 +94,17 @@ export const PhoneScene: React.FC = () => {
       </AbsoluteFill>
 
       {/* légendes en marge du téléphone (en français : elles redisent la voix off) */}
-      <Caption f={f} from={a.tapConnect - 0.4} to={a.tapGo - 0.1} side="left" n="1" title={L.c1[0]} sub={L.c1[1]} />
-      <Caption f={f} from={a.auth + 0.1} to={a.linking} side="left" n="2" title={L.c2[0]} sub={L.c2[1]} />
-      <Caption f={f} from={a.done + 0.3} to={a.tapDash - 0.2} side="left" n="3" title={L.c3[0]} sub={L.c3[1]} />
-      <Caption f={f} from={a.chart + 0.2} to={a.zoomOut + 0.4} side="left" title={L.c4[0]} sub={L.c4[1]} />
+      <Caption v={v} f={f} from={a.tapConnect - 0.4} to={a.tapGo - 0.1} side="left" n="1" title={L.c1[0]} sub={L.c1[1]} />
+      <Caption v={v} f={f} from={a.auth + 0.1} to={a.linking} side="left" n="2" title={L.c2[0]} sub={L.c2[1]} />
+      <Caption v={v} f={f} from={a.done + 0.3} to={a.tapDash - 0.2} side="left" n="3" title={L.c3[0]} sub={L.c3[1]} />
+      <Caption v={v} f={f} from={a.chart + 0.2} to={a.zoomOut + 0.4} side="left" title={L.c4[0]} sub={L.c4[1]} />
 
       {/* le PnL, en grand, à droite du téléphone pendant que la courbe monte */}
       {(() => {
         const o = tw(f, S("chart"), S("chart") + 16) * (1 - tw(f, S("zoomOut") + 6, S("zoomOut") + 24));
         if (o <= 0) return null;
         return (
-          <div style={{ position: "absolute", right: 90, top: 380, width: 480, textAlign: "right", opacity: o, translate: `${(1 - o) * 40}px 0`, fontFamily: SANS }}>
+          <div style={{ position: "absolute", ...(v ? { left: 0, right: 0, bottom: 330, textAlign: "center", zIndex: 30, textShadow: "0 6px 40px rgba(0,0,0,0.9)" } : { right: 90, top: 380, width: 480, textAlign: "right" }), opacity: o, translate: v ? `0 ${(1 - o) * 40}px` : `${(1 - o) * 40}px 0`, fontFamily: SANS }}>
             <div style={{ fontSize: 26, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: C.text2 }}>{L.pnl}</div>
             <div style={{ marginTop: 6, fontFamily: MONO, fontSize: 104, fontWeight: 700, letterSpacing: "-0.05em", color: C.pos, textShadow: `0 0 40px ${C.pos}66` }}>+{fmt(cum)}</div>
             <div style={{ fontFamily: MONO, fontSize: 40, fontWeight: 700, color: C.pos, opacity: 0.85 }}>EUR</div>

@@ -6,7 +6,7 @@ import { sec } from "./tokens";
 export type Lang = "fr" | "en";
 
 export type ChapterId =
-  | "matiere" | "typo" | "telephone" | "chemins" | "calques" | "cartes" | "parcours" | "chiffres" | "logo";
+  | "matiere" | "typo" | "telephone" | "chemins" | "calques" | "cartes" | "parcours" | "chiffres" | "journal" | "revue" | "installer" | "logo";
 
 export interface VoiceLine {
   id: string;
@@ -20,7 +20,10 @@ export interface VoiceLine {
 /** Recouvrement (en images) entre deux chapitres : fondu enchaîné doux. */
 export const OVERLAP = 9;
 
-const CHAPTERS: { id: ChapterId; from: number; dur: number }[] = [
+type Chapter = { id: ChapterId; from: number; dur: number };
+
+/** Chapitres EN : durées provisoires (la voix anglaise n'est pas encore là). */
+const CHAPTERS_EN: Chapter[] = [
   { id: "matiere", from: 0, dur: 5 },
   { id: "typo", from: 5, dur: 6 },
   { id: "telephone", from: 11, dur: 17 }, // chapitres 3 et 4 : un seul plan continu sur le téléphone
@@ -30,6 +33,18 @@ const CHAPTERS: { id: ChapterId; from: number; dur: number }[] = [
   { id: "parcours", from: 43, dur: 4 },
   { id: "chiffres", from: 47, dur: 3 },
   { id: "logo", from: 50, dur: 4 },
+];
+
+/** Chapitres FR (≈ 29,4 s) : 9 lignes de voix (ElevenLabs v4, silences rognés, jouées à 1,08×).  */
+const CHAPTERS_FR: Chapter[] = [
+  { id: "matiere", from: 0, dur: 2 }, // 1 : l'accroche
+  { id: "typo", from: 2, dur: 6.2 }, // 2 et 3 : pas de journal, Notion abandonné
+  { id: "telephone", from: 8.2, dur: 4.1 }, // 4 : cTrader, la courbe et le PnL en accéléré
+  { id: "chemins", from: 12.3, dur: 3 }, // 5 : MetaTrader
+  { id: "revue", from: 15.3, dur: 2.2 }, // 6 : revoir le trade sur le graphique TradingView
+  { id: "journal", from: 17.5, dur: 4.3 }, // 7 : courbe, PnL, erreurs — la fiche de trade (mock)
+  { id: "installer", from: 21.8, dur: 3.7 }, // 8 : installer l'app depuis le site
+  { id: "logo", from: 25.14, dur: 5.23 }, // 9 : Bull and Bear, le journal de trading fait pour toi
 ];
 
 // ── Ancres par chapitre (secondes locales) ──────────────────────────────────────────────────────────────────────────────
@@ -61,23 +76,47 @@ const ANCHORS = {
   cartes: { c1: 0.3, c2: 1.2, c3: 2.1, c4: 3.0 },
   parcours: { draw: 0.2, drawEnd: 3.0, label1: 0.6, label2: 1.4, label3: 2.2, label4: 3.0 },
   chiffres: { win: 0.2, pf: 0.7, dd: 1.2, strip: 1.7 },
-  logo: { b1: 0.1, b2: 0.5, name: 1.5, cta: 2.2 },
+  logo: { b1: 0.1, b2: 0.5, name: 1.5, tag: 2.0, cta: 2.7 },
+  // installer (PWA) : tap sur « Installer l'application », l'icône se pose sur l'écran d'accueil
+  installer: { tap: 0.9, home: 1.3, icon: 1.5, cap1: 0.2, cap2: 2.1 },
+  // revue (graphique TradingView du trade)
+  revue: { card: 0, candles: 0.1, candlesEnd: 1.3, entry: 0.8, exit: 1.3, tag: 1.7 },
+  // journal (version courte FR) : calé sur « Ta courbe. Ton PnL. Tes erreurs. Enfin, tu vois tout. »
+  journal: { card: 0, curve: 0.1, curveEnd: 1.0, pnl: 1.0, pnlEnd: 1.8, setup: 1.2, emo: 1.9, note: 2.3, noteEnd: 3.7, tag: 2.7, all: 3.0 },
 };
 export type Anchors = typeof ANCHORS;
+
+/** Ancres FR : celles de la version longue, resserrées chapitre par chapitre (facteur sur les secondes locales). */
+const squeeze = (k: Partial<Record<keyof Anchors, number>>): Anchors => {
+  const out: Record<string, Record<string, number>> = {};
+  for (const [id, anchors] of Object.entries(ANCHORS)) {
+    const f = k[id as keyof Anchors] ?? 1;
+    out[id] = Object.fromEntries(Object.entries(anchors).map(([n, v]) => [n, +(v * f).toFixed(2)]));
+  }
+  return out as Anchors;
+};
+const ANCHORS_FR: Anchors = {
+  ...squeeze({ matiere: 0.6, telephone: 0.25, chemins: 0.55 }),
+  // logo : « Bull and Bear » (0 s) · « Le journal de trading fait pour toi » (≈ 1,3 s) · « Commence gratuitement » (≈ 3,3 s)
+  logo: { b1: 0.1, b2: 0.4, name: 0.8, tag: 1.4, cta: 3.3 },
+  // typo : « Pas de journal » (ligne 2), « Notion » (ligne 3 à 2,5 s), « t'as arrêté », puis « pourquoi ? »
+  typo: { l1: 0.2, l2: 2.5, l3: 4.0, why: 5.2 },
+  // revue : les bougies se posent pendant « Revois chaque trade… », l'entrée puis la sortie
+  revue: { card: 0, candles: 0.1, candlesEnd: 1.1, entry: 0.7, exit: 1.1, tag: 1.5 },
+};
 
 // ── Voix off : `text` = ce qu'affichent les sous-titres (orthographe réelle). Les fichiers VOIX-OFF*.txt, eux, sont écrits pour la prononciation ElevenLabs.
 // Une ligne par chapitre (un fichier ElevenLabs chacune : public/voix/NN.mp3 en français, public/voix-en/NN.mp3 en anglais)
 const VOICE_FR: VoiceLine[] = [
-  { id: "01", at: 0.3, text: "Chaque trade a quelque chose à vous apprendre." },
-  { id: "02", at: 5.3, text: "Mais sans journal, vous refaites les mêmes erreurs. Les mêmes pertes. Sans jamais savoir pourquoi." },
-  { id: "03", at: 11.3, text: "Alors faisons simple. Connectez votre compte cTrader, en quelques clics. Vos trades se synchronisent tout seuls." },
-  { id: "04", at: 20.3, text: "Plus de saisie. Plus d'oubli. Juste votre courbe, et votre PnL, qui racontent enfin toute l'histoire." },
-  { id: "05", at: 28.3, text: "Sur MetaTrader ? Exportez votre historique, glissez le fichier. Les doublons sont écartés pour vous." },
-  { id: "06", at: 33.3, text: "Dans Bull & Bear, tout est au même endroit : performances, calendrier, statistiques." },
-  { id: "07", at: 38.3, text: "Notez vos setups, vos émotions, vos erreurs. Revoyez chaque graphique, tel qu'il était." },
-  { id: "08", at: 43.3, text: "Trade après trade, vous gagnez en discipline." },
-  { id: "09", at: 47.3, text: "Des chiffres clairs. Pour décider mieux." },
-  { id: "10", at: 50.3, text: "Bull & Bear. Le journal qui vous aide à devenir plus rentable. Commencez gratuitement." },
+  { id: "01", at: 0.15, dur: 1.84, text: "T'as encore cramé un compte, pas vrai ?" },
+  { id: "02", at: 2.11, dur: 2.3, text: "Pas de journal. Et tu t'étonnes de perdre ?" },
+  { id: "03", at: 4.53, dur: 3.59, text: "Notion ? T'as essayé. T'as arrêté au bout d'une semaine." },
+  { id: "04", at: 8.24, dur: 3.99, text: "Avec Bull & Bear, branche cTrader : tes trades arrivent tout seuls." },
+  { id: "05", at: 12.35, dur: 2.82, text: "Sur MetaTrader ? Glisse ton fichier. C'est fait." },
+  { id: "06", at: 15.29, dur: 2.12, text: "Revois chaque trade sur le graphique TradingView." },
+  { id: "07", at: 17.53, dur: 4.17, text: "Ta courbe. Ton PnL. Tes erreurs. Enfin, tu vois tout." },
+  { id: "08", at: 21.82, dur: 3.25, text: "Installe l'appli depuis le site : ton journal te suit partout." },
+  { id: "09", at: 25.19, dur: 4.73, text: "Bull & Bear. Le journal de trading fait pour toi. Commence gratuitement." },
 ];
 
 const VOICE_EN: VoiceLine[] = [
@@ -93,13 +132,13 @@ const VOICE_EN: VoiceLine[] = [
   { id: "10", at: 50.3, text: "Bull & Bear. The journal that helps you become a more profitable trader. Get started for free." },
 ];
 
-const build = (voice: VoiceLine[]) => {
+const build = (CHAPTERS: Chapter[], A: Anchors, voice: VoiceLine[]) => {
   const last = CHAPTERS[CHAPTERS.length - 1];
   const totalSec = last.from + last.dur;
-  return { chapters: CHAPTERS, A: ANCHORS, voice, totalSec, totalFrames: sec(totalSec) };
+  return { chapters: CHAPTERS, A, voice, totalSec, totalFrames: sec(totalSec) };
 };
 
-export const TIMINGS: Record<Lang, ReturnType<typeof build>> = { fr: build(VOICE_FR), en: build(VOICE_EN) };
+export const TIMINGS: Record<Lang, ReturnType<typeof build>> = { fr: build(CHAPTERS_FR, ANCHORS_FR, VOICE_FR), en: build(CHAPTERS_EN, ANCHORS, VOICE_EN) };
 
 /** Début d'un chapitre, en secondes. */
 export const chapterStart = (lang: Lang, id: ChapterId) => TIMINGS[lang].chapters.find((c) => c.id === id)!.from;

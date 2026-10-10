@@ -1,14 +1,13 @@
 // Chapitre 1 : une matière qui bouge (un sable de bougies japonaises) puis le titre « Tradez. Analysez. Grandissez. »
 import React from "react";
 import { AbsoluteFill, interpolate, useCurrentFrame } from "remotion";
-import { C, SANS, W, H, sec } from "../tokens";
+import { C, SANS, sec } from "../tokens";
+import { useStage } from "../stage";
 import { useTimings, useCopy } from "../lang";
 import { OUT, INOUT, tw, rand } from "../motion";
 import { Backdrop } from "../ui/Backdrop";
 
 const N = 118;
-const PITCH = W / N;
-const BASE = 890;
 const SCALE = 150;
 
 const mix = (a: [number, number, number], b: [number, number, number], t: number) =>
@@ -49,6 +48,9 @@ export const Matter: React.FC = () => {
   const f = useCurrentFrame();
   const a = useTimings().A.matiere;
   const L = useCopy().matter;
+  const { w: W, h: H, v } = useStage();
+  const PITCH = W / N;
+  const BASE = v ? 1500 : 890;
 
   const candles = [];
   for (let i = 0; i < N; i++) {
@@ -103,8 +105,8 @@ export const Matter: React.FC = () => {
             position: "absolute",
             width: s.s,
             height: s.s,
-            left: s.x - s.s / 2 + Math.sin(f / 70 + s.p) * 90,
-            top: s.y - s.s / 2 + Math.cos(f / 85 + s.p) * 60,
+            left: s.x * (W / 1920) - s.s / 2 + Math.sin(f / 70 + s.p) * 90,
+            top: s.y * (H / 1080) - s.s / 2 + Math.cos(f / 85 + s.p) * 60,
             borderRadius: "50%",
             background: `radial-gradient(circle, ${s.c} 0%, transparent 65%)`,
             opacity: s.o * tw(f, 0, 40, 0, 1),
@@ -115,7 +117,7 @@ export const Matter: React.FC = () => {
 
       <svg width={W} height={H} style={{ position: "absolute", inset: 0 }}>
         {[0, 1, 2, 3].map((k) => (
-          <line key={k} x1={0} x2={W} y1={700 + k * 110} y2={700 + k * 110} stroke={C.border} strokeOpacity={0.22} strokeWidth={1} />
+          <line key={k} x1={0} x2={W} y1={BASE - 190 + k * 110} y2={BASE - 190 + k * 110} stroke={C.border} strokeOpacity={0.22} strokeWidth={1} />
         ))}
         {candles}
         <path
@@ -132,10 +134,10 @@ export const Matter: React.FC = () => {
         />
       </svg>
 
-      <AbsoluteFill style={{ alignItems: "center", paddingTop: 150 }}>
-        <div style={{ fontFamily: SANS, fontWeight: 800, fontSize: 172, lineHeight: 1.04, letterSpacing: "-0.045em", textAlign: "center", color: C.text }}>
+      <AbsoluteFill style={{ alignItems: "center", paddingTop: v ? 300 : 150 }}>
+        <div style={{ fontFamily: SANS, fontWeight: 800, fontSize: v ? 118 : 172, lineHeight: 1.04, letterSpacing: "-0.045em", textAlign: "center", color: C.text }}>
           <div>
-            <Word at={sec(a.w1)}>{L.l1a}</Word> <Word at={sec(a.w2)}>{L.l1b}</Word>
+            <Word at={sec(a.w1)}>{L.l1a}</Word>{v ? <br /> : " "}<Word at={sec(a.w2)}>{L.l1b}</Word>
           </div>
           <div>
             <Word

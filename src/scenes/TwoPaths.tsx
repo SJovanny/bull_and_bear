@@ -8,6 +8,7 @@ import { OUT, INOUT, tw } from "../motion";
 import { TRADES } from "../data";
 import { Backdrop } from "../ui/Backdrop";
 import { Tap } from "../ui/Phone";
+import { useStage } from "../stage";
 
 const ROWS = [
   { sym: "EURUSD", net: "+48,00", dup: false },
@@ -21,16 +22,16 @@ const Pill: React.FC<{ color: string; children: React.ReactNode }> = ({ color, c
   <span style={{ fontFamily: SANS, fontSize: 19, fontWeight: 700, color, background: `${color}22`, borderRadius: 999, padding: "5px 14px" }}>{children}</span>
 );
 
-const Panel: React.FC<{ x: number; at: number; f: number; name: string; tag: string; tagColor: string; children: React.ReactNode; dim: number }> = ({ x, at, f, name, tag, tagColor, children, dim }) => {
+const Panel: React.FC<{ v: boolean; x: number; y: number; at: number; f: number; name: string; tag: string; tagColor: string; children: React.ReactNode; dim: number }> = ({ v, x, y, at, f, name, tag, tagColor, children, dim }) => {
   const p = tw(f, at, at + 24, 0, 1, OUT);
   return (
     <div
       style={{
         position: "absolute",
         left: x,
-        top: 118,
-        width: 790,
-        height: 800,
+        top: y,
+        width: v ? 960 : 790,
+        height: v ? 740 : 800,
         borderRadius: 32,
         background: `linear-gradient(180deg, ${C.surface1}, ${C.bg})`,
         border: `1.5px solid ${C.border}`,
@@ -54,6 +55,7 @@ const Panel: React.FC<{ x: number; at: number; f: number; name: string; tag: str
 
 export const TwoPaths: React.FC = () => {
   const f = useCurrentFrame();
+  const { v } = useStage();
   const a = useTimings().A.chemins;
   const L = useCopy().paths;
   const merge = tw(f, sec(a.merge), sec(a.merge) + 30, 0, 1, INOUT);
@@ -72,7 +74,7 @@ export const TwoPaths: React.FC = () => {
   return (
     <AbsoluteFill>
       <Backdrop />
-      <Panel x={110} at={sec(a.left)} f={f} name="cTrader" tag={L.autoTag} tagColor={C.pos} dim={merge}>
+      <Panel v={v} x={v ? 60 : 110} y={v ? 80 : 118} at={sec(a.left)} f={f} name="cTrader" tag={L.autoTag} tagColor={C.pos} dim={merge}>
         <div style={{ marginTop: 26, display: "flex", alignItems: "center", gap: 22 }}>
           <div style={{ width: 96, height: 96, borderRadius: 28, background: `${C.brand}1f`, border: `1.5px solid ${C.brand}66`, display: "flex", alignItems: "center", justifyContent: "center" }}>
             <svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke={C.brand} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ rotate: `${spin}deg` }}>
@@ -105,7 +107,7 @@ export const TwoPaths: React.FC = () => {
         </div>
       </Panel>
 
-      <Panel x={1020} at={sec(a.right)} f={f} name="MetaTrader" tag={L.oneClickTag} tagColor={C.brand} dim={merge}>
+      <Panel v={v} x={v ? 60 : 1020} y={v ? 835 : 118} at={sec(a.right)} f={f} name="MetaTrader" tag={L.oneClickTag} tagColor={C.brand} dim={merge}>
         <div style={{ position: "relative" }}>
           <div style={{ marginTop: 22, display: "flex", gap: 14, alignItems: "center" }}>
             <div style={{ fontSize: 24, color: C.text2, fontWeight: 600 }}>Source</div>
@@ -153,7 +155,7 @@ export const TwoPaths: React.FC = () => {
 
       {/* fusion : même journal, mêmes statistiques */}
       <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", opacity: merge, translate: `0 ${(1 - merge) * 30}px` }}>
-        <div style={{ fontFamily: SANS, fontWeight: 800, fontSize: 112, letterSpacing: "-0.045em", textAlign: "center", color: C.text, lineHeight: 1.05, textShadow: "0 10px 60px rgba(0,0,0,0.7)" }}>
+        <div style={{ fontFamily: SANS, fontWeight: 800, fontSize: v ? 92 : 112, letterSpacing: "-0.045em", textAlign: "center", color: C.text, lineHeight: 1.05, textShadow: "0 10px 60px rgba(0,0,0,0.7)" }}>
           {L.one}
           <div style={{ background: `linear-gradient(90deg, ${C.brand}, ${C.teal})`, WebkitBackgroundClip: "text", color: "transparent" }}>{L.same}</div>
         </div>

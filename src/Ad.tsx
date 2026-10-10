@@ -6,6 +6,7 @@ import { COPY } from "./copy";
 import { LangProvider } from "./lang";
 import { tw } from "./motion";
 import { Subtitles } from "./Subtitles";
+import { useStage } from "./stage";
 import { Matter } from "./scenes/Matter";
 import { Kinetic } from "./scenes/Kinetic";
 import { PhoneScene } from "./scenes/PhoneScene";
@@ -14,6 +15,9 @@ import { Layers3D } from "./scenes/Layers3D";
 import { Cards } from "./scenes/Cards";
 import { Route } from "./scenes/Route";
 import { Numbers } from "./scenes/Numbers";
+import { Journal } from "./scenes/Journal";
+import { ChartReview } from "./scenes/ChartReview";
+import { Install } from "./scenes/Install";
 import { LogoEnd } from "./scenes/LogoEnd";
 
 const SCENES: Record<ChapterId, React.FC> = {
@@ -25,6 +29,9 @@ const SCENES: Record<ChapterId, React.FC> = {
   cartes: Cards,
   parcours: Route,
   chiffres: Numbers,
+  journal: Journal,
+  revue: ChartReview,
+  installer: Install,
   logo: LogoEnd,
 };
 
@@ -38,11 +45,12 @@ const Fade: React.FC<{ dur: number; first: boolean; last: boolean; children: Rea
 /** Mention sur les chiffres de démonstration : du chapitre 5 au chapitre 9 (le logo final porte la sienne). */
 const Legal: React.FC<{ lang: Lang }> = ({ lang }) => {
   const f = useCurrentFrame();
-  const from = chapterStart(lang, "chemins") - 0.4;
+  const { v } = useStage();
+  const from = chapterStart(lang, lang === "fr" ? "telephone" : "chemins") - 0.4;
   const to = chapterStart(lang, "logo") - 0.6;
   const o = tw(f, sec(from), sec(from + 0.6)) * (1 - tw(f, sec(to - 0.5), sec(to)));
   return (
-    <div style={{ position: "absolute", left: 0, right: 0, bottom: 26, textAlign: "center", fontFamily: SANS, fontSize: 19, color: C.text2, opacity: o * 0.8 }}>
+    <div style={{ position: "absolute", left: v ? 50 : 0, right: v ? 50 : 0, bottom: v ? 170 : 26, textAlign: "center", fontFamily: SANS, fontSize: v ? 20 : 19, color: C.text2, opacity: o * 0.8 }}>
       {COPY[lang].legal}
     </div>
   );
