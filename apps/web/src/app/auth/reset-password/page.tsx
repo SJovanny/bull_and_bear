@@ -8,6 +8,9 @@ import { useEffect, useState } from "react";
 import { supabaseClient } from "@/lib/supabase/client";
 import { useTranslation } from "@/lib/i18n/context";
 
+// Captured at module load, before the Supabase client can strip the fragment.
+const INITIAL_HASH = typeof window !== "undefined" ? window.location.hash : "";
+
 export default function ResetPasswordPage() {
   const router = useRouter();
   const { t } = useTranslation();
@@ -35,6 +38,30 @@ export default function ResetPasswordPage() {
       },
     );
 
+    // Invitation / recovery links carry their tokens in the URL fragment. The
+    // browser client runs in PKCE mode and refuses implicit-flow fragments
+    // ("Not a valid PKCE flow url"), so we create the session ourselves.
+    const hash = new URLSearchParams(INITIAL_HASH.replace(/^#/, ""));
+    const accessToken = hash.get("access_token");
+    const refreshToken = hash.get("refresh_token");
+    if (accessToken && refreshToken) {
+      supabaseClient.auth.setSession({ access_token: accessToken, refresh_token: refreshToken }).then(({ data, error: sessionErr }) => {
+        if (sessionErr || !data.session) {
+          setSessionError(sessionErr?.message ?? t("auth.resetPassword.linkExpired"));
+          return;
+        }
+        setIsInvite(hash.get("type") === "invite");
+        setReady(true);
+        // Remove the tokens from the address bar
+        window.history.replaceState({}, "", window.location.pathname + window.location.search);
+      });
+    }
+    const hashError = hash.get("error_description");
+    if (hashError) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSessionError(hashError.replace(/\+/g, " "));
+    }
+
     // Also check if there's already a session (e.g. the event already fired
     // before the listener was registered)
     supabaseClient.auth.getSession().then(({ data: { session } }) => {
@@ -51,7 +78,6 @@ export default function ResetPasswordPage() {
     const params = new URLSearchParams(window.location.search);
     const errorDesc = params.get("error_description");
     if (errorDesc) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSessionError(errorDesc);
     }
 
