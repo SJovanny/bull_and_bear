@@ -31,6 +31,7 @@ function FeatureImage({
   const [currentSrc, setCurrentSrc] = useState(src);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCurrentSrc(src);
   }, [src]);
 

@@ -302,6 +302,7 @@ export function TradeEntryModal({
       return;
     }
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCurrentStep(1);
     setError(null);
 
@@ -421,6 +422,7 @@ export function TradeEntryModal({
       return;
     }
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setContractMultiplier(String(suggestedMultiplier(assetClass, symbol)));
   }, [assetClass, symbol, multiplierTouched]);
 

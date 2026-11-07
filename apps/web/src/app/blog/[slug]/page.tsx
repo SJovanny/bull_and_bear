@@ -15,7 +15,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const post = getPostBySlug(slug);
-  if (!post) return {};
+  if (!post) return { robots: { index: false, follow: false } };
 
   return {
     title: post.title,
@@ -23,18 +23,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     keywords: post.keywords,
     authors: [{ name: post.author }],
     alternates: {
-      canonical: `https://bullandbear.pro/blog/${post.slug}`,
+      canonical: `https://www.bullandbear.pro/blog/${post.slug}`,
     },
     openGraph: {
+      siteName: "Bull & Bear",
       title: post.title,
       description: post.description,
-      url: `https://bullandbear.pro/blog/${post.slug}`,
+      url: `https://www.bullandbear.pro/blog/${post.slug}`,
       type: "article",
       publishedTime: post.publishedAt,
       authors: [post.author],
       images: [
         {
-          url: "/og-image.png",
+          url: "https://www.bullandbear.pro/og-image.png",
           width: 1200,
           height: 630,
           alt: post.title,
@@ -45,6 +46,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       card: "summary_large_image",
       title: post.title,
       description: post.description,
+      images: ["https://www.bullandbear.pro/og-image.png"],
     },
   };
 }
@@ -59,29 +61,23 @@ export default async function ArticlePage({ params }: Props) {
   const articleSchema = {
     "@context": "https://schema.org",
     "@type": "Article",
+    "@id": `https://www.bullandbear.pro/blog/${post.slug}#article`,
     headline: post.title,
     description: post.description,
+    // post.author is always "Bull & Bear Team" — reference the canonical Organization entity
     author: {
-      "@type": "Organization",
-      name: post.author,
-      url: "https://bullandbear.pro",
+      "@id": "https://www.bullandbear.pro/#organization",
     },
     publisher: {
-      "@type": "Organization",
-      name: "Bull & Bear",
-      url: "https://bullandbear.pro",
-      logo: {
-        "@type": "ImageObject",
-        url: "https://bullandbear.pro/BB_logo.png",
-      },
+      "@id": "https://www.bullandbear.pro/#organization",
     },
     datePublished: post.publishedAt,
     dateModified: post.publishedAt,
-    url: `https://bullandbear.pro/blog/${post.slug}`,
-    image: "https://bullandbear.pro/og-image.png",
+    url: `https://www.bullandbear.pro/blog/${post.slug}`,
+    image: "https://www.bullandbear.pro/og-image.png",
     mainEntityOfPage: {
       "@type": "WebPage",
-      "@id": `https://bullandbear.pro/blog/${post.slug}`,
+      "@id": `https://www.bullandbear.pro/blog/${post.slug}`,
     },
   };
 

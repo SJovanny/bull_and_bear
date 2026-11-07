@@ -11,7 +11,9 @@ import { NextResponse } from "next/server";
 import { verifyAccountOwnership, withAuth } from "@/lib/api";
 
 const CTRADER_CLIENT_ID = process.env.CTRADER_CLIENT_ID ?? "";
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? process.env.VERCEL_URL ?? "http://localhost:3000";
+const APP_URL =
+  process.env.NEXT_PUBLIC_APP_URL ??
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
 
 export const GET = withAuth(async (request, { user }) => {
   const { searchParams } = new URL(request.url);

@@ -4,7 +4,14 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import Image from "next/image";
-import HCaptcha from "@hcaptcha/react-hcaptcha";
+import dynamic from "next/dynamic";
+import type HCaptchaType from "@hcaptcha/react-hcaptcha";
+
+// next/dynamic's wrapper type drops the `ref` prop; at runtime (React 19) the
+// ref is forwarded to the loaded component, so restore the original typing.
+const HCaptcha = dynamic(() => import("@hcaptcha/react-hcaptcha"), {
+  ssr: false,
+}) as unknown as typeof HCaptchaType;
 
 import { supabaseClient } from "@/lib/supabase/client";
 import { sanitizeRedirectPath } from "@/lib/validation";
@@ -19,7 +26,7 @@ export default function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
-  const captchaRef = useRef<HCaptcha>(null);
+  const captchaRef = useRef<HCaptchaType>(null);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();

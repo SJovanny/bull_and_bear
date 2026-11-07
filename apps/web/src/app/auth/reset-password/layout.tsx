@@ -1,6 +1,7 @@
 ﻿import type { Metadata } from "next";
 
 export const metadata: Metadata = {
+  title: "Reset Password — Bull & Bear",
   robots: { index: false, follow: false },
 };
 

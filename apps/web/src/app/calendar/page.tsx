@@ -230,11 +230,13 @@ function CalendarPageContent() {
   }, [tradesEndpoint]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadTrades();
   }, [loadTrades]);
 
   // Reset board page when month or filters change
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setBoardPage(1);
   }, [currentMonth, boardSearch, boardDateFrom, boardDateTo]);
 

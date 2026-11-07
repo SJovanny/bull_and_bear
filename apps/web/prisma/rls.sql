@@ -65,3 +65,7 @@ CREATE POLICY "Users can update own journals"
 CREATE POLICY "Users can delete own journals"
   ON "DailyJournal" FOR DELETE
   USING ("userId" = auth.uid()::text);
+
+-- Push subscriptions hold device keys: RLS on with no policies = no access via
+-- the Supabase anon/authenticated API (the app uses Prisma, which bypasses RLS).
+ALTER TABLE "PushSubscription" ENABLE ROW LEVEL SECURITY;

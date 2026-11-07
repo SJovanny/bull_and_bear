@@ -20,6 +20,7 @@ export const GET = withAuth(async (_request, { user }) => {
     country: user.country,
     language: user.language,
     timezone: user.timezone,
+    journalReminderEnabled: user.journalReminderEnabled,
     createdAt: user.createdAt,
     isAdmin: user.isAdmin,
     subscriptionStatus: user.subscriptionStatus,
@@ -39,6 +40,7 @@ const profileUpdateSchema = z.object({
   country: z.string().max(100).optional(),
   language: z.enum(["fr", "en"]).optional(),
   timezone: z.string().max(100).optional(),
+  journalReminderEnabled: z.boolean().optional(),
 });
 
 export const PATCH = withAuth(async (request, { user }) => {
@@ -50,7 +52,10 @@ export const PATCH = withAuth(async (request, { user }) => {
     return safeErrorResponse("Invalid request body", 400);
   }
 
-  const { displayName, firstName, lastName, country, language, timezone } = parsed.data;
+  const {
+    displayName, firstName, lastName, country, language, timezone,
+    journalReminderEnabled,
+  } = parsed.data;
 
   const updated = await prisma.user.update({
     where: { id: user.id },
@@ -61,6 +66,7 @@ export const PATCH = withAuth(async (request, { user }) => {
       ...(country !== undefined && { country }),
       ...(language !== undefined && { language }),
       ...(timezone !== undefined && { timezone }),
+      ...(journalReminderEnabled !== undefined && { journalReminderEnabled }),
     },
   });
 
@@ -70,6 +76,7 @@ export const PATCH = withAuth(async (request, { user }) => {
       email: updated.email,
       displayName: updated.displayName,
       timezone: updated.timezone,
+      journalReminderEnabled: updated.journalReminderEnabled,
       createdAt: updated.createdAt,
     },
   });

@@ -11,6 +11,7 @@ export function ThemeToggle({ isCollapsed = false }: { isCollapsed?: boolean }) 
   useEffect(() => {
     const savedTheme = localStorage.getItem("bb_theme") as "light" | "dark" | null;
     const initial = savedTheme === "dark" ? "dark" : "light";
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setTheme(initial);
     document.documentElement.setAttribute("data-theme", initial);
     setMounted(true);

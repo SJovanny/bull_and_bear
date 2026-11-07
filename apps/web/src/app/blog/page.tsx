@@ -15,20 +15,22 @@ export const metadata: Metadata = {
     "trading performance guides",
     "cTrader journal guide",
   ],
-  alternates: { canonical: "https://bullandbear.pro/blog" },
+  alternates: { canonical: "https://www.bullandbear.pro/blog" },
   openGraph: {
+    type: "website",
+    siteName: "Bull & Bear",
     title: "Blog — Trading Journal Tips, Guides & Performance Insights",
     description:
       "Practical guides on how to journal your trades, analyze your performance, and become a more consistent trader. From the Bull & Bear team.",
-    url: "https://bullandbear.pro/blog",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Bull & Bear Blog" }],
+    url: "https://www.bullandbear.pro/blog",
+    images: [{ url: "https://www.bullandbear.pro/og-image.png", width: 1200, height: 630, alt: "Bull & Bear Blog" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Blog — Trading Journal Guides · Bull & Bear",
     description:
       "Practical guides on how to journal your trades, analyze your performance, and become a more consistent trader.",
-    images: ["/og-image.png"],
+    images: ["https://www.bullandbear.pro/og-image.png"],
   },
 };
 

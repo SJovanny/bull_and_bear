@@ -8,6 +8,7 @@ import { TrendingUp, TrendingDown, BarChart3, Zap, Shield, LineChart, Calendar, 
 
 import { AnimatedChartBackground } from "@/components/landing/animated-chart-background";
 import { ScrollReveal, StaggerContainer, StaggerItem } from "@/components/landing/scroll-reveal";
+import { InstallAppSection } from "@/components/landing/install-app-section";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { SiteFooter } from "@/components/site-footer";
 import { useTranslation } from "@/lib/i18n/context";
@@ -295,12 +296,11 @@ export default function LandingPage() {
       {/* Stats Bar */}
       <section className="relative z-10 border-y border-slate-200 bg-slate-50/80 backdrop-blur-xl">
         <div className="mx-auto max-w-[1400px] px-4 py-20 sm:px-6 lg:px-10">
-          <StaggerContainer className="grid grid-cols-2 gap-10 md:grid-cols-4">
+          <StaggerContainer className="grid grid-cols-1 gap-10 md:grid-cols-3 justify-items-center">
             {[
-              { value: "50K+", label: t("landing.stats.tradesAnalyzed") },
-              { value: "1,200+", label: t("landing.stats.tradersOnboard") },
-              { value: "5+", label: t("landing.stats.brokersIntegrated") },
-              { value: "1M+", label: t("landing.stats.dataPoints") },
+              { value: "2", label: t("landing.stats.platformsSupported") },
+              { value: "3×", label: t("landing.stats.importMethods") },
+              { value: "€2.99", label: t("landing.stats.startingFrom") },
             ].map((stat) => (
               <StaggerItem key={stat.label} className="text-center">
                 <div className="text-4xl font-bold text-blue-600 sm:text-5xl">{stat.value}</div>
@@ -331,7 +331,7 @@ export default function LandingPage() {
           <ScrollReveal delay={0.15} className="mx-auto mt-12 max-w-2xl">
             <div className="relative rounded-2xl border border-slate-200 bg-white/60 px-8 py-7 shadow-sm backdrop-blur-sm">
               {/* decorative quote mark */}
-              <span className="absolute -top-5 left-6 text-7xl font-serif leading-none text-slate-200 select-none">"</span>
+              <span className="absolute -top-5 left-6 text-7xl font-serif leading-none text-slate-200 select-none">&ldquo;</span>
               <p className="relative text-center text-xl font-semibold leading-relaxed text-slate-800 sm:text-2xl">
                 {t("landing.about.hook")}
               </p>
@@ -695,32 +695,67 @@ export default function LandingPage() {
             </p>
           </ScrollReveal>
 
-            <StaggerContainer className="mt-20 flex flex-col items-center justify-center gap-16 sm:flex-row sm:gap-28">
+            <StaggerContainer className="mt-20 flex flex-col items-center justify-center gap-10 sm:flex-row sm:items-stretch sm:gap-10">
+            {/* cTrader Card */}
             <StaggerItem>
-              <div className="group flex h-48 w-48 items-center justify-center rounded-3xl border border-slate-200 bg-slate-50 p-6 transition-all duration-300 hover:border-blue-300 hover:bg-slate-100 sm:h-64 sm:w-64 sm:p-8">
-                <Image
-                  src="https://res.cloudinary.com/ddvabefhf/image/upload/v1773439524/mt5_i8o5cc.jpg"
-                  alt="MetaTrader"
-                  width={160}
-                  height={160}
-                  className="h-full w-full object-contain"
-                />
+              <div className="group flex w-full max-w-sm flex-col items-center rounded-3xl border border-slate-200 bg-slate-50 p-8 transition-all duration-300 hover:border-blue-300 hover:bg-slate-100 sm:w-80">
+                <div className="flex h-32 w-full items-center justify-center rounded-2xl bg-white p-4 shadow-sm">
+                  <Image
+                    src="https://res.cloudinary.com/ddvabefhf/image/upload/v1773440476/ctrader_logo_full_pwcbdz.png"
+                    alt="cTrader"
+                    width={160}
+                    height={80}
+                    className="h-full w-full object-contain"
+                  />
+                </div>
+                <div className="mt-5 text-center">
+                  <span className="inline-block rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-blue-600">Auto-Sync</span>
+                  <p className="mt-3 text-sm text-slate-600">Automatically sync your cTrader trading account to your journal — no manual exports needed.</p>
+                </div>
+                <div className="mt-6 flex items-center gap-2 rounded-lg border border-blue-300 bg-white px-4 py-2 text-sm font-medium text-blue-600 shadow-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 2v6h-6" />
+                    <path d="M3 12a9 9 0 0 1 15-6.7L21 8" />
+                    <path d="M3 22v-6h6" />
+                    <path d="M21 12a9 9 0 0 1-15 6.7L3 16" />
+                  </svg>
+                  Sync Account
+                </div>
               </div>
             </StaggerItem>
+
+            {/* MetaTrader Card */}
             <StaggerItem>
-              <div className="group flex h-48 w-48 items-center justify-center rounded-3xl border border-slate-200 bg-slate-50 p-6 transition-all duration-300 hover:border-blue-300 hover:bg-slate-100 sm:h-64 sm:w-64 sm:p-8">
-                <Image
-                  src="https://res.cloudinary.com/ddvabefhf/image/upload/v1773440476/ctrader_logo_full_pwcbdz.png"
-                  alt="cTrader"
-                  width={160}
-                  height={160}
-                  className="h-full w-full object-contain"
-                />
+              <div className="group flex w-full max-w-sm flex-col items-center rounded-3xl border border-slate-200 bg-slate-50 p-8 transition-all duration-300 hover:border-blue-300 hover:bg-slate-100 sm:w-80">
+                <div className="flex h-32 w-full items-center justify-center rounded-2xl bg-white p-4 shadow-sm">
+                  <Image
+                    src="https://res.cloudinary.com/ddvabefhf/image/upload/v1773439524/mt5_i8o5cc.jpg"
+                    alt="MetaTrader"
+                    width={160}
+                    height={80}
+                    className="h-full w-full object-contain"
+                  />
+                </div>
+                <div className="mt-5 text-center">
+                  <span className="inline-block rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-emerald-600">File Import</span>
+                  <p className="mt-3 text-sm text-slate-600">Import your MetaTrader trade history files directly into your journal with automatic duplicate detection.</p>
+                </div>
+                <div className="mt-6 flex items-center gap-2 rounded-lg border border-emerald-300 bg-white px-4 py-2 text-sm font-medium text-emerald-600 shadow-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="17 8 12 3 7 8" />
+                    <line x1="12" y1="3" x2="12" y2="15" />
+                  </svg>
+                  Import File
+                </div>
               </div>
             </StaggerItem>
           </StaggerContainer>
         </div>
       </section>
+
+      {/* Install as app (PWA) */}
+      <InstallAppSection />
 
       {/* CTA Section */}
       <section className="relative z-10 px-4 py-32 sm:px-6 lg:px-10 lg:py-40">

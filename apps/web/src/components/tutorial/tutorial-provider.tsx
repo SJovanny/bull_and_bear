@@ -46,6 +46,7 @@ export function TutorialProvider({ page, steps, tutorialCompleted, onCompleted }
   }, [setActivePage]);
 
   const handleEvent = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async (data: EventData, _controls: Controls) => {
       const { status } = data;
 

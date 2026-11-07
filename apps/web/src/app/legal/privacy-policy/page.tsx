@@ -6,20 +6,22 @@ export const metadata: Metadata = {
   title: "Privacy Policy — Data Protection & GDPR · Bull & Bear",
   description:
     "How Bull & Bear collects, uses, and protects your personal data in compliance with GDPR. No advertising cookies, no data selling. Hosted in the EU. You can delete your account at any time.",
-  alternates: { canonical: "https://bullandbear.pro/legal/privacy-policy" },
+  alternates: { canonical: "https://www.bullandbear.pro/legal/privacy-policy" },
   openGraph: {
+    type: "website",
+    siteName: "Bull & Bear",
     title: "Privacy Policy — Data Protection & GDPR · Bull & Bear",
     description:
       "How Bull & Bear collects, uses, and protects your personal data. GDPR compliant, no advertising cookies, no data selling.",
-    url: "https://bullandbear.pro/legal/privacy-policy",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Bull & Bear - Privacy Policy" }],
+    url: "https://www.bullandbear.pro/legal/privacy-policy",
+    images: [{ url: "https://www.bullandbear.pro/og-image.png", width: 1200, height: 630, alt: "Bull & Bear - Privacy Policy" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Privacy Policy — Bull & Bear",
     description:
       "How Bull & Bear protects your personal data. GDPR compliant, no advertising cookies, no data selling.",
-    images: ["/og-image.png"],
+    images: ["https://www.bullandbear.pro/og-image.png"],
   },
 };
 
@@ -42,7 +44,7 @@ const FR = (
     <h2 id="controller">1. Responsable du traitement</h2>
     <p>
       Bull &amp; Bear est un journal de trading en ligne édité par <strong>Bull &amp; Bear</strong>,
-      situé à <strong>Strasbourg, France</strong>.
+      situé à <strong>Bas-Rhin, France</strong>.
     </p>
     <p>
       Pour toute question relative à la protection de vos données :{" "}
@@ -180,7 +182,7 @@ const EN = (
     <h2 id="controller">1. Data Controller</h2>
     <p>
       Bull &amp; Bear is an online trading journal published by <strong>Bull &amp; Bear</strong>,
-      based in <strong>Strasbourg, France</strong>.
+      based in <strong>Bas-Rhin, France</strong>.
     </p>
     <p>
       For any questions regarding the protection of your personal data:{" "}

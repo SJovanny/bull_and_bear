@@ -147,6 +147,7 @@ function DashboardContent() {
     }
 
     loadData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountScopedBase, period, router, selectedAccountId]);
 
   // Inject mock data when tutorial hasn't been completed and no real data

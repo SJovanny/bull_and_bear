@@ -33,6 +33,24 @@ type TradeChartProps = {
 
 type ThemeMode = "light" | "dark";
 
+const INTERVAL_OPTIONS = ["5m", "15m", "1h", "4h", "1D", "1M"] as const;
+
+const PROVIDER_INTERVAL_LABELS: Record<string, string> = {
+  "1min": "1m",
+  "5min": "5m",
+  "15min": "15m",
+  "30min": "30m",
+  "1h": "1h",
+  "4h": "4h",
+  "1day": "1D",
+  "1week": "1W",
+  "1month": "1M",
+};
+
+function intervalLabel(value: string) {
+  return value.endsWith("h") ? value.toUpperCase() : value;
+}
+
 type MarketDataResponse = {
   symbol: string;
   providerSymbol: string;
@@ -127,6 +145,8 @@ function intervalToMs(interval: string | null) {
       return 24 * 60 * 60_000;
     case "1W":
       return 7 * 24 * 60 * 60_000;
+    case "1M":
+      return 30 * 24 * 60 * 60_000;
     default:
       return 15 * 60_000;
   }
@@ -145,6 +165,10 @@ function bucketTradeTime(targetIso: string, interval: string | null) {
 
   if (interval === "1D") {
     return Date.UTC(target.getUTCFullYear(), target.getUTCMonth(), target.getUTCDate());
+  }
+
+  if (interval === "1M") {
+    return Date.UTC(target.getUTCFullYear(), target.getUTCMonth(), 1);
   }
 
   if (interval === "1W") {
@@ -339,13 +363,23 @@ function chartPalette(theme: ThemeMode) {
 export function TradeChart({
   symbol,
   assetClass,
-  interval,
+  interval: initialInterval,
   side,
   openedAt,
   closedAt,
   entryPrice,
   exitPrice,
 }: TradeChartProps) {
+  const [interval, setSelectedInterval] = useState<string>(initialInterval ?? "15m");
+  const [prevInitialInterval, setPrevInitialInterval] = useState(initialInterval);
+  if (prevInitialInterval !== initialInterval) {
+    setPrevInitialInterval(initialInterval);
+    setSelectedInterval(initialInterval ?? "15m");
+  }
+  const intervalOptions: string[] = (INTERVAL_OPTIONS as readonly string[]).includes(interval)
+    ? [...INTERVAL_OPTIONS]
+    : [interval, ...INTERVAL_OPTIONS];
+
   const containerRef = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
@@ -371,10 +405,7 @@ export function TradeChart({
   const error = state.requestKey === requestKey ? state.error : null;
   const loading = state.requestKey !== requestKey;
   const displayedInterval = useMemo(() => {
-    if (data?.interval === "1min") return "1m";
-    if (data?.interval === "1day") return "1D";
-    if (data?.interval === "1week") return "1W";
-    return interval ?? "15m";
+    return (data?.interval && PROVIDER_INTERVAL_LABELS[data.interval]) || interval;
   }, [data?.interval, interval]);
 
   useEffect(() => {
@@ -487,7 +518,7 @@ export function TradeChart({
 
     series.setData(bars);
 
-    const chartInterval = data?.interval === "1min" ? "1m" : data?.interval === "1day" ? "1D" : data?.interval === "1week" ? "1W" : interval;
+    const chartInterval = (data?.interval && PROVIDER_INTERVAL_LABELS[data.interval]) || interval;
     const entryTime = resolveTradeBarTime(bars, openedAt, chartInterval);
     const exitTime = closedAt ? resolveTradeBarTime(bars, closedAt, chartInterval) : undefined;
     const markers = [
@@ -591,7 +622,7 @@ export function TradeChart({
         <div>
           <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-secondary">Graphique du trade</p>
           <p className="mt-1 text-sm font-semibold text-primary">
-            {symbol} · {displayedInterval}
+            {symbol} · {intervalLabel(displayedInterval)}
           </p>
           {data?.providerSymbol ? (
             <p className="mt-1 text-xs text-secondary">Source: Twelve Data · {data.providerSymbol}</p>
@@ -599,6 +630,24 @@ export function TradeChart({
         </div>
 
         <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+          <div role="group" aria-label="Timeframe" className="inline-flex overflow-hidden rounded-lg border border-border">
+            {intervalOptions.map((option) => (
+              <button
+                key={option}
+                type="button"
+                onClick={() => setSelectedInterval(option)}
+                aria-pressed={option === interval}
+                className={`px-2.5 py-1 text-xs font-semibold transition-colors ${
+                  option === interval
+                    ? "bg-brand-500 text-white"
+                    : "bg-surface-1 text-secondary hover:text-primary"
+                }`}
+              >
+                {intervalLabel(option)}
+              </button>
+            ))}
+          </div>
+
           <span
             className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] ${
               side === "LONG" ? "bg-emerald-500/10 text-emerald-600" : "bg-rose-500/10 text-rose-600"

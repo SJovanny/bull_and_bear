@@ -6,20 +6,22 @@ export const metadata: Metadata = {
   title: "Terms of Service — Usage Conditions · Bull & Bear Trading Journal",
   description:
     "Terms of Service governing access to and use of the Bull & Bear trading journal. Read our subscription terms, acceptable use policy, and your rights as a user.",
-  alternates: { canonical: "https://bullandbear.pro/legal/terms" },
+  alternates: { canonical: "https://www.bullandbear.pro/legal/terms" },
   openGraph: {
+    type: "website",
+    siteName: "Bull & Bear",
     title: "Terms of Service — Usage Conditions · Bull & Bear",
     description:
       "Terms of Service governing access to and use of Bull & Bear. Read our subscription terms, acceptable use policy, and your rights as a user.",
-    url: "https://bullandbear.pro/legal/terms",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Bull & Bear - Terms of Service" }],
+    url: "https://www.bullandbear.pro/legal/terms",
+    images: [{ url: "https://www.bullandbear.pro/og-image.png", width: 1200, height: 630, alt: "Bull & Bear - Terms of Service" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Terms of Service — Bull & Bear",
     description:
       "Terms of Service for Bull & Bear trading journal. Subscription terms, acceptable use and your rights as a user.",
-    images: ["/og-image.png"],
+    images: ["https://www.bullandbear.pro/og-image.png"],
   },
 };
 
@@ -169,7 +171,7 @@ const FR = (
     <h2 id="governing">12. Droit applicable et juridiction</h2>
     <p>
       Les présentes CGU sont régies par le droit français. En cas de litige, les parties s&apos;efforceront de trouver
-      une solution amiable. À défaut, le litige sera porté devant les tribunaux compétents de <strong>Strasbourg</strong>,
+      une solution amiable. À défaut, le litige sera porté devant les tribunaux compétents de <strong>Bas-Rhin</strong>,
       sous réserve des règles impératives de protection des consommateurs applicables dans le pays de résidence de l&apos;utilisateur.
     </p>
 
@@ -185,9 +187,9 @@ const EN = (
   <>
     <h2 id="object">1. Purpose & Acceptance</h2>
     <p>
-      These Terms of Service (hereinafter "Terms") govern access to and use of the Bull &amp; Bear service,
+      These Terms of Service (hereinafter &ldquo;Terms&rdquo;) govern access to and use of the Bull &amp; Bear service,
       an online trading journal available at <strong>bullandbear.pro</strong>, published by{" "}
-      <strong>Bull &amp; Bear</strong> (hereinafter "the Publisher").
+      <strong>Bull &amp; Bear</strong> (hereinafter &ldquo;the Publisher&rdquo;).
     </p>
     <p>
       By creating an account or using the service, you unconditionally accept these Terms.
@@ -311,7 +313,7 @@ const EN = (
     <p>
       These Terms are governed by French law. In the event of a dispute, the parties will endeavour to reach an
       amicable resolution. Failing that, the dispute shall be brought before the competent courts of{" "}
-      <strong>Strasbourg</strong>, subject to mandatory consumer protection rules applicable in the user&apos;s country
+      <strong>Bas-Rhin</strong>, subject to mandatory consumer protection rules applicable in the user&apos;s country
       of residence.
     </p>
 

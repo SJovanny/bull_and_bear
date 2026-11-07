@@ -1,9 +1,10 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "@/lib/i18n/context";
 import { TutorialContextProvider } from "@/components/tutorial/tutorial-context";
 import { JsonLd } from "@/components/json-ld";
+import { PwaRegister } from "@/components/pwa/pwa-register";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-sans",
@@ -15,12 +16,22 @@ const jetBrainsMono = JetBrains_Mono({
   subsets: ["latin"],
 });
 
+export const viewport: Viewport = {
+  themeColor: "#3B82F6",
+};
+
 export const metadata: Metadata = {
+  applicationName: "Bull & Bear",
+  appleWebApp: {
+    capable: true,
+    title: "Bull & Bear",
+    statusBarStyle: "default",
+  },
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_APP_URL
     || (process.env.VERCEL_PROJECT_PRODUCTION_URL
       ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-      : "https://bullandbear.pro")
+      : "https://www.bullandbear.pro")
   ),
   title: {
     default: "Bull & Bear — Trading Journal & Analytics",
@@ -45,16 +56,15 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     type: "website",
-    locale: "fr_FR",
-    alternateLocale: "en_US",
-    url: "https://bullandbear.pro",
+    locale: "en_US",
+    url: "https://www.bullandbear.pro",
     siteName: "Bull & Bear",
     title: "Bull & Bear — Trading Journal & Analytics",
     description:
       "Track, analyze, and improve your trading performance. Import trades, view statistics, and keep a daily journal.",
     images: [
       {
-        url: "/og-image.png",
+        url: "https://www.bullandbear.pro/og-image.png",
         width: 1200,
         height: 630,
         alt: "Bull & Bear — Trading Journal",
@@ -68,7 +78,7 @@ export const metadata: Metadata = {
     title: "Bull & Bear — Trading Journal & Analytics",
     description:
       "Track, analyze, and improve your trading performance.",
-    images: ["/og-image.png"],
+    images: ["https://www.bullandbear.pro/og-image.png"],
   },
   robots: {
     index: true,
@@ -76,7 +86,7 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/favicon.ico", sizes: "48x48" },
+      { url: "/favicon.ico", sizes: "16x16 32x32 48x48", type: "image/x-icon" },
       { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
     ],
     shortcut: "/favicon.ico",
@@ -90,18 +100,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    // Default lang="fr" matches the server-side initial locale in LanguageProvider.
+    // lang="en" — English is the primary server-rendered language indexed by Google.
     // The LanguageProvider updates document.documentElement.lang on the client
-    // once the user's saved preference is loaded from localStorage.
-    <html lang="fr" suppressHydrationWarning>
-      <head>
+    // when a user switches to French via the toggle (stored in localStorage).
+    <html lang="en" suppressHydrationWarning>
+      <body
+        className={`${plusJakartaSans.variable} ${jetBrainsMono.variable} font-sans antialiased`}
+        suppressHydrationWarning
+      >
+        {/* Global JSON-LD structured data — placed in body, fully valid per Google guidelines */}
         <JsonLd
           data={{
             "@context": "https://schema.org",
             "@type": "Organization",
+            "@id": "https://www.bullandbear.pro/#organization",
             name: "Bull & Bear",
-            url: "https://bullandbear.pro",
-            logo: "https://bullandbear.pro/BB_logo.png",
+            url: "https://www.bullandbear.pro",
+            logo: "https://www.bullandbear.pro/BB_logo.png",
             sameAs: ["https://twitter.com/bnbearjournal"],
             contactPoint: {
               "@type": "ContactPoint",
@@ -114,8 +129,9 @@ export default function RootLayout({
           data={{
             "@context": "https://schema.org",
             "@type": "WebSite",
+            "@id": "https://www.bullandbear.pro/#website",
             name: "Bull & Bear",
-            url: "https://bullandbear.pro",
+            url: "https://www.bullandbear.pro",
             description:
               "Track, analyze, and improve your trading performance. Bull & Bear is the trading journal for serious traders.",
           }}
@@ -124,41 +140,17 @@ export default function RootLayout({
           data={{
             "@context": "https://schema.org",
             "@type": "SoftwareApplication",
+            "@id": "https://www.bullandbear.pro/#software",
             name: "Bull & Bear",
             applicationCategory: "FinanceApplication",
             operatingSystem: "Web",
-            url: "https://bullandbear.pro",
+            url: "https://www.bullandbear.pro",
             description:
               "A trading journal and analytics platform for day traders and forex traders. Track trades, review statistics, and keep a daily trading journal. Supports cTrader and MetaTrader imports.",
-            screenshot: "https://bullandbear.pro/dashboard_example.png",
-            offers: [
-              {
-                "@type": "Offer",
-                price: "0",
-                priceCurrency: "USD",
-                name: "Free Trial",
-                description: "14-day free trial with access to all features",
-              },
-              {
-                "@type": "Offer",
-                price: "2.99",
-                priceCurrency: "EUR",
-                name: "Monthly Plan",
-                billingIncrement: "P1M",
-              },
-            ],
-            aggregateRating: {
-              "@type": "AggregateRating",
-              ratingValue: "4.8",
-              reviewCount: "120",
-            },
+            screenshot: "https://www.bullandbear.pro/dashboard_example.png",
           }}
         />
-      </head>
-      <body
-        className={`${plusJakartaSans.variable} ${jetBrainsMono.variable} font-sans antialiased`}
-        suppressHydrationWarning
-      >
+        <PwaRegister />
         <LanguageProvider>
           <TutorialContextProvider>
             {children}
