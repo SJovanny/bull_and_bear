@@ -7,6 +7,7 @@ import { ThemeToggle } from "./theme-toggle";
 import { LanguageSwitcher } from "./language-switcher";
 import { LogoutButton } from "@/app/auth/logout-button";
 import { useTranslation } from "@/lib/i18n/context";
+import { useSubscription } from "@/hooks/use-subscription";
 import {
   IconDashboard,
   IconJournal,
@@ -23,6 +24,7 @@ export function Sidebar() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const sidebarLogoSrc = "/BB_logo.png";
   const { t } = useTranslation();
+  const { isAdmin } = useSubscription();
 
   const navItems = [
     { href: "/dashboard", label: t("nav.dashboard"), icon: IconDashboard },
@@ -33,6 +35,7 @@ export function Sidebar() {
     { href: "/profil", label: t("nav.profile"), icon: IconProfile },
     { href: "/comptes", label: t("nav.accounts"), icon: IconAccounts },
     { href: "/faq", label: t("nav.support"), icon: IconSupport },
+    ...(isAdmin ? [{ href: "/admin", label: "Admin", icon: IconProfile }] : []),
   ];
 
   return (

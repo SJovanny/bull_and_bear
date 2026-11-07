@@ -28,6 +28,8 @@ type SubscriptionState = {
   hasStripeAccount: boolean;
   /** Whether the user has ever had an actual subscription (completed checkout) */
   hasSubscription: boolean;
+  /** Whether the user is an admin */
+  isAdmin: boolean;
   /** Whether the user profile is complete (has name + country) */
   profileComplete: boolean;
   /** Redirect to Stripe Checkout */
@@ -107,6 +109,7 @@ export function useSubscription(): SubscriptionState {
     trialDaysLeft,
     hasStripeAccount,
     hasSubscription,
+    isAdmin,
     profileComplete,
     checkout,
     openPortal,
