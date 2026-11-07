@@ -13,6 +13,7 @@ export default function ResetPasswordPage() {
   const { t } = useTranslation();
 
   const [ready, setReady] = useState(false);
+  const [isInvite, setIsInvite] = useState(false);
   const [sessionError, setSessionError] = useState<string | null>(null);
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -26,7 +27,9 @@ export default function ResetPasswordPage() {
     // to know the session is ready for updateUser().
     const { data: { subscription } } = supabaseClient.auth.onAuthStateChange(
       (event) => {
-        if (event === "PASSWORD_RECOVERY") {
+        // PASSWORD_RECOVERY: reset link. SIGNED_IN: invitation link (the invited
+        // user is signed in by the link and must now choose a password).
+        if (event === "PASSWORD_RECOVERY" || event === "SIGNED_IN") {
           setReady(true);
         }
       },
@@ -36,6 +39,10 @@ export default function ResetPasswordPage() {
     // before the listener was registered)
     supabaseClient.auth.getSession().then(({ data: { session } }) => {
       if (session) {
+        const u = session.user;
+        const invitedAt = u.invited_at ? Date.parse(u.invited_at) : 0;
+        const recoveryAt = u.recovery_sent_at ? Date.parse(u.recovery_sent_at) : 0;
+        setIsInvite(invitedAt > 0 && recoveryAt < invitedAt);
         setReady(true);
       }
     });
@@ -111,10 +118,10 @@ export default function ResetPasswordPage() {
 
         <div className="relative z-10 w-full max-w-md rounded-2xl border border-white/10 bg-white/[0.04] p-6 shadow-[0_18px_50px_rgba(0,0,0,0.24)] backdrop-blur sm:p-8">
           <h1 className="mt-4 text-3xl font-semibold tracking-tight text-white">
-            {t("auth.resetPassword.title")}
+            {isInvite ? t("auth.resetPassword.inviteTitle") : t("auth.resetPassword.title")}
           </h1>
           <p className="mt-2 text-sm text-slate-300">
-            {t("auth.resetPassword.subtitle")}
+            {isInvite ? t("auth.resetPassword.inviteSubtitle") : t("auth.resetPassword.subtitle")}
           </p>
 
           {sessionError ? (
@@ -180,7 +187,9 @@ export default function ResetPasswordPage() {
                 disabled={isSubmitting}
                 className="mt-2 inline-flex h-11 w-full items-center justify-center rounded-xl bg-white px-4 text-sm font-semibold uppercase tracking-[0.16em] text-slate-950 transition hover:-translate-y-0.5 hover:bg-cyan-50 disabled:opacity-50 disabled:hover:translate-y-0"
               >
-                {isSubmitting ? t("auth.resetPassword.submitting") : t("auth.resetPassword.submit")}
+                {isSubmitting
+                  ? t(isInvite ? "auth.resetPassword.inviteSubmitting" : "auth.resetPassword.submitting")
+                  : t(isInvite ? "auth.resetPassword.inviteSubmit" : "auth.resetPassword.submit")}
               </button>
             </form>
           )}

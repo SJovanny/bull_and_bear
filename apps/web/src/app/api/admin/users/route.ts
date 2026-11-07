@@ -106,7 +106,7 @@ export const POST = withAdmin(async (request) => {
       ...(firstName ? { first_name: firstName } : {}),
       ...(lastName ? { last_name: lastName } : {}),
     },
-    ...(redirectBase ? { redirectTo: `${redirectBase}/auth/callback` } : {}),
+    ...(redirectBase ? { redirectTo: `${redirectBase}/auth/reset-password` } : {}),
   });
 
   if (inviteError || !data.user) {

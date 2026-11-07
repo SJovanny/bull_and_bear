@@ -153,6 +153,10 @@ export type TranslationKeys = {
   "auth.resetPassword.success": string;
   "auth.resetPassword.mismatch": string;
   "auth.resetPassword.linkExpired": string;
+  "auth.resetPassword.inviteTitle": string;
+  "auth.resetPassword.inviteSubtitle": string;
+  "auth.resetPassword.inviteSubmit": string;
+  "auth.resetPassword.inviteSubmitting": string;
   "auth.resetPassword.tryAgain": string;
   "auth.signup.title": string;
   "auth.signup.subtitle": string;
